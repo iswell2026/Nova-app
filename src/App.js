@@ -304,6 +304,23 @@ export default function App() {
   const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
   const [liveRates, setLiveRates] = useState({});
 
+  const refreshRates = async () => {
+    setRateRefreshing(true);
+    try {
+      const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation) with current 2025 interest rates for these lenders in Northern Virginia. Format: {"LenderName": rate_number}
+Lenders: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist, Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial Services, CoreVest Finance, LoanBidz, Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
+Return only valid JSON.`;
+      const res = await callClaude(prompt);
+      const text = res.content[0].text;
+      const json = JSON.parse(text.replace(/```json|```/g, '').trim());
+      setLiveRates(json);
+      setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
+    } catch(e) {
+      console.error(e);
+    }
+    setRateRefreshing(false);
+  };
+
   const D = deal;
   const lender = LENDERS[selectedLender];
   const renoRate = { Light: 30, Medium: 65, Heavy: 115 }[D.renoLevel];
@@ -901,24 +918,6 @@ export default function App() {
       </div>
     </>
   );
-}  const refreshRates = async () => {
-    setRateRefreshing(true);
-    try {
-      const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation) with current 2025 interest rates for these lenders in Northern Virginia. Format: {"LenderName": rate_number, ...}
-Lenders to check:
-Conventional: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist
-Flip: Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial, CoreVest Finance, LoanBidz
-DSCR/Rental: Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
-Return only the JSON with realistic current rates.`;
-      const res = await callClaude(prompt);
-      const text = res.content[0].text;
-      const json = JSON.parse(text.replace(/```json|```/g, '').trim());
-      setLiveRates(json);
-      setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
-    } catch(e) {
-      console.error(e);
-    }
-    setRateRefreshing(false);
-  };
+}
 
-  
+
