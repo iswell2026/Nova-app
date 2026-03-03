@@ -37,26 +37,41 @@ const MATERIALS = [
 ];
 
 const LENDERS = [
-  // 🏦 일반 (Conventional)
-  { category: 'conventional', name: 'Wells Fargo Investment Loan', rate: 7.125, ltv: 75, points: 0.5, speed: '30일', phone: '800-357-6675', website: 'wellsfargo.com', review: '미국 최대 은행. NoVA 지점 다수. 투자용 Conventional 전문. 장기 관계 투자자 우대 금리.', rating: '4.5★', badge: '최저금리' },
-  { category: 'conventional', name: 'Chase Investment Mortgage', rate: 7.25, ltv: 75, points: 0.5, speed: '30일', phone: '800-432-3117', website: 'chase.com', review: '전국 네트워크. Private Client 우대. Fairfax·Arlington 지점 편리. 온라인 관리 우수.', rating: '4.4★', badge: '' },
-  { category: 'conventional', name: 'Bank of America Investment', rate: 7.0, ltv: 75, points: 0.75, speed: '28일', phone: '800-432-1000', website: 'bankofamerica.com', review: 'Preferred Rewards 회원 금리 할인. NoVA 투자자 전담팀. 온라인 신청 간편.', rating: '4.3★', badge: '우대할인' },
-  { category: 'conventional', name: 'Navy Federal Credit Union', rate: 6.75, ltv: 80, points: 0.25, speed: '25일', phone: '888-842-6328', website: 'navyfederal.org', review: 'NoVA 군인/연방직원 최저금리. LTV 80% 가능. McLean HQ 인접. 회원 전용 특별 조건.', rating: '4.8★', badge: '최저금리' },
-  { category: 'conventional', name: 'PenFed Credit Union', rate: 6.85, ltv: 80, points: 0.25, speed: '28일', phone: '800-247-5626', website: 'penfed.org', review: 'NoVA 기반 연방 크레딧유니언. 투자용 LTV 80%. 금리 경쟁력 최상위. 회원 가입 쉬움.', rating: '4.7★', badge: '추천' },
+  // 🏦 일반 (Conventional) — 10개
+  { category: "conventional", name: "Navy Federal Credit Union", rate: 6.75, ltv: 80, points: 0.25, speed: "25일", phone: "888-842-6328", website: "navyfederal.org", review: "NoVA 군인·연방직원 최저금리. LTV 80% 가능. McLean HQ 인접. 회원 전용 특별 조건.", rating: "4.9★", badge: "최저금리" },
+  { category: "conventional", name: "PenFed Credit Union", rate: 6.85, ltv: 80, points: 0.25, speed: "28일", phone: "800-247-5626", website: "penfed.org", review: "NoVA 기반 연방 크레딧유니언. 투자용 LTV 80%. 금리 경쟁력 최상위. 회원 가입 쉬움.", rating: "4.8★", badge: "추천" },
+  { category: "conventional", name: "Capital One (McLean HQ)", rate: 7.0, ltv: 75, points: 0.5, speed: "25일", phone: "877-442-3764", website: "capitalone.com", review: "McLean VA 본사. NoVA 투자자 전담팀. Venture X 고객 우대. 온라인 관리 최고.", rating: "4.7★", badge: "NoVA본사" },
+  { category: "conventional", name: "Bank of America Investment", rate: 7.0, ltv: 75, points: 0.75, speed: "28일", phone: "800-432-1000", website: "bankofamerica.com", review: "Preferred Rewards 회원 금리 할인. NoVA 투자자 전담팀. 온라인 신청 간편.", rating: "4.5★", badge: "우대할인" },
+  { category: "conventional", name: "Wells Fargo Investment Loan", rate: 7.125, ltv: 75, points: 0.5, speed: "30일", phone: "800-357-6675", website: "wellsfargo.com", review: "미국 최대 은행. NoVA 지점 다수. 투자용 Conventional 전문. 장기 관계 투자자 우대.", rating: "4.4★", badge: "" },
+  { category: "conventional", name: "Chase Investment Mortgage", rate: 7.25, ltv: 75, points: 0.5, speed: "30일", phone: "800-432-3117", website: "chase.com", review: "전국 네트워크. Private Client 우대. Fairfax·Arlington 지점 편리. 온라인 관리 우수.", rating: "4.4★", badge: "" },
+  { category: "conventional", name: "Rocket Mortgage (VA #1)", rate: 7.125, ltv: 75, points: 0.5, speed: "21일", phone: "800-769-6133", website: "rocketmortgage.com", review: "VA 주 대출 실행 1위. 온라인 완전 디지털. 빠른 승인. 2024 HMDA $3.1B 실행.", rating: "4.6★", badge: "VA 1위" },
+  { category: "conventional", name: "CapCenter (Zero Closing)", rate: 6.99, ltv: 75, points: 0.0, speed: "30일", phone: "800-968-5844", website: "capcenter.com", review: "클로징 비용 제로 옵션. VA 기반 지역 전문. Realtor 수수료 절감 가능. 투자자 재이용 많음.", rating: "4.8★", badge: "클로징무료" },
+  { category: "conventional", name: "LendFriend Mortgage VA", rate: 7.0, ltv: 75, points: 0.25, speed: "30일", phone: "703-828-8700", website: "lendfriendmtg.com", review: "NoVA·Arlington 전문 브로커. 재이용 고객 수수료 면제. Non-QM도 가능. 투명한 프로세스.", rating: "4.9★", badge: "재이용무료" },
+  { category: "conventional", name: "Truist Investment Mortgage", rate: 7.25, ltv: 75, points: 0.5, speed: "30일", phone: "844-487-8478", website: "truist.com", review: "BB&T+SunTrust 합병. VA 전역 지점. 포트폴리오 투자자 전담 서비스. 다주택 우대.", rating: "4.3★", badge: "" },
 
-  // 📈 플립 (Fix & Flip / Hard Money)
-  { category: 'flip', name: 'Asset Based Lending (ABL)', rate: 10.99, ltv: 90, points: 1.5, speed: '10일', phone: '201-942-9089', website: 'ablfunding.com', review: '구매가 90% + 수리비 100% 커버. 24시간 승인. NoVA 전문. 10년 이상 운영. 투자자 재이용률 높음.', rating: '4.9★', badge: '최빠른' },
-  { category: 'flip', name: 'LendingOne Fix & Flip', rate: 10.5, ltv: 92, points: 1.5, speed: '7일', phone: '866-970-7889', website: 'lendingone.com', review: 'LTC 92.5% + 수리비 100%. Trustpilot 최고 평점. NoVA·VA 전문 팀. BRRRR 최적화.', rating: '4.9★', badge: '추천' },
-  { category: 'flip', name: 'Easy Street Capital', rate: 10.99, ltv: 90, points: 2.0, speed: '2일', phone: '512-641-9817', website: 'easystreetcap.com', review: '48시간 클로징 가능. 감정평가 불필요. 전국 1위 리뷰. Flip 전문 투자자 선호도 1위.', rating: '5.0★', badge: '최빠른' },
-  { category: 'flip', name: 'HouseMax Funding', rate: 10.75, ltv: 85, points: 1.5, speed: '7일', phone: '888-436-9723', website: 'housemaxfunding.com', review: 'Forbes 선정 2024·2025 Best Hard Money Lender. 2,700+ 플립 경험. NoVA DSCR 5.5%~. 셀프서브 플랫폼.', rating: '4.9★', badge: 'Forbes 선정' },
-  { category: 'flip', name: 'Kiavi (구 LendingHome)', rate: 10.25, ltv: 90, points: 1.0, speed: '10일', phone: '844-415-4663', website: 'kiavi.com', review: '기술 기반 대출. 온라인 신청 5분. 반복 투자자 금리 인하. 전국 0B+ 실행 실적.', rating: '4.8★', badge: '테크기반' },
+  // 📈 플립 (Fix & Flip) — 10개
+  { category: "flip", name: "Easy Street Capital", rate: 10.99, ltv: 90, points: 2.0, speed: "2일", phone: "512-641-9817", website: "easystreetcap.com", review: "48시간 클로징 가능. 감정평가 불필요. 전국 1위 리뷰. Flip 전문 투자자 선호도 1위.", rating: "5.0★", badge: "최빠른" },
+  { category: "flip", name: "Asset Based Lending (ABL)", rate: 10.99, ltv: 90, points: 1.5, speed: "10일", phone: "201-942-9089", website: "ablfunding.com", review: "구매가 90% + 수리비 100% 커버. 24시간 승인. NoVA 전문. 10년 이상 운영.", rating: "4.9★", badge: "추천" },
+  { category: "flip", name: "LendingOne Fix & Flip", rate: 10.5, ltv: 92, points: 1.5, speed: "7일", phone: "866-970-7889", website: "lendingone.com", review: "LTC 92.5% + 수리비 100%. Trustpilot 최고 평점. NoVA·VA 전문 팀. BRRRR 최적화.", rating: "4.9★", badge: "" },
+  { category: "flip", name: "HouseMax Funding", rate: 10.75, ltv: 85, points: 1.5, speed: "7일", phone: "888-436-9723", website: "housemaxfunding.com", review: "Forbes 선정 2024·2025 Best Hard Money Lender. 2,700+ 플립 경험. 셀프서브 플랫폼.", rating: "4.9★", badge: "Forbes선정" },
+  { category: "flip", name: "Kiavi (구 LendingHome)", rate: 10.25, ltv: 90, points: 1.0, speed: "10일", phone: "844-415-4663", website: "kiavi.com", review: "기술 기반 대출. 온라인 신청 5분. 반복 투자자 금리 인하. 전국 $20B+ 실행 실적.", rating: "4.8★", badge: "테크기반" },
+  { category: "flip", name: "RCN Capital", rate: 10.99, ltv: 90, points: 1.75, speed: "10일", phone: "860-432-5858", website: "rcncapital.com", review: "전국 투자자 네트워크. Broker 채널 강함. 다주택 경험자 우대. 빠른 재승인.", rating: "4.7★", badge: "" },
+  { category: "flip", name: "Groundfloor Finance", rate: 7.5, ltv: 80, points: 0.0, speed: "14일", phone: "404-850-9225", website: "groundfloor.com", review: "크라우드펀딩 기반 최저금리 플립론. 7.5%부터 시작. 소규모 투자자 접근 용이.", rating: "4.6★", badge: "최저금리" },
+  { category: "flip", name: "Civic Financial Services", rate: 10.5, ltv: 85, points: 1.5, speed: "10일", phone: "877-462-4842", website: "civicfs.com", review: "Non-QM 전문. 빠른 클로징. 경험 있는 플리퍼 우대 조건. 브로커 네트워크 강함.", rating: "4.6★", badge: "" },
+  { category: "flip", name: "CoreVest Finance", rate: 9.99, ltv: 85, points: 1.5, speed: "14일", phone: "844-223-2231", website: "corevestfinance.com", review: "대규모 포트폴리오 플립 전문. 다건 동시 대출 가능. 기관 투자자 수준 조건.", rating: "4.5★", badge: "다건가능" },
+  { category: "flip", name: "LoanBidz (BRRRR)", rate: 10.5, ltv: 85, points: 1.5, speed: "10일", phone: "888-562-4395", website: "loanbidz.com", review: "BRRRR 전문 플랫폼. $700M+ 실행. 최적 옵션 자동 매칭. $100K~$3M 범위.", rating: "4.6★", badge: "BRRRR" },
 
-  // 🏠 리모델링/임대 (DSCR / Rental)
-  { category: 'rental', name: 'Griffin Funding DSCR', rate: 7.5, ltv: 80, points: 0.5, speed: '21일', phone: '855-394-8288', website: 'griffinfunding.com', review: 'DSCR 1.0 미만도 승인 가능. W-2 불필요. LLC 대출 가능. VA 투자자 선호 1위.', rating: '4.9★', badge: '유연한조건' },
-  { category: 'rental', name: 'Lima One Capital', rate: 7.75, ltv: 80, points: 1.0, speed: '14일', phone: '800-390-4212', website: 'limaone.com', review: 'DSCR + Flip + 멀티패밀리 원스톱. 포트폴리오 확장 투자자 전문. DSCR 1.0 기준.', rating: '4.7★', badge: '포트폴리오' },
-  { category: 'rental', name: 'Visio Lending DSCR', rate: 7.625, ltv: 80, points: 0.75, speed: '21일', phone: '855-846-6765', website: 'visiolending.com', review: '장기 임대 전문. 단기렌탈(Airbnb) 가능. 개인소득 검증 없음. 30년 고정 안정적.', rating: '4.7★', badge: 'STR가능' },
-  { category: 'rental', name: 'Angel Oak DSCR', rate: 7.5, ltv: 80, points: 0.75, speed: '21일', phone: '877-926-3535', website: 'angeloakmortgage.com', review: '비전통 소득 투자자 특화. DSCR 0.75도 가능. NoVA 지역 경험 풍부. LLC 명의 대출.', rating: '4.6★', badge: '조건유연' },
-  { category: 'rental', name: 'Rehab Financial Group (RFG)', rate: 8.0, ltv: 80, points: 1.0, speed: '14일', phone: '800-571-0887', website: 'rehabfinancial.com', review: '00M+ 실행. DSCR 30년 고정. BRRRR 전략 최적. VA 전역 서비스. 리모델링 후 임대 전환 전문.', rating: '4.6★', badge: 'BRRRR전문' },
+  // 🏠 임대 (DSCR/Rental) — 10개
+  { category: "rental", name: "Griffin Funding DSCR", rate: 7.5, ltv: 80, points: 0.5, speed: "21일", phone: "855-394-8288", website: "griffinfunding.com", review: "DSCR 1.0 미만도 승인 가능. W-2 불필요. LLC 대출 가능. VA 투자자 선호 1위.", rating: "4.9★", badge: "조건유연" },
+  { category: "rental", name: "Lima One Capital", rate: 7.75, ltv: 80, points: 1.0, speed: "14일", phone: "800-390-4212", website: "limaone.com", review: "DSCR + Flip + 멀티패밀리 원스톱. 포트폴리오 확장 투자자 전문. DSCR 1.0 기준.", rating: "4.7★", badge: "포트폴리오" },
+  { category: "rental", name: "Visio Lending DSCR", rate: 7.625, ltv: 80, points: 0.75, speed: "21일", phone: "855-846-6765", website: "visiolending.com", review: "장기 임대 전문. 단기렌탈(Airbnb) 가능. 개인소득 검증 없음. 30년 고정 안정적.", rating: "4.7★", badge: "STR가능" },
+  { category: "rental", name: "Angel Oak DSCR", rate: 7.5, ltv: 80, points: 0.75, speed: "21일", phone: "877-926-3535", website: "angeloakmortgage.com", review: "비전통 소득 투자자 특화. DSCR 0.75도 가능. NoVA 지역 경험 풍부. LLC 명의 대출.", rating: "4.6★", badge: "" },
+  { category: "rental", name: "Rehab Financial Group (RFG)", rate: 8.0, ltv: 80, points: 1.0, speed: "14일", phone: "800-571-0887", website: "rehabfinancial.com", review: "$300M+ 실행. DSCR 30년 고정. BRRRR 전략 최적. VA 전역 서비스.", rating: "4.6★", badge: "BRRRR전문" },
+  { category: "rental", name: "Deephaven Mortgage", rate: 7.75, ltv: 80, points: 0.75, speed: "21일", phone: "800-388-6135", website: "deephavenmortgage.com", review: "Non-QM 전문 기관. 은행 거래내역 소득 증명 가능. LLC·Trust 명의 대출. 대형 포트폴리오.", rating: "4.5★", badge: "" },
+  { category: "rental", name: "New Silver DSCR", rate: 7.99, ltv: 75, points: 1.0, speed: "5일", phone: "860-435-0025", website: "newsilver.com", review: "AI 기반 즉시 승인. 5일 클로징. 온라인 완전 자동화. 소규모 임대 투자자 친화적.", rating: "4.7★", badge: "AI승인" },
+  { category: "rental", name: "HouseMax Funding DSCR", rate: 5.75, ltv: 80, points: 0.5, speed: "14일", phone: "888-436-9723", website: "housemaxfunding.com", review: "DSCR 5.75%~ 최저금리. Forbes 선정. NoVA 수요 높음. 단기렌탈 포함.", rating: "4.9★", badge: "최저5.75%" },
+  { category: "rental", name: "Kiavi DSCR Rental", rate: 7.5, ltv: 80, points: 0.75, speed: "14일", phone: "844-415-4663", website: "kiavi.com", review: "Flip 후 임대 전환 원스톱. $20B+ 실행. 반복 투자자 자동 우대. 30년 고정.", rating: "4.8★", badge: "플립→임대" },
+  { category: "rental", name: "CapSource Lending", rate: 7.875, ltv: 75, points: 1.0, speed: "21일", phone: "703-349-2200", website: "capsourcellc.com", review: "NoVA 기반 지역 투자 전문. 임대+플립+신축 포트폴리오. 지역 시장 이해도 최상.", rating: "4.6★", badge: "NoVA전문" },
 ];
 
 const CONTRACTORS = [
@@ -285,6 +300,9 @@ export default function App() {
   const [matFilter, setMatFilter] = useState("전체");
   const [gcCat, setGcCat] = useState("luxury");
   const [finCat, setFinCat] = useState("conventional");
+  const [rateRefreshing, setRateRefreshing] = useState(false);
+  const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
+  const [liveRates, setLiveRates] = useState({});
 
   const D = deal;
   const lender = LENDERS[selectedLender];
@@ -610,6 +628,16 @@ export default function App() {
                   ))}
                 </div>
 
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, color: "var(--dim)" }}>
+                    {rateUpdatedAt ? "🕐 업데이트: " + rateUpdatedAt : "실시간 금리 조회 가능"}
+                  </div>
+                  <button onClick={refreshRates} disabled={rateRefreshing}
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1px solid var(--gold)", background: "var(--gold)22", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
+                    {rateRefreshing ? <><div className="spinner"/>조회 중...</> : "🔄 금리 실시간 조회"}
+                  </button>
+                </div>
+
                 <div className="card" style={{ marginBottom: 16 }}>
                   <div className="card-header"><span className="card-title">LTV 설정</span></div>
                   <div className="card-body">
@@ -637,7 +665,10 @@ export default function App() {
                           <div style={{ fontSize: 10, color: "var(--dim)", marginTop: 2 }}>📞 {l.phone}</div>
                         </div>
                         <div style={{ textAlign: "right" }}>
-                          <div style={{ fontFamily: "DM Mono", fontSize: 20, color: cc, fontWeight: 600 }}>{l.rate}%</div>
+                          <div style={{ fontFamily: "DM Mono", fontSize: 20, color: cc, fontWeight: 600 }}>
+                            {liveRates[l.name] ? liveRates[l.name] : l.rate}%
+                            {liveRates[l.name] && <span style={{ fontSize: 9, color: "var(--green)", marginLeft: 4 }}>LIVE</span>}
+                          </div>
                           <div style={{ fontSize: 9, color: "var(--dim)" }}>금리 · LTV {l.ltv}%</div>
                         </div>
                       </div>
@@ -870,4 +901,24 @@ export default function App() {
       </div>
     </>
   );
-}
+}  const refreshRates = async () => {
+    setRateRefreshing(true);
+    try {
+      const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation) with current 2025 interest rates for these lenders in Northern Virginia. Format: {"LenderName": rate_number, ...}
+Lenders to check:
+Conventional: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist
+Flip: Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial, CoreVest Finance, LoanBidz
+DSCR/Rental: Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
+Return only the JSON with realistic current rates.`;
+      const res = await callClaude(prompt);
+      const text = res.content[0].text;
+      const json = JSON.parse(text.replace(/```json|```/g, '').trim());
+      setLiveRates(json);
+      setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
+    } catch(e) {
+      console.error(e);
+    }
+    setRateRefreshing(false);
+  };
+
+  
