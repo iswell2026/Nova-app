@@ -109,14 +109,14 @@ const CONTRACTORS = [
 ];
 
 const TABS = [
-  { id: "deal", label: "매물 입력", emoji: "🏠" },
-  { id: "flip", label: "Flip 분석", emoji: "📈" },
-  { id: "hold", label: "Hold 분석", emoji: "🏦" },
-  { id: "finance", label: "금융 비교", emoji: "💰" },
-  { id: "contractor", label: "건설사", emoji: "🔨" },
-  { id: "materials", label: "자재 단가", emoji: "🪚" },
-  { id: "construction", label: "공사 현황", emoji: "📋" },
-  { id: "risk", label: "리스크", emoji: "⚠️" },
+  { id: "deal",         labelKo: "매물 입력",   labelEn: "Deal Intake",     emoji: "🏠" },
+  { id: "flip",         labelKo: "Flip 분석",   labelEn: "Flip Analysis",   emoji: "📈" },
+  { id: "hold",         labelKo: "Hold 분석",   labelEn: "Hold Analysis",   emoji: "🏦" },
+  { id: "finance",      labelKo: "금융 비교",   labelEn: "Finance",         emoji: "💰" },
+  { id: "contractor",   labelKo: "건설사",      labelEn: "Contractors",     emoji: "🔨" },
+  { id: "materials",    labelKo: "자재 단가",   labelEn: "Materials",       emoji: "🪚" },
+  { id: "construction", labelKo: "공사 현황",   labelEn: "Construction",    emoji: "📋" },
+  { id: "risk",         labelKo: "리스크",      labelEn: "Risk",            emoji: "⚠️" },
 ];
 
 const fmt = (n) => "$" + Math.round(n).toLocaleString();
@@ -302,6 +302,8 @@ select.input{cursor:pointer;}
 // ── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab] = useState("deal");
+  const [lang, setLang] = useState("ko"); // "ko" | "en"
+  const t = (ko, en) => lang === "en" ? en : ko;
 
   // Deal inputs
   const [deal, setDeal] = useState({
@@ -440,9 +442,14 @@ Return only valid JSON.`;
           {/* TOPBAR */}
           <div className="topbar">
             <div className="topbar-title">
-              {TABS.find(t => t.id === tab)?.emoji} {TABS.find(t => t.id === tab)?.label}
+              {TABS.find(t => t.id === tab)?.emoji} {lang === 'en' ? TABS.find(t => t.id === tab)?.labelEn : TABS.find(t => t.id === tab)?.labelKo}
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")}
+                style={{ padding: "6px 14px", borderRadius: 100, border: "1px solid var(--border)", background: "var(--bg3)", color: "var(--text)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif", letterSpacing: "0.05em" }}>
+                {lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}
+              </button>
             <div className="topbar-stats">
               <div className="tstat">
                 <div className="tstat-label">Verdict</div>
