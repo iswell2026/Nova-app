@@ -150,7 +150,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
 
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
 .topbar-title{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;}
 .topbar-stats{display:flex;gap:24px;}
 .tstat{text-align:right;}
@@ -168,7 +168,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
 
 /* CARDS */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
-.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .card-title{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);opacity:0.7;}
 .card-body{padding:20px;}
 
