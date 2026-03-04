@@ -283,8 +283,8 @@ select.input{cursor:pointer;}
   .tbl{font-size:10px;}
   .tbl th, .tbl td{padding:6px 8px;white-space:nowrap;}
   /* Task row - stack on mobile */
-  .task-row{grid-template-columns:1fr 1fr;gap:6px;}
-  .task-row > *:nth-child(n+5){grid-column:span 1;}
+  .task-row{grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px 0;}
+  .task-row > *:first-child{grid-column:1/-1;}
   /* Hold grid */
   .grid2{grid-template-columns:1fr!important;}
 }
