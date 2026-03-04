@@ -10,7 +10,7 @@ const callClaude = async (prompt) => {
     });
     const data = await res.json();
     return data.content?.[0]?.text || {lang === "en" ? "Analysis Failed" : "분석 실패"};
-  } catch { return {lang === "en" ? "Connection Error" : "연결 오류"}; }
+  } catch { return "Connection Error"; }
 };
 
 // ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
