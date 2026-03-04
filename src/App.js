@@ -3,14 +3,10 @@ import { useState } from "react";
 // ── Claude API ──────────────────────────────────────────────────────────────
 const callClaude = async (prompt) => {
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch("/api/claude", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }]
-      })
+      body: JSON.stringify({ prompt })
     });
     const data = await res.json();
     return data.content?.[0]?.text || "분석 실패";
@@ -310,8 +306,7 @@ export default function App() {
       const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation) with current 2025 interest rates for these lenders in Northern Virginia. Format: {"LenderName": rate_number}
 Lenders: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist, Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial Services, CoreVest Finance, LoanBidz, Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
 Return only valid JSON.`;
-      const res = await callClaude(prompt);
-      const text = res.content[0].text;
+      const text = await callClaude(prompt);
       const json = JSON.parse(text.replace(/```json|```/g, '').trim());
       setLiveRates(json);
       setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
