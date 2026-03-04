@@ -264,6 +264,9 @@ select.input{cursor:pointer;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .space{height:16px;}
 /* MOBILE RESPONSIVE */
+@media (min-width: 769px) {
+  .lang-btn { display: none !important; }
+}
 @media (max-width: 768px) {
   .app{flex-direction:column;height:100dvh;}
   .sidebar{width:100%;height:60px;flex-direction:row;padding:0 4px;gap:0;overflow-x:auto;border-right:none;border-top:1px solid var(--border);border-bottom:none;flex-shrink:0;justify-content:space-around;order:3;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);z-index:100;}
@@ -434,6 +437,13 @@ Return only valid JSON.`;
               {lang === "en" ? t.labelEn : t.labelKo}
             </button>
           ))}
+          {/* Lang toggle - mobile only */}
+          <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")}
+            className="lang-btn"
+            style={{ flexDirection: "column", gap: 1, padding: "6px 4px", fontSize: 8, minWidth: 44, alignItems: "center", background: "none", border: "none", color: "var(--dim)", cursor: "pointer", fontFamily: "Sora,sans-serif", fontWeight: 800 }}>
+            <span style={{ fontSize: 16 }}>{lang === "ko" ? "🇺🇸" : "🇰🇷"}</span>
+            {lang === "ko" ? "EN" : "KO"}
+          </button>
         </aside>
 
         {/* MAIN */}
