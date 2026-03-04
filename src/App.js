@@ -822,7 +822,8 @@ Return only valid JSON.`;
                             </div>
                             <a href={"https://" + c.website} target="_blank" rel="noreferrer"
                               style={{ fontSize: 9, color: "var(--blue)", textDecoration: "none", background: "var(--blue2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>웹사이트 →</a>
-                            <a href={`mailto:?subject=공사 견적 요청 - ISWELL PROPERTIES&body=안녕하세요 ${c.name} 담당자님,%0D%0A%0D%0AISWELL PROPERTIES 입니다.%0D%0A매입 예정 매물 공사 견적 요청드립니다.%0D%0A%0D%0A• 매물 주소: ${deal.address || "주소 미입력"}%0D%0A• 매입가: $${deal.purchasePrice.toLocaleString()}%0D%0A• 건물 면적: ${deal.sqft} sqft%0D%0A• 건축년도: ${deal.yearBuilt}년%0D%0A• 건설사: ${c.name}%0D%0A• 전화: ${c.phone}%0D%0A• 면허: ${c.license}%0D%0A%0D%0A견적서 부탁드립니다. 감사합니다.`}
+                            <a href={`mailto:?subject=Construction Estimate Request - ISWELL PROPERTIES&body=Hello ${c.name},%0D%0A%0D%0AMy name is David Kim with ISWELL PROPERTIES.
+Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimate for a property we are acquiring.%0D%0A%0D%0A• Property Address: ${deal.address || "TBD"}%0D%0A• Purchase Price: $${deal.purchasePrice.toLocaleString()}%0D%0A• Building Size: ${deal.sqft} sqft%0D%0A• Year Built: ${deal.yearBuilt}%0D%0A• Contractor: ${c.name}%0D%0A• Phone: ${c.phone}%0D%0A• License: ${c.license}%0D%0A%0D%0APlease provide us with your estimate at your earliest convenience.%0D%0A%0D%0ABest regards,%0D%0ADavid Kim%0D%0AISWELL PROPERTIES%0D%0Aiswell.properties@gmail.com`}
                               style={{ fontSize: 9, color: "var(--green)", textDecoration: "none", background: "var(--green2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>📧 견적요청</a>
                           </div>
                         </div>
