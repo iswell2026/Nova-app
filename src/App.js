@@ -278,7 +278,7 @@ export default function App() {
   });
 
   // Finance
-  const [selectedLender, setSelectedLender] = useState(0);
+  const [selectedLender] = useState(0);
   const [ltv, setLtv] = useState(75);
 
   // Construction
