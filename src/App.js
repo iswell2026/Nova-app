@@ -451,13 +451,13 @@ Return only valid JSON.`;
 
           {/* TOPBAR */}
           <div className="topbar">
-            <div className="topbar-title">{lang === "ko" ? <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{ marginLeft: 12, padding: "4px 12px", borderRadius: 100, border: "1px solid var(--border)", background: "var(--gold2)", color: "var(--gold)", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>🇺🇸 EN</button> : <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{ marginLeft: 12, padding: "4px 12px", borderRadius: 100, border: "1px solid var(--border)", background: "var(--gold2)", color: "var(--gold)", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>🇰🇷 KO</button>}
+            <div className="topbar-title">{lang === "ko" ? <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{ marginLeft: 12, padding: "4px 12px", borderRadius: 100, border: "1px solid var(--border)", background: "#E2B84B", color: "#000000", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>🇺🇸 EN</button> : <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{ marginLeft: 12, padding: "4px 12px", borderRadius: 100, border: "1px solid var(--border)", background: "#E2B84B", color: "#000000", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>🇰🇷 KO</button>}
               {TABS.find(t => t.id === tab)?.emoji} {lang === 'en' ? TABS.find(x => x.id === tab)?.labelEn : TABS.find(x => x.id === tab)?.labelKo}
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")}
-                style={{ padding: "6px 14px", borderRadius: 100, border: "1px solid var(--border)", background: "var(--gold2)", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif", letterSpacing: "0.05em" }}>
+                style={{ padding: "6px 14px", borderRadius: 100, border: "1px solid var(--border)", background: "#E2B84B", color: "#000000", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif", letterSpacing: "0.05em" }}>
                 {lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}
               </button>
               <div className="topbar-stats">
