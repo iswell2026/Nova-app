@@ -431,7 +431,7 @@ Return only valid JSON.`;
           {TABS.map(t => (
             <button key={t.id} className={`nav-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
               <span className="nav-emoji">{t.emoji}</span>
-              {t.label}
+              {lang === "en" ? t.labelEn : t.labelKo}
             </button>
           ))}
         </aside>
@@ -442,7 +442,7 @@ Return only valid JSON.`;
           {/* TOPBAR */}
           <div className="topbar">
             <div className="topbar-title">
-              {TABS.find(t => t.id === tab)?.emoji} {lang === 'en' ? TABS.find(t => t.id === tab)?.labelEn : TABS.find(t => t.id === tab)?.labelKo}
+              {TABS.find(t => t.id === tab)?.emoji} {lang === 'en' ? TABS.find(x => x.id === tab)?.labelEn : TABS.find(x => x.id === tab)?.labelKo}
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
