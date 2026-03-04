@@ -307,7 +307,11 @@ export default function App() {
 Lenders: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist, Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial Services, CoreVest Finance, LoanBidz, Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
 Return only valid JSON.`;
       const text = await callClaude(prompt);
-      const json = JSON.parse(text.replace(/```json|```/g, '').trim());
+      if (!text || text === "분석 실패" || text === "연결 오류") throw new Error("API 오류");
+      const clean = text.replace(/```json|```/g, '').trim();
+      const jsonStart = clean.indexOf('{');
+      const jsonEnd = clean.lastIndexOf('}') + 1;
+      const json = JSON.parse(clean.slice(jsonStart, jsonEnd));
       setLiveRates(json);
       setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
     } catch(e) {
