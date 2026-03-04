@@ -15,21 +15,21 @@ const callClaude = async (prompt) => {
 
 // ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
 const MATERIALS = [
-  { category: {lang === "en" ? "Flooring" : "바닥재"}, item: "Hardwood (Oak)", unit: "sqft", light: 4.5, medium: 7, heavy: 12 },
-  { category: {lang === "en" ? "Flooring" : "바닥재"}, item: "LVP (Luxury Vinyl)", unit: "sqft", light: 2.5, medium: 4, heavy: 6 },
-  { category: {lang === "en" ? "Flooring" : "바닥재"}, item: "Tile (Ceramic)", unit: "sqft", light: 3, medium: 5.5, heavy: 9 },
-  { category: {lang === "en" ? "Kitchen" : "주방"}, item: "Cabinets (Stock)", unit: "linear ft", light: 150, medium: 280, heavy: 500 },
-  { category: {lang === "en" ? "Kitchen" : "주방"}, item: "Countertop (Granite)", unit: "sqft", light: 35, medium: 55, heavy: 90 },
-  { category: {lang === "en" ? "Kitchen" : "주방"}, item: "Appliances Package", unit: "set", light: 2500, medium: 4500, heavy: 8000 },
-  { category: {lang === "en" ? "Bathroom" : "욕실"}, item: "Vanity + Fixtures", unit: "set", light: 800, medium: 1800, heavy: 4000 },
-  { category: {lang === "en" ? "Bathroom" : "욕실"}, item: "Tile (Shower/Floor)", unit: "sqft", light: 8, medium: 14, heavy: 25 },
-  { category: {lang === "en" ? "Paint" : "페인트"}, item: "Interior Paint", unit: "sqft", light: 1.2, medium: 2, heavy: 3.5 },
-  { category: {lang === "en" ? "Roofing" : "지붕"}, item: "Asphalt Shingles", unit: "sqft", light: 3.5, medium: 5.5, heavy: 9 },
+  { category: "바닥재", item: "Hardwood (Oak)", unit: "sqft", light: 4.5, medium: 7, heavy: 12 },
+  { category: "바닥재", item: "LVP (Luxury Vinyl)", unit: "sqft", light: 2.5, medium: 4, heavy: 6 },
+  { category: "바닥재", item: "Tile (Ceramic)", unit: "sqft", light: 3, medium: 5.5, heavy: 9 },
+  { category: "주방", item: "Cabinets (Stock)", unit: "linear ft", light: 150, medium: 280, heavy: 500 },
+  { category: "주방", item: "Countertop (Granite)", unit: "sqft", light: 35, medium: 55, heavy: 90 },
+  { category: "주방", item: "Appliances Package", unit: "set", light: 2500, medium: 4500, heavy: 8000 },
+  { category: "욕실", item: "Vanity + Fixtures", unit: "set", light: 800, medium: 1800, heavy: 4000 },
+  { category: "욕실", item: "Tile (Shower/Floor)", unit: "sqft", light: 8, medium: 14, heavy: 25 },
+  { category: "페인트", item: "Interior Paint", unit: "sqft", light: 1.2, medium: 2, heavy: 3.5 },
+  { category: "지붕", item: "Asphalt Shingles", unit: "sqft", light: 3.5, medium: 5.5, heavy: 9 },
   { category: "HVAC", item: "AC + Furnace", unit: "unit", light: 5000, medium: 8500, heavy: 14000 },
-  { category: {lang === "en" ? "Electrical" : "전기"}, item: "Panel Upgrade", unit: "unit", light: 1800, medium: 3200, heavy: 5500 },
-  { category: {lang === "en" ? "Plumbing" : "배관"}, item: "Plumbing (partial)", unit: "unit", light: 2000, medium: 5000, heavy: 12000 },
-  { category: {lang === "en" ? "Windows" : "창문"}, item: "Window (Double Pane)", unit: "unit", light: 350, medium: 600, heavy: 1200 },
-  { category: {lang === "en" ? "Doors" : "문"}, item: "Interior Door", unit: "unit", light: 180, medium: 320, heavy: 600 },
+  { category: "전기", item: "Panel Upgrade", unit: "unit", light: 1800, medium: 3200, heavy: 5500 },
+  { category: "배관", item: "Plumbing (partial)", unit: "unit", light: 2000, medium: 5000, heavy: 12000 },
+  { category: "창문", item: "Window (Double Pane)", unit: "unit", light: 350, medium: 600, heavy: 1200 },
+  { category: "문", item: "Interior Door", unit: "unit", light: 180, medium: 320, heavy: 600 },
 ];
 
 const LENDERS = [
