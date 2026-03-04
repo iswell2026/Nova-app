@@ -407,6 +407,22 @@ Return only valid JSON.`;
         {/* SIDEBAR */}
         <aside className="sidebar">
           <div className="logo">
+            <svg viewBox="0 0 180 44" style={{ width: "100%", marginBottom: 6 }} xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="dg" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#FFE08A" stopOpacity="0.4"/>
+                  <stop offset="100%" stopColor="#E2B84B" stopOpacity="0"/>
+                </radialGradient>
+              </defs>
+              <g transform="translate(2, 4) scale(0.38)">
+                <path d="M25 35 L40 75 L50 55 L60 75 L75 35" fill="none" stroke="#E2B84B" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="85" cy="20" r="18" fill="url(#dg)"/>
+                <circle cx="85" cy="20" r="6.5" fill="#FFE08A"/>
+                <circle cx="83" cy="18" r="2" fill="white" opacity="0.7"/>
+              </g>
+              <text x="44" y="20" fontFamily="Georgia,Serif" fontSize="15" fontWeight="bold" letterSpacing="-0.5" fill="#E8EAF0">ISWELL</text>
+              <text x="44" y="32" fontFamily="Arial,sans-serif" fontSize="6" fontWeight="900" letterSpacing="2.5" fill="#E2B84B">PROPERTIES</text>
+            </svg>
             <div className="logo-title">NOVA</div>
             <div className="logo-sub">NoVA Acquisition System</div>
           </div>
