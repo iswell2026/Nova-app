@@ -9,7 +9,7 @@ const callClaude = async (prompt) => {
       body: JSON.stringify({ prompt })
     });
     const data = await res.json();
-    return data.content?.[0]?.text || {lang === "en" ? "Analysis Failed" : "분석 실패"};
+    return data.content?.[0]?.text || "Analysis Failed";
   } catch { return "Connection Error"; }
 };
 
