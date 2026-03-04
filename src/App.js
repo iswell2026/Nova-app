@@ -450,7 +450,7 @@ Return only valid JSON.`;
                 style={{ padding: "6px 14px", borderRadius: 100, border: "1px solid var(--border)", background: "var(--bg3)", color: "var(--text)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif", letterSpacing: "0.05em" }}>
                 {lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}
               </button>
-            <div className="topbar-stats">
+              <div className="topbar-stats">
               <div className="tstat">
                 <div className="tstat-label">Verdict</div>
                 <div className="tstat-val" style={{ color: verdictColor, fontSize: 18 }}>{verdict}</div>
