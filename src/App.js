@@ -141,7 +141,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
 /* SIDEBAR */
 .sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 12px;gap:4px;flex-shrink:0;}
 .logo{padding:12px 8px 20px;border-bottom:1px solid var(--border);margin-bottom:8px;}
-.logo-title{font-size:18px;font-weight:800;color:var(--gold);letter-spacing:-0.02em;}
+.logo-title{font-size:18px;font-weight:800;color:#FFFFFF;letter-spacing:-0.02em;}
 .logo-sub{font-size:9px;font-weight:500;color:var(--dim);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px;}
 .nav-btn{width:100%;text-align:left;background:none;border:none;color:var(--dim);padding:9px 12px;border-radius:10px;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;transition:all 0.15s;}
 .nav-btn:hover{background:var(--bg3);color:var(--text);}
@@ -420,7 +420,7 @@ Return only valid JSON.`;
                 <circle cx="85" cy="20" r="6.5" fill="#FFE08A"/>
                 <circle cx="83" cy="18" r="2" fill="white" opacity="0.7"/>
               </g>
-              <text x="44" y="20" fontFamily="Georgia,Serif" fontSize="15" fontWeight="bold" letterSpacing="-0.5" fill="#E8EAF0">ISWELL</text>
+              <text x="44" y="20" fontFamily="Georgia,Serif" fontSize="15" fontWeight="bold" letterSpacing="-0.5" fill="#FFFFFF">ISWELL</text>
               <text x="44" y="32" fontFamily="Arial,sans-serif" fontSize="6" fontWeight="900" letterSpacing="2.5" fill="#E2B84B">PROPERTIES</text>
             </svg>
             <div className="logo-title">NOVA</div>
