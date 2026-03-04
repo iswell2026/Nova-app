@@ -263,6 +263,23 @@ select.input{cursor:pointer;}
 .section-title{font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);opacity:0.6;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .space{height:16px;}
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .app{flex-direction:column;height:100dvh;}
+  .sidebar{width:100%;height:auto;flex-direction:row;padding:8px 8px;gap:2px;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);flex-shrink:0;justify-content:space-around;}
+  .logo{display:none;}
+  .nav-btn{flex-direction:column;gap:2px;padding:6px 6px;font-size:9px;min-width:48px;align-items:center;text-align:center;white-space:nowrap;border-radius:8px;}
+  .nav-emoji{font-size:16px;width:auto;}
+  .main{flex:1;overflow:hidden;}
+  .topbar{padding:10px 14px;}
+  .topbar-title{font-size:14px;}
+  .content{padding:10px;}
+  .card{padding:12px;}
+}
+@media (max-width: 480px) {
+  .nav-btn{min-width:40px;font-size:8px;padding:4px 3px;}
+  .content{padding:8px;}
+}
 `;
 
 // ── MAIN APP ─────────────────────────────────────────────────────────────────
