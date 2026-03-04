@@ -278,12 +278,24 @@ select.input{cursor:pointer;}
   .grid-2{grid-template-columns:1fr!important;}
   input[type=range]{width:100%;}
 }
+@media (max-width: 768px) {
+  /* Materials table - horizontal scroll */
+  .tbl{font-size:10px;}
+  .tbl th, .tbl td{padding:6px 8px;white-space:nowrap;}
+  /* Task row - stack on mobile */
+  .task-row{grid-template-columns:1fr 1fr;gap:6px;}
+  .task-row > *:nth-child(n+5){grid-column:span 1;}
+  /* Hold grid */
+  .grid2{grid-template-columns:1fr!important;}
+}
 @media (max-width: 480px) {
   .nav-btn{min-width:36px;font-size:7px;padding:4px 2px;}
   .content{padding:8px;}
   .grid2{grid-template-columns:1fr!important;}
   .grid3{grid-template-columns:1fr 1fr!important;}
   .grid4{grid-template-columns:1fr 1fr!important;}
+  .task-row{grid-template-columns:1fr 1fr;gap:4px;padding:6px 0;}
+  .task-input{padding:5px 8px;font-size:10px;}
 }
 `;
 
@@ -824,8 +836,8 @@ Return only valid JSON.`;
                     <span className="card-title">Northern Virginia 자재 단가 (2025)</span>
                     <span style={{ fontSize: 10, color: "var(--dim)" }}>현재 등급: <span style={{ color: "var(--gold)" }}>{D.renoLevel}</span></span>
                   </div>
-                  <div className="card-body" style={{ padding: 0 }}>
-                    <table className="tbl">
+                  <div className="card-body" style={{ padding: 0, overflowX: "auto" }}>
+                    <table className="tbl" style={{ minWidth: 500 }}>
                       <thead><tr><th>카테고리</th><th>자재/항목</th><th>단위</th><th>Light</th><th>Medium</th><th>Heavy</th><th>현재 등급 단가</th></tr></thead>
                       <tbody>
                         {filteredMats.map((m, i) => (
