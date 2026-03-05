@@ -479,24 +479,27 @@ export default function App() {
   const [finCat, setFinCat] = useState("conventional");
   const [rateRefreshing, setRateRefreshing] = useState(false);
   const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
+  const [rateError, setRateError] = useState(null);
   const [liveRates, setLiveRates] = useState({});
 
   const refreshRates = async () => {
     setRateRefreshing(true);
+    setRateError(null);
     try {
-      const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation) with current 2025 interest rates for these lenders in Northern Virginia. Format: {"LenderName": rate_number}
-Lenders: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist, Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial Services, CoreVest Finance, LoanBidz, Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
-Return only valid JSON.`;
+      const lenderNames = LENDERS.map(l => l.name).join(', ');
+      const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation, no code block) with estimated 2025 interest rates for these lenders in Northern Virginia. Use the EXACT lender name as the key. Format: {"LenderName": rate_as_number}\nLenders: ${lenderNames}\nReturn only valid JSON, nothing else.`;
       const text = await callClaude(prompt);
-      if (!text || text === "분석 실패" || text === "연결 오류") throw new Error("API 오류");
+      if (!text || text === "분석 실패" || text === "연결 오류") throw new Error("API 연결 실패");
       const clean = text.replace(/```json|```/g, '').trim();
       const jsonStart = clean.indexOf('{');
       const jsonEnd = clean.lastIndexOf('}') + 1;
+      if (jsonStart === -1) throw new Error("JSON 파싱 오류");
       const json = JSON.parse(clean.slice(jsonStart, jsonEnd));
       setLiveRates(json);
       setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
     } catch(e) {
       console.error(e);
+      setRateError(e.message || "금리 조회 실패");
     }
     setRateRefreshing(false);
   };
@@ -848,10 +851,13 @@ Return only valid JSON.`;
                   <div style={{ fontSize: 11, color: "var(--dim)" }}>
                     {rateUpdatedAt ? t$?.finance.updated(rateUpdatedAt) : t$?.finance.noUpdate}
                   </div>
-                  <button onClick={refreshRates} disabled={rateRefreshing}
-                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1px solid var(--gold)", background: "var(--gold)22", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
-                    {rateRefreshing ? <><div className="spinner"/>{t$?.finance.refreshing}</> : t$?.finance.refreshBtn}
-                  </button>
+                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
+                    <button onClick={refreshRates} disabled={rateRefreshing}
+                      style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1px solid var(--gold)", background: "var(--gold)22", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
+                      {rateRefreshing ? <><div className="spinner"/>{t$?.finance.refreshing}</> : t$?.finance.refreshBtn}
+                    </button>
+                    {rateError && <span style={{fontSize:10,color:"var(--red)",maxWidth:200,textAlign:"right"}}>{rateError}</span>}
+                  </div>
                 </div>
 
                 <div className="card" style={{ marginBottom: 16 }}>
