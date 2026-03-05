@@ -302,6 +302,7 @@ select.input{cursor:pointer;}
 // ── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab] = useState("deal");
+  const [lang, setLang] = useState("ko");
 
   // Deal inputs
   const [deal, setDeal] = useState({
@@ -440,7 +441,7 @@ Return only valid JSON.`;
           {/* TOPBAR */}
           <div className="topbar">
             <div className="topbar-title">
-              {TABS.find(t => t.id === tab)?.emoji} {TABS.find(t => t.id === tab)?.label}
+              {TABS.find(t => t.id === tab)?.emoji} {TABS.find(t => t.id === tab)?.label}<button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{marginLeft:12,padding:"4px 14px",borderRadius:100,border:"1px solid #E2B84B",background:"#E2B84B",color:"#000",fontSize:11,fontWeight:800,cursor:"pointer"}}>{lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}</button>
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
             <div className="topbar-stats">
