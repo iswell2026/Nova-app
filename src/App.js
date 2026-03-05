@@ -404,6 +404,8 @@ select.input{cursor:pointer;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .space{height:16px;}
 /* MOBILE RESPONSIVE */
+/* Hide sidebar lang btn on desktop (it's in topbar there) */
+.lang-sidebar-btn{display:none;}
 @media (max-width: 768px) {
   .app{flex-direction:column;height:100dvh;}
   .sidebar{width:100%;height:60px;flex-direction:row;padding:0 4px;gap:0;overflow-x:auto;border-right:none;border-top:1px solid var(--border);border-bottom:none;flex-shrink:0;justify-content:space-around;order:3;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);z-index:100;}
@@ -417,6 +419,10 @@ select.input{cursor:pointer;}
   .card{padding:12px;}
   .grid-2{grid-template-columns:1fr!important;}
   input[type=range]{width:100%;}
+  /* Show lang btn in mobile tabbar */
+  .lang-sidebar-btn{display:flex;}
+  /* Hide topbar lang btn on mobile (it's in the tabbar) */
+  .topbar-lang-btn{display:none!important;}
 }
 @media (max-width: 768px) {
   /* Materials table - horizontal scroll */
@@ -579,6 +585,15 @@ Return only valid JSON.`;
               {t$?.tabLabel(t)}
             </button>
           ))}
+          {/* Lang toggle in sidebar (visible on mobile tabbar) */}
+          <button
+            className="nav-btn lang-sidebar-btn"
+            onClick={() => setLang(l => l === "ko" ? "en" : "ko")}
+            title={lang === "ko" ? "Switch to English" : "한국어로 전환"}
+          >
+            <span className="nav-emoji" style={{fontSize:16}}>🌐</span>
+            {lang === "ko" ? "EN" : "KO"}
+          </button>
         </aside>
 
         {/* MAIN */}
@@ -588,7 +603,7 @@ Return only valid JSON.`;
           <div className="topbar">
             <div className="topbar-title">
               {TABS.find(t => t.id === tab)?.emoji} {t$?.tabLabel(TABS.find(t => t.id === tab))}
-              <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{marginLeft:12,padding:"4px 14px",borderRadius:100,border:"1px solid #E2B84B",background:"#E2B84B",color:"#000",fontSize:11,fontWeight:800,cursor:"pointer"}}>{lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}</button>
+              <button className="topbar-lang-btn" onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{marginLeft:12,padding:"4px 16px",borderRadius:100,border:"1px solid rgba(255,255,255,0.25)",background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",letterSpacing:"0.1em",backdropFilter:"blur(4px)"}}>{lang === "ko" ? "EN" : "KO"}</button>
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
             <div className="topbar-stats">
