@@ -9,8 +9,8 @@ const callClaude = async (prompt) => {
       body: JSON.stringify({ prompt })
     });
     const data = await res.json();
-    return data.content?.[0]?.text || "Analysis Failed";
-  } catch { return "Connection Error"; }
+    return data.content?.[0]?.text || "분석 실패";
+  } catch { return "연결 오류"; }
 };
 
 // ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
@@ -109,14 +109,14 @@ const CONTRACTORS = [
 ];
 
 const TABS = [
-  { id: "deal",         labelKo: {lang === "en" ? "Deal Intake" : "매물 입력"},   labelEn: "Deal Intake",     emoji: "🏠" },
-  { id: "flip",         labelKo: {lang === "en" ? "Flip Analysis" : "Flip 분석"},   labelEn: "Flip Analysis",   emoji: "📈" },
-  { id: "hold",         labelKo: {lang === "en" ? "Hold Analysis" : "Hold 분석"},   labelEn: "Hold Analysis",   emoji: "🏦" },
-  { id: "finance",      labelKo: {lang === "en" ? "Finance" : "금융 비교"},   labelEn: "Finance",         emoji: "💰" },
-  { id: "contractor",   labelKo: {lang === "en" ? "Contractors" : "건설사"},      labelEn: "Contractors",     emoji: "🔨" },
-  { id: "materials",    labelKo: {lang === "en" ? "Materials" : "자재 단가"},   labelEn: "Materials",       emoji: "🪚" },
-  { id: "construction", labelKo: {lang === "en" ? "Construction" : "공사 현황"},   labelEn: "Construction",    emoji: "📋" },
-  { id: "risk",         labelKo: {lang === "en" ? "Risk" : "리스크"},      labelEn: "Risk",            emoji: "⚠️" },
+  { id: "deal", label: "매물 입력", emoji: "🏠" },
+  { id: "flip", label: "Flip 분석", emoji: "📈" },
+  { id: "hold", label: "Hold 분석", emoji: "🏦" },
+  { id: "finance", label: "금융 비교", emoji: "💰" },
+  { id: "contractor", label: "건설사", emoji: "🔨" },
+  { id: "materials", label: "자재 단가", emoji: "🪚" },
+  { id: "construction", label: "공사 현황", emoji: "📋" },
+  { id: "risk", label: "리스크", emoji: "⚠️" },
 ];
 
 const fmt = (n) => "$" + Math.round(n).toLocaleString();
@@ -150,7 +150,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
 
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .topbar-title{font-size:20px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:10px;}
 .topbar-stats{display:flex;gap:24px;}
 .tstat{text-align:right;}
@@ -168,7 +168,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
 
 /* CARDS */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
-.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .card-title{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);opacity:0.7;}
 .card-body{padding:20px;}
 
@@ -264,9 +264,6 @@ select.input{cursor:pointer;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .space{height:16px;}
 /* MOBILE RESPONSIVE */
-@media (min-width: 769px) {
-  .lang-btn { display: none !important; }
-}
 @media (max-width: 768px) {
   .app{flex-direction:column;height:100dvh;}
   .sidebar{width:100%;height:60px;flex-direction:row;padding:0 4px;gap:0;overflow-x:auto;border-right:none;border-top:1px solid var(--border);border-bottom:none;flex-shrink:0;justify-content:space-around;order:3;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);z-index:100;}
@@ -305,8 +302,6 @@ select.input{cursor:pointer;}
 // ── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab] = useState("deal");
-  const [lang, setLang] = useState("ko"); // "ko" | "en"
-  const t = (ko, en) => lang === "en" ? en : ko;
 
   // Deal inputs
   const [deal, setDeal] = useState({
@@ -322,17 +317,17 @@ export default function App() {
 
   // Construction
   const [tasks, setTasks] = useState([
-    { id: 1, desc: "철거 및 폐기물", budget: 5000, actual: 0, status: {lang === "en" ? "Pending" : "대기"}, due: "" },
-    { id: 2, desc: "배관/전기 Rough-in", budget: 12000, actual: 0, status: {lang === "en" ? "Pending" : "대기"}, due: "" },
-    { id: 3, desc: "드라이월/도장", budget: 15000, actual: 0, status: {lang === "en" ? "Pending" : "대기"}, due: "" },
-    { id: 4, desc: "주방/욕실 Fixtures", budget: 25000, actual: 0, status: {lang === "en" ? "Pending" : "대기"}, due: "" },
-    { id: 5, desc: "바닥재/마감", budget: 18000, actual: 0, status: {lang === "en" ? "Pending" : "대기"}, due: "" },
+    { id: 1, desc: "철거 및 폐기물", budget: 5000, actual: 0, status: "대기", due: "" },
+    { id: 2, desc: "배관/전기 Rough-in", budget: 12000, actual: 0, status: "대기", due: "" },
+    { id: 3, desc: "드라이월/도장", budget: 15000, actual: 0, status: "대기", due: "" },
+    { id: 4, desc: "주방/욕실 Fixtures", budget: 25000, actual: 0, status: "대기", due: "" },
+    { id: 5, desc: "바닥재/마감", budget: 18000, actual: 0, status: "대기", due: "" },
   ]);
 
   // AI
   const [aiResult, setAiResult] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
-  const [matFilter, setMatFilter] = useState({lang === "en" ? "All" : "전체"});
+  const [matFilter, setMatFilter] = useState("전체");
   const [gcCat, setGcCat] = useState("luxury");
   const [finCat, setFinCat] = useState("conventional");
   const [rateRefreshing, setRateRefreshing] = useState(false);
@@ -346,7 +341,7 @@ export default function App() {
 Lenders: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist, Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial Services, CoreVest Finance, LoanBidz, Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
 Return only valid JSON.`;
       const text = await callClaude(prompt);
-      if (!text || text === {lang === "en" ? "Analysis Failed" : "분석 실패"} || text === {lang === "en" ? "Connection Error" : "연결 오류"}) throw new Error("API 오류");
+      if (!text || text === "분석 실패" || text === "연결 오류") throw new Error("API 오류");
       const clean = text.replace(/```json|```/g, '').trim();
       const jsonStart = clean.indexOf('{');
       const jsonEnd = clean.lastIndexOf('}') + 1;
@@ -391,8 +386,8 @@ Return only valid JSON.`;
   const trackerBudget = tasks.reduce((s, t) => s + Number(t.budget || 0), 0);
   const trackerActual = tasks.reduce((s, t) => s + Number(t.actual || 0), 0);
 
-  const matCategories = [{lang === "en" ? "All" : "전체"}, ...new Set(MATERIALS.map(m => m.category))];
-  const filteredMats = matFilter === {lang === "en" ? "All" : "전체"} ? MATERIALS : MATERIALS.filter(m => m.category === matFilter);
+  const matCategories = ["전체", ...new Set(MATERIALS.map(m => m.category))];
+  const filteredMats = matFilter === "전체" ? MATERIALS : MATERIALS.filter(m => m.category === matFilter);
 
   const runAI = async (prompt) => {
     setAiLoading(true);
@@ -402,7 +397,7 @@ Return only valid JSON.`;
   };
 
   const updateTask = (id, field, val) => setTasks(t => t.map(x => x.id === id ? { ...x, [field]: val } : x));
-  const nextStatus = (s) => ({ {lang === "en" ? "Pending" : "대기"}: {lang === "en" ? "In Progress" : "진행중"}, {lang === "en" ? "In Progress" : "진행중"}: {lang === "en" ? "Done" : "완료"}, {lang === "en" ? "Done" : "완료"}: {lang === "en" ? "Pending" : "대기"} }[s]);
+  const nextStatus = (s) => ({ "대기": "진행중", "진행중": "완료", "완료": "대기" }[s]);
 
   return (
     <>
@@ -434,16 +429,9 @@ Return only valid JSON.`;
           {TABS.map(t => (
             <button key={t.id} className={`nav-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
               <span className="nav-emoji">{t.emoji}</span>
-              {lang === "en" ? t.labelEn : t.labelKo}
+              {t.label}
             </button>
           ))}
-          {/* Lang toggle - mobile only */}
-          <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")}
-            className="lang-btn"
-            style={{ flexDirection: "column", gap: 1, padding: "6px 4px", fontSize: 8, minWidth: 44, alignItems: "center", background: "none", border: "none", color: "var(--dim)", cursor: "pointer", fontFamily: "Sora,sans-serif", fontWeight: 800 }}>
-            <span style={{ fontSize: 16 }}>{lang === "ko" ? "🇺🇸" : "🇰🇷"}</span>
-            {lang === "ko" ? "EN" : "KO"}
-          </button>
         </aside>
 
         {/* MAIN */}
@@ -451,16 +439,11 @@ Return only valid JSON.`;
 
           {/* TOPBAR */}
           <div className="topbar">
-            <div className="topbar-title">{lang === "ko" ? <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{ marginLeft: 12, padding: "4px 12px", borderRadius: 100, border: "1px solid var(--border)", background: "#E2B84B", color: "#000000", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>🇺🇸 EN</button> : <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{ marginLeft: 12, padding: "4px 12px", borderRadius: 100, border: "1px solid var(--border)", background: "#E2B84B", color: "#000000", fontSize: 10, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>🇰🇷 KO</button>}
-              {TABS.find(t => t.id === tab)?.emoji} {lang === 'en' ? TABS.find(x => x.id === tab)?.labelEn : TABS.find(x => x.id === tab)?.labelKo}
+            <div className="topbar-title">
+              {TABS.find(t => t.id === tab)?.emoji} {TABS.find(t => t.id === tab)?.label}
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")}
-                style={{ padding: "6px 14px", borderRadius: 100, border: "1px solid var(--border)", background: "#E2B84B", color: "#000000", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif", letterSpacing: "0.05em" }}>
-                {lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}
-              </button>
-              <div className="topbar-stats">
+            <div className="topbar-stats">
               <div className="tstat">
                 <div className="tstat-label">Verdict</div>
                 <div className="tstat-val" style={{ color: verdictColor, fontSize: 18 }}>{verdict}</div>
@@ -487,12 +470,12 @@ Return only valid JSON.`;
                       <div className="card-header"><span className="card-title">매물 기본 정보</span></div>
                       <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                         <div className="field">
-                          <label className="label">{lang === "en" ? "Address" : {lang === "en" ? "Address" : "주소"}}</label>
+                          <label className="label">주소</label>
                           <input className="input" placeholder="1234 Oak St, Fairfax, VA 22031" value={D.address} onChange={e => setDeal(d => ({ ...d, address: e.target.value }))} />
                         </div>
                         <div className="grid2">
-                          <div className="field"><label className="label">{lang === "en" ? "Purchase Price ($)" : {lang === "en" ? "Purchase Price ($)" : "매입가 ($)"}}</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">{lang === "en" ? "Size (sqft)" : {lang === "en" ? "Size (sqft)" : "면적 (sqft)"}}</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">매입가 ($)</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">면적 (sqft)</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
                         </div>
                         <div className="grid4">
                           <div className="field"><label className="label">연식</label><input className="input" type="number" value={D.yearBuilt} onChange={e => setDeal(d => ({ ...d, yearBuilt: +e.target.value }))} /></div>
@@ -572,18 +555,18 @@ Return only valid JSON.`;
               <div>
                 <div className="grid2" style={{ gap: 20 }}>
                   <div className="card">
-                    <div className="card-header"><span className="card-title">{lang === "en" ? "Flip Profit Calculator" : {lang === "en" ? "Flip Profit Calculator" : "Flip 수익 계산"}}</span></div>
+                    <div className="card-header"><span className="card-title">Flip 수익 계산</span></div>
                     <div className="card-body">
                       <table className="tbl">
                         <tbody>
                           {[
-                            [{lang === "en" ? "Purchase Price" : "매입가"}, fmt(D.purchasePrice), ""],
+                            ["매입가", fmt(D.purchasePrice), ""],
                             ["수리비 (10% 포함)", fmt(renoCost), ""],
                             ["보유 비용 (6개월)", fmt(holdingCost), ""],
                             ["판매 수수료 (7.5%)", fmt(sellingCost), "red"],
                             ["총 투자비", fmt(D.purchasePrice + renoCost + holdingCost), ""],
                             ["예상 ARV", fmt(arv), "gold"],
-                            [{lang === "en" ? "Net Profit" : "순이익"}, fmt(flipProfit), flipProfit > 0 ? "green" : "red"],
+                            ["순이익", fmt(flipProfit), flipProfit > 0 ? "green" : "red"],
                             ["자기자본 ROI", pct(flipROI), flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red"],
                             ["연환산 수익률", pct(flipROI / (holdMonths / 12)), flipROI >= 18 ? "green" : "blue"],
                           ].map(([label, val, cls]) => (
@@ -617,7 +600,7 @@ Return only valid JSON.`;
                     <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}
                       disabled={aiLoading}
                       onClick={() => runAI(`Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`)}>
-                      {aiLoading ? <><div className="spinner" />{lang === "en" ? "Analyzing..." : {lang === "en" ? "Analyzing..." : "분석 중..."}}</> : "✦ Flip 전략 AI 분석"}
+                      {aiLoading ? <><div className="spinner" />분석 중...</> : "✦ Flip 전략 AI 분석"}
                     </button>
                     {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">AI 분석</span></div><div className="ai-text">{aiResult}</div></div>}
                   </div>
@@ -630,16 +613,16 @@ Return only valid JSON.`;
               <div>
                 <div className="grid2" style={{ gap: 20 }}>
                   <div className="card">
-                    <div className="card-header"><span className="card-title">{lang === "en" ? "Hold ROI Calculator (Annual)" : {lang === "en" ? "Hold ROI Calculator (Annual)" : "Hold 수익 계산 (연간)"}}</span></div>
+                    <div className="card-header"><span className="card-title">Hold 수익 계산 (연간)</span></div>
                     <div className="card-body">
                       <table className="tbl">
                         <tbody>
                           {[
-                            [{lang === "en" ? "Monthly Rent" : "월 렌트"}, fmt(D.estimatedRent), "gold"],
+                            ["월 렌트", fmt(D.estimatedRent), "gold"],
                             ["공실 손실 (8%)", fmt(-vacancy), "red"],
                             ["운영비 (12%)", fmt(-opex), "red"],
                             ["PM 비용 (9%)", fmt(-pm), "red"],
-                            [{lang === "en" ? "Property Tax" : "재산세"}, fmt(-D.propertyTax / 12) + "/월", "red"],
+                            ["재산세", fmt(-D.propertyTax / 12) + "/월", "red"],
                             ["HOA", fmt(-D.hoa) + "/월", D.hoa > 0 ? "red" : ""],
                             ["월 대출 이자", fmt(-monthlyInterest * 1.15), "red"],
                             ["월 순현금흐름", fmt(monthlyCF), monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "blue" : "red"],
@@ -713,11 +696,11 @@ Return only valid JSON.`;
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                   <div style={{ fontSize: 11, color: "var(--dim)" }}>
-                    {rateUpdatedAt ? "🕐 업데이트: " + rateUpdatedAt : {lang === "en" ? "Live rate check available" : "실시간 금리 조회 가능"}}
+                    {rateUpdatedAt ? "🕐 업데이트: " + rateUpdatedAt : "실시간 금리 조회 가능"}
                   </div>
                   <button onClick={refreshRates} disabled={rateRefreshing}
                     style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1px solid var(--gold)", background: "var(--gold)22", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
-                    {rateRefreshing ? <><div className="spinner"/>{lang === "en" ? "Loading..." : {lang === "en" ? "Loading..." : "조회 중..."}}</> : "🔄 금리 실시간 조회"}
+                    {rateRefreshing ? <><div className="spinner"/>조회 중...</> : "🔄 금리 실시간 조회"}
                   </button>
                 </div>
 
@@ -759,7 +742,7 @@ Return only valid JSON.`;
                         <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{l.review}</div>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                           <div style={{ display: "flex", gap: 14 }}>
-                            {[[{lang === "en" ? "Monthly Interest" : "월 이자"}, fmt(mi), cc], ["6개월 보유", fmt(sixMo), "var(--mid)"], ["클로징", l.speed, "var(--mid)"], ["Points", String(l.points), "var(--mid)"]].map(([label, val, color]) => (
+                            {[["월 이자", fmt(mi), cc], ["6개월 보유", fmt(sixMo), "var(--mid)"], ["클로징", l.speed, "var(--mid)"], ["Points", String(l.points), "var(--mid)"]].map(([label, val, color]) => (
                               <div key={label}>
                                 <div style={{ fontSize: 8, color: "var(--dim)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</div>
                                 <div style={{ fontFamily: "DM Mono", fontSize: 13, color }}>{val}</div>
@@ -770,7 +753,7 @@ Return only valid JSON.`;
                             <span style={{ fontSize: 12, color: "var(--gold)" }}>{l.rating}</span>
                             <a href={"https://" + l.website} target="_blank" rel="noreferrer"
                               style={{ fontSize: 9, color: "var(--blue)", textDecoration: "none", background: "var(--blue2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>웹사이트 →</a>
-                            <a href={`mailto:${l.email || ""}?subject=Loan Inquiry - ISWELL PROPERTIES&body=Hello ${l.name},%0D%0A%0D%0AMy name is David Kim with ISWELL PROPERTIES.%0D%0AWe are interested in financing for a property we are acquiring.%0D%0A%0D%0A• Property Address: ${D.address || "TBD"}%0D%0A• Purchase Price: $${D.purchasePrice.toLocaleString()}%0D%0A• Lender: ${l.name}%0D%0A• Rate: ${l.rate}%%0D%0A• LTV: ${l.ltv}%%0D%0A• Closing Speed: ${l.speed}%0D%0A%0D%0AWe look forward to discussing the loan terms with you.%0D%0A%0D%0ABest regards,%0D%0ADavid Kim%0D%0AISWELL PROPERTIES%0D%0Aiswell.properties@gmail.com`}
+                            <a href={`mailto:${l.email || ""}?subject=Loan Inquiry - ISWELL PROPERTIES&body=Hello ${l.name},%0D%0A%0D%0AMy name is David Kim with ISWELL PROPERTIES.%0D%0AWe are interested in financing for a property we are acquiring.%0D%0A%0D%0A• Property Address: ${deal.address || "TBD"}%0D%0A• Purchase Price: $${deal.purchasePrice.toLocaleString()}%0D%0A• Lender: ${l.name}%0D%0A• Rate: ${l.rate}%%0D%0A• LTV: ${l.ltv}%%0D%0A• Closing Speed: ${l.speed}%0D%0A%0D%0AWe look forward to discussing the loan terms with you.%0D%0A%0D%0ABest regards,%0D%0ADavid Kim%0D%0AISWELL PROPERTIES%0D%0Aiswell.properties@gmail.com`}
                               style={{ fontSize: 9, color: "var(--green)", textDecoration: "none", background: "var(--green2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>📧 문의</a>
                           </div>
                         </div>
@@ -780,7 +763,7 @@ Return only valid JSON.`;
                 })}
 
                 <div className="card" style={{ marginTop: 16 }}>
-                  <div className="card-header"><span className="card-title">{lang === "en" ? "BRRRR Scenario" : {lang === "en" ? "BRRRR Scenario" : "BRRRR 시나리오"}}</span></div>
+                  <div className="card-header"><span className="card-title">BRRRR 시나리오</span></div>
                   <div className="card-body">
                     <div className="grid4">
                       {[
@@ -842,7 +825,7 @@ Return only valid JSON.`;
                             <a href={"https://" + c.website} target="_blank" rel="noreferrer"
                               style={{ fontSize: 9, color: "var(--blue)", textDecoration: "none", background: "var(--blue2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>웹사이트 →</a>
                             <a href={`mailto:${c.email || ""}?subject=Construction Estimate Request - ISWELL PROPERTIES&body=Hello ${c.name},%0D%0A%0D%0AMy name is David Kim with ISWELL PROPERTIES.
-Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimate for a property we are acquiring.%0D%0A%0D%0A• Property Address: ${D.address || "TBD"}%0D%0A• Purchase Price: $${D.purchasePrice.toLocaleString()}%0D%0A• Building Size: ${D.sqft} sqft%0D%0A• Year Built: ${D.yearBuilt}%0D%0A• Contractor: ${c.name}%0D%0A%0D%0APlease provide us with your estimate at your earliest convenience.%0D%0A%0D%0ABest regards,%0D%0ADavid Kim%0D%0AISWELL PROPERTIES%0D%0Aiswell.properties@gmail.com`}
+Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimate for a property we are acquiring.%0D%0A%0D%0A• Property Address: ${deal.address || "TBD"}%0D%0A• Purchase Price: $${deal.purchasePrice.toLocaleString()}%0D%0A• Building Size: ${deal.sqft} sqft%0D%0A• Year Built: ${deal.yearBuilt}%0D%0A• Contractor: ${c.name}%0D%0A%0D%0APlease provide us with your estimate at your earliest convenience.%0D%0A%0D%0ABest regards,%0D%0ADavid Kim%0D%0AISWELL PROPERTIES%0D%0Aiswell.properties@gmail.com`}
                               style={{ fontSize: 9, color: "var(--green)", textDecoration: "none", background: "var(--green2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>📧 견적요청</a>
                           </div>
                         </div>
@@ -853,7 +836,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                 <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
                   disabled={aiLoading}
                   onClick={() => runAI("Northern Virginia 부동산 투자자. " + gcCat + " 건설사 계약 전 핵심 체크포인트 5가지 한글로.")}>
-                  {aiLoading ? <><div className="spinner"/>{lang === "en" ? "Analyzing..." : {lang === "en" ? "Analyzing..." : "분석 중..."}}</> : "✦ AI 건설사 계약 가이드"}
+                  {aiLoading ? <><div className="spinner"/>분석 중...</> : "✦ AI 건설사 계약 가이드"}
                 </button>
                 {aiResult && <div className="ai-box" style={{ marginTop: 12 }}><div className="ai-header"><div className="ai-dot"/><span className="ai-label">AI 가이드</span></div><div className="ai-text">{aiResult}</div></div>}
               </div>
@@ -869,12 +852,12 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
 
                 <div className="card">
                   <div className="card-header">
-                    <span className="card-title">{lang === "en" ? "Northern Virginia Material Pricing (2025)" : {lang === "en" ? "Northern Virginia Material Pricing (2025)" : "Northern Virginia 자재 단가 (2025)"}}</span>
+                    <span className="card-title">Northern Virginia 자재 단가 (2025)</span>
                     <span style={{ fontSize: 10, color: "var(--dim)" }}>현재 등급: <span style={{ color: "var(--gold)" }}>{D.renoLevel}</span></span>
                   </div>
                   <div className="card-body" style={{ padding: 0, overflowX: "auto" }}>
                     <table className="tbl" style={{ minWidth: 500 }}>
-                      <thead><tr><th>{lang === "en" ? "Category" : {lang === "en" ? "Category" : "카테고리"}}</th><th>{lang === "en" ? "Item" : {lang === "en" ? "Item" : "자재/항목"}}</th><th>{lang === "en" ? "Unit" : {lang === "en" ? "Unit" : "단위"}}</th><th>Light</th><th>Medium</th><th>Heavy</th><th>{lang === "en" ? "Current Grade Price" : {lang === "en" ? "Current Grade Price" : "현재 등급 단가"}}</th></tr></thead>
+                      <thead><tr><th>카테고리</th><th>자재/항목</th><th>단위</th><th>Light</th><th>Medium</th><th>Heavy</th><th>현재 등급 단가</th></tr></thead>
                       <tbody>
                         {filteredMats.map((m, i) => (
                           <tr key={i}>
@@ -902,7 +885,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                     <span className="card-title">공사 현황 트래커</span>
                     <div style={{ display: "flex", gap: 16 }}>
                       {[
-                        { label: {lang === "en" ? "Total Budget" : "총 예산"}, val: fmt(trackerBudget), cls: "gold" },
+                        { label: "총 예산", val: fmt(trackerBudget), cls: "gold" },
                         { label: "지출", val: fmt(trackerActual), cls: "blue" },
                         { label: "잔여", val: fmt(trackerBudget - trackerActual), cls: trackerBudget - trackerActual >= 0 ? "green" : "red" },
                       ].map(s => (
@@ -921,7 +904,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
 
                     {/* Header */}
                     <div className="task-row" style={{ borderBottom: "1px solid var(--border)", paddingBottom: 8, marginBottom: 4 }}>
-                      {[{lang === "en" ? "Task Name" : "공정명"}, {lang === "en" ? "Budget ($)" : "예산 ($)"}, {lang === "en" ? "Actual ($)" : "지출 ($)"}, {lang === "en" ? "Due Date" : "예정일"}, {lang === "en" ? "Status" : "상태"}, ""].map(h => (
+                      {["공정명", "예산 ($)", "지출 ($)", "예정일", "상태", ""].map(h => (
                         <div key={h} style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--dim)" }}>{h}</div>
                       ))}
                     </div>
@@ -932,7 +915,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                         <input className="task-input" type="number" value={t.budget} onChange={e => updateTask(t.id, "budget", e.target.value)} />
                         <input className="task-input" type="number" value={t.actual} onChange={e => updateTask(t.id, "actual", e.target.value)} style={{ color: "var(--blue)" }} />
                         <input className="task-input" type="date" value={t.due} onChange={e => updateTask(t.id, "due", e.target.value)} />
-                        <button className={`status-pill status-${t.status === {lang === "en" ? "Pending" : "대기"} ? "pending" : t.status === {lang === "en" ? "In Progress" : "진행중"} ? "progress" : "done"}`}
+                        <button className={`status-pill status-${t.status === "대기" ? "pending" : t.status === "진행중" ? "progress" : "done"}`}
                           onClick={() => updateTask(t.id, "status", nextStatus(t.status))}>
                           {t.status}
                         </button>
@@ -942,7 +925,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                     ))}
 
                     <div style={{ marginTop: 16 }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), desc: "새 공정", budget: 0, actual: 0, status: {lang === "en" ? "Pending" : "대기"}, due: "" }])}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), desc: "새 공정", budget: 0, actual: 0, status: "대기", due: "" }])}>
                         + 공정 추가
                       </button>
                     </div>
