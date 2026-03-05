@@ -728,9 +728,14 @@ export default function App() {
                       onClick={async () => {
                         setScreenLoading(true); setScreenResult(null); setShowDetail(false);
                         const p = screenInput;
-                        const prompt = `You are a NoVA real estate investment expert. Analyze this deal strictly using ISWELL criteria (Flip ROI ≥18%, Monthly CF ≥$500, DSCR ≥1.2) for Northern Virginia market.
+                        const prompt = lang === "ko"
+                          ? `당신은 NoVA(Northern Virginia) 부동산 투자 전문가입니다. ISWELL 기준(Flip ROI ≥18%, 월 현금흐름 ≥$500, DSCR ≥1.2)으로 이 매물을 분석하세요.
+매물: ${p.url || "NoVA 매물"}, 매입 희망가: $${Number(p.price).toLocaleString()}, 면적: ${p.sqft}sqft, 침실: ${p.beds}/${p.baths}욕실, 수리: ${p.reno}
+반드시 유효한 JSON만 반환하세요 (마크다운 없이): {"verdict":"GO|WATCH|PASS","verdictReason":"한 문장 판단 이유","risks":["주요 리스크1","주요 리스크2","주요 리스크3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":숫자,"maxHoldPrice":숫자,"recommendation":"2-3문장 투자 추천"}
+maxFlipPrice = Flip ROI 18% 달성을 위한 최대 매입가. maxHoldPrice = 월 $500+ 현금흐름을 위한 최대 매입가. 모든 텍스트 필드는 반드시 한국어로 작성.`
+                          : `You are a NoVA real estate investment expert. Analyze this deal strictly using ISWELL criteria (Flip ROI ≥18%, Monthly CF ≥$500, DSCR ≥1.2) for Northern Virginia market.
 Property: ${p.url || "NoVA property"}, Asking: $${Number(p.price).toLocaleString()}, Sqft: ${p.sqft}, Beds: ${p.beds}/${p.baths}ba, Reno: ${p.reno}
-Return ONLY valid JSON (no markdown): {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence","risks":["risk1","risk2","risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":number,"maxHoldPrice":number,"recommendation":"2-3 sentences in ${lang === 'ko' ? 'Korean' : 'English'}"}
+Return ONLY valid JSON (no markdown): {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence reason","risks":["top risk1","top risk2","top risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":number,"maxHoldPrice":number,"recommendation":"2-3 sentence recommendation"}
 maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max purchase price for $500+/mo cash flow.`;
                         const text = await callClaude(prompt);
                         try {
