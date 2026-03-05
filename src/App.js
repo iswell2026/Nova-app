@@ -9,8 +9,9 @@ const callClaude = async (prompt) => {
       body: JSON.stringify({ prompt })
     });
     const data = await res.json();
+    if (!res.ok) return `오류: ${data.error || res.status}`;
     return data.content?.[0]?.text || "분석 실패";
-  } catch { return "연결 오류"; }
+  } catch(e) { return `연결 오류: ${e.message}`; }
 };
 
 // ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
