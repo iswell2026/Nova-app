@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // ── Claude API ──────────────────────────────────────────────────────────────
 const callClaude = async (prompt) => {
@@ -108,6 +108,83 @@ const CONTRACTORS = [
   { category: "rental", label: "🏠 Rental / Light", name: "HomeFix Pro VA", email: "info@homefixprova.com", sqft: "$16–$27", score: 84, phone: "571-312-4400", website: "homefixprova.com", specialty: "Rental Repair & Light Refresh", review: "도배+도색+바닥 교체 전문. Centreville·Chantilly 기반. 24시간 견적 대응.", rating: "4.4★ (85+ reviews)" },
   { category: "rental", label: "🏠 Rental / Light", name: "Express Reno VA", sqft: "$15–$26", score: 83, phone: "703-440-9900", website: "expressrenova.com", specialty: "Fast Rental Turnover", review: "임대 회전율 극대화 전문. 5일 이내 완공 기록 보유. Fairfax·Reston 기반.", rating: "4.3★ (95+ reviews)" },
 ];
+
+// ── 번역 상수 (English translations for data arrays) ──────────────────────
+const CATEGORY_EN = {
+  "바닥재":"Flooring","주방":"Kitchen","욕실":"Bathroom","페인트":"Paint",
+  "지붕":"Roofing","HVAC":"HVAC","전기":"Electrical","배관":"Plumbing","창문":"Windows","문":"Doors",
+};
+const BADGE_EN = {
+  "최저금리":"Best Rate","추천":"Top Pick","NoVA본사":"NoVA HQ","우대할인":"Member Disc.",
+  "VA 1위":"VA #1","클로징무료":"Zero Closing","재이용무료":"Free Repeat","최빠른":"Fastest",
+  "테크기반":"Tech-Based","Forbes선정":"Forbes Pick","조건유연":"Flexible","포트폴리오":"Portfolio",
+  "STR가능":"STR OK","BRRRR전문":"BRRRR Pro","AI승인":"AI Approval","최저5.75%":"Low 5.75%",
+  "플립→임대":"Flip→Rental","다건가능":"Multi-Loan","NoVA전문":"NoVA Pro",
+};
+const REVIEW_EN = {
+  "Navy Federal Credit Union":"Lowest rates for NoVA military & federal employees. 80% LTV available. Member-only terms.",
+  "PenFed Credit Union":"NoVA-based federal credit union. Top-tier rate competitiveness. Easy membership signup.",
+  "Capital One (McLean HQ)":"McLean VA HQ with dedicated NoVA investor team. Venture X client perks. Best online portal.",
+  "Bank of America Investment":"Rate discount for Preferred Rewards members. Dedicated NoVA investor team. Easy online application.",
+  "Wells Fargo Investment Loan":"Largest U.S. bank. Multiple NoVA branches. Investor conventional specialist. Loyalty perks.",
+  "Chase Investment Mortgage":"Nationwide network. Private Client perks. Fairfax & Arlington branches. Excellent online management.",
+  "Rocket Mortgage (VA #1)":"#1 VA loan originator. 100% digital process. Fast approval. $3.1B VA funded in 2024 (HMDA).",
+  "CapCenter (Zero Closing)":"Zero closing cost option. VA-based local specialist. Reduced realtor fees. High repeat-use rate.",
+  "LendFriend Mortgage VA":"NoVA & Arlington specialist broker. No fee for returning clients. Non-QM available. Transparent process.",
+  "Truist Investment Mortgage":"BB&T+SunTrust merged. VA-wide branches. Portfolio investor dedicated service. Multi-property perks.",
+  "Easy Street Capital":"48-hour closing possible. No appraisal required. #1-rated flip lender nationwide. Top investor choice.",
+  "Asset Based Lending (ABL)":"90% purchase + 100% reno coverage. 24-hour approval. NoVA specialist. 10+ years operating.",
+  "LendingOne Fix & Flip":"92.5% LTC + 100% reno covered. Top Trustpilot rating. NoVA & VA specialist team. BRRRR optimized.",
+  "HouseMax Funding":"Forbes Best Hard Money Lender 2024 & 2025. 2,700+ flip experience. Self-serve platform.",
+  "Kiavi (구 LendingHome)":"Tech-driven lending. 5-min online application. Rate reduction for repeat investors. $20B+ funded.",
+  "RCN Capital":"Nationwide investor network. Strong broker channel. Multi-property veterans preferred. Fast re-approval.",
+  "Groundfloor Finance":"Crowdfunding-based lowest flip rate starting at 7.5%. Accessible for smaller investors.",
+  "Civic Financial Services":"Non-QM specialist. Fast closing. Preferred terms for experienced flippers. Strong broker network.",
+  "CoreVest Finance":"Large portfolio flip specialist. Multiple concurrent loans available. Institutional-grade terms.",
+  "LoanBidz (BRRRR)":"BRRRR-focused platform. $700M+ funded. Auto-matches best options. Range: $100K–$3M.",
+  "Griffin Funding DSCR":"DSCR below 1.0 approved. No W-2 required. LLC loans available. #1 choice for VA investors.",
+  "Lima One Capital":"DSCR + Flip + Multifamily one-stop shop. Portfolio expansion specialist. DSCR 1.0 standard.",
+  "Visio Lending DSCR":"Long-term rental specialist. STR (Airbnb) eligible. No personal income verification. 30-year fixed.",
+  "Angel Oak DSCR":"Non-traditional income specialist. DSCR as low as 0.75. Rich NoVA experience. LLC title loans.",
+  "Rehab Financial Group (RFG)":"$300M+ funded. 30-year fixed DSCR. Optimized for BRRRR strategy. VA statewide service.",
+  "Deephaven Mortgage":"Non-QM institutional lender. Bank statement income accepted. LLC/Trust title. Large portfolios.",
+  "New Silver DSCR":"AI-powered instant approval. 5-day closing. Fully automated online. Small rental investor friendly.",
+  "HouseMax Funding DSCR":"5.75%+ lowest DSCR rate. Forbes-rated. High NoVA demand. Short-term rental included.",
+  "Kiavi DSCR Rental":"Flip-to-rental one-stop. $20B+ funded. Auto-rewards for repeat investors. 30-year fixed.",
+  "CapSource Lending":"NoVA-based local expert. Rental + flip + construction portfolio. Deep local market knowledge.",
+};
+const CONTRACTOR_REVIEW_EN = {
+  "TriVista USA Design+Build":"20-year award-winning firm. In-house architect & interior designer. Fairfax & Arlington specialist.",
+  "Ridgeline Contractors (DMV)":"Top-rated luxury remodeler in NoVA. Insurance claim support. Directly managed by Malcolm.",
+  "Bowers Design Build":"Founded 1990. NRS satisfaction award. 30% repeat clients. McLean & Great Falls specialist.",
+  "Commonwealth Home Design":"40-year Vienna base. Structural changes & additions expert. Excellent project management system.",
+  "Foster Remodeling Solutions":"Best-in-class warranty. In-house design team. Herndon & Reston specialist.",
+  "Ideal Construction & Remodeling":"Arlington County Green Home award winner. Energy efficiency specialist. DC & Arlington focus.",
+  "Monova Homes":"Known for on-time & on-budget delivery. Alexandria & Fairfax base. Investor-friendly.",
+  "WISA Solutions":"West Springfield base. High client referral rate. Luxury kitchen & bath specialist.",
+  "Total Construction Company":"34-year veteran. Pool & outdoor full service. Fairfax County specialist.",
+  "Heartland Design & Remodeling":"Bristow & Prince William base. Excellent communication. Custom design strength.",
+  "NHR Kitchen & Floors (NOVA Home Renovate)":"Fairfax County ADU permit specialist. Daily schedule & budget updates. Very high repeat-use rate.",
+  "All Renovations":"Class A VA license. Electric & plumbing specialist. Best value. Vienna & Sterling focus.",
+  "DMV Remodeling Pros":"90-day completion guarantee. Permit experience. Manassas & Centreville base.",
+  "Capital Remodeling":"DC/VA/MD tri-state service. Fast package quotes. High-volume investor experience.",
+  "Fairfax Contracting Group":"Fastest permit processing in Fairfax County. Multi-site management capable. Investor discounts.",
+  "Renovate DMV":"Kitchen + bath + flooring package specialist. Sterling & Ashburn base. ROI optimization.",
+  "ProBuild Contractors VA":"Structural + cosmetic flip specialist. Prince William County base. Bundled permit processing.",
+  "Northern Virginia Remodelers":"Annandale & Burke specialist. SFH & multifamily capable. 30%+ repeat investors.",
+  "Blueprint Renovation LLC":"Free 3D rendering. Reston & Herndon specialist. 48-hour quote guarantee.",
+  "RedLine Construction VA":"Fastest turnaround specialist. Woodbridge & Lorton base. Budget overrun penalty clause.",
+  "Quick Flip & Rental Services VA":"Rental renovation in as little as 7 days. Paint + flooring + lighting package. Multi-property exclusive.",
+  "Tenant Ready Contractors":"7–14 day turnover. Paint + clean + minor repair package. #1 landlord choice.",
+  "Property Maintenance Plus VA":"Annual maintenance contracts. Rapid small-repair response. Manassas & Woodbridge focus.",
+  "Budget Reno Group VA":"Material cost reduction specialist. Rental yield optimization. Volume discount available.",
+  "NoVA Handyman & Renovation":"Small project light renovation specialist. Emergency dispatch available. Springfield & Burke base.",
+  "FirstChoice Renovation VA":"Low-cost kitchen & bath refresh specialist. Manassas base. 95% on-time rate.",
+  "Sterling Renovation Group":"Loudoun County specialist. Rental-ready LVP + paint + lighting package. Fast completion.",
+  "ValueBuild Contractors":"Lowest price guarantee. Multi-property investor exclusive contracts. Prince William County.",
+  "HomeFix Pro VA":"Wallpaper + paint + flooring replacement specialist. Centreville & Chantilly. 24-hour quote.",
+  "Express Reno VA":"Rental turnover maximization specialist. Sub-5-day completion record. Fairfax & Reston base.",
+};
 
 const TABS = [
   { id: "deal",         labelKo: "딜 스크리닝", labelEn: "Deal Screen",   emoji: "🔍" },
@@ -502,11 +579,11 @@ export default function App() {
 
   // Construction
   const [tasks, setTasks] = useState([
-    { id: 1, desc: "철거 및 폐기물", budget: 5000, actual: 0, status: "대기", due: "" },
-    { id: 2, desc: "배관/전기 Rough-in", budget: 12000, actual: 0, status: "대기", due: "" },
-    { id: 3, desc: "드라이월/도장", budget: 15000, actual: 0, status: "대기", due: "" },
-    { id: 4, desc: "주방/욕실 Fixtures", budget: 25000, actual: 0, status: "대기", due: "" },
-    { id: 5, desc: "바닥재/마감", budget: 18000, actual: 0, status: "대기", due: "" },
+    { id: 1, descKo: "철거 및 폐기물",    descEn: "Demo & Debris",               budget: 5000,  actual: 0, status: "pending", due: "" },
+    { id: 2, descKo: "배관/전기 Rough-in", descEn: "Plumbing/Electric Rough-in",  budget: 12000, actual: 0, status: "pending", due: "" },
+    { id: 3, descKo: "드라이월/도장",      descEn: "Drywall/Paint",               budget: 15000, actual: 0, status: "pending", due: "" },
+    { id: 4, descKo: "주방/욕실 Fixtures", descEn: "Kitchen/Bath Fixtures",        budget: 25000, actual: 0, status: "pending", due: "" },
+    { id: 5, descKo: "바닥재/마감",        descEn: "Flooring/Finish",             budget: 18000, actual: 0, status: "pending", due: "" },
   ]);
 
   // AI
@@ -597,12 +674,13 @@ export default function App() {
 
   const updateTask = (id, field, val) => setTasks(t => t.map(x => x.id === id ? { ...x, [field]: val } : x));
   const nextStatus = (s) => {
-    const map = lang === "ko"
-      ? { "대기": "진행중", "진행중": "완료", "완료": "대기" }
-      : { "Pending": "In Progress", "In Progress": "Done", "Done": "Pending" };
-    return map[s] || s;
+    const map = { "pending": "progress", "progress": "done", "done": "pending" };
+    return map[s] || "pending";
   };
   const t$ = L[lang]; // shorthand for current language
+
+  // lang 전환 시 AI 결과 초기화 (언어 불일치 방지)
+  useEffect(() => { setAiResult(""); setMyCheckResult(null); setScreenResult(null); setShowDetail(false); }, [lang]);
 
   return (
     <>
@@ -1091,7 +1169,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                             {l.name}
-                            {l.badge && <span style={{ fontSize: 8, fontWeight: 800, padding: "3px 8px", borderRadius: 100, background: cc + "22", color: cc, letterSpacing: "0.1em" }}>{l.badge}</span>}
+                            {l.badge && <span style={{ fontSize: 8, fontWeight: 800, padding: "3px 8px", borderRadius: 100, background: cc + "22", color: cc, letterSpacing: "0.1em" }}>{lang === "ko" ? l.badge : (BADGE_EN[l.badge] || l.badge)}</span>}
                           </div>
                           <div style={{ fontSize: 10, color: "var(--dim)", marginTop: 2 }}>📞 {l.phone}</div>
                         </div>
@@ -1104,11 +1182,11 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                         </div>
                       </div>
                       <div style={{ padding: "12px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{l.review}</div>
+                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{lang === "ko" ? l.review : (REVIEW_EN[l.name] || l.review)}</div>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                           <div style={{ display: "flex", gap: 14 }}>
                             {(t$?.finance.lenderMeta || []).map((lmeta, mi_i) => {
-                              const metaVals = [fmt(mi), fmt(sixMo), l.speed, String(l.points)];
+                              const metaVals = [fmt(mi), fmt(sixMo), lang === "ko" ? l.speed : l.speed.replace("일","d"), String(l.points)];
                               const metaColors = [cc, "var(--mid)", "var(--mid)", "var(--mid)"];
                               return (
                               <div key={mi_i}>
@@ -1156,7 +1234,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                     <button key={info.key} onClick={() => setGcCat(info.key)}
                       style={{ flex: 1, padding: "14px 10px", borderRadius: 14, border: "1px solid " + (gcCat === info.key ? info.color : "var(--border)"), background: gcCat === info.key ? info.color + "22" : "var(--bg2)", cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: gcCat === info.key ? info.color : "var(--dim)", marginBottom: 4 }}>{info.label}</div>
-                      <div style={{ fontSize: 10, color: "var(--dim)" }}>{info.sqftRange} · 10개사</div>
+                      <div style={{ fontSize: 10, color: "var(--dim)" }}>{info.sqftRange} · {lang === "ko" ? "10개사" : "10 co."}</div>
                     </button>
                   ))}
                 </div>
@@ -1176,7 +1254,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                         </div>
                       </div>
                       <div style={{ padding: "12px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{c.review}</div>
+                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{lang === "ko" ? c.review : (CONTRACTOR_REVIEW_EN[c.name] || c.review)}</div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
                           <div style={{ display: "flex", gap: 12 }}>
                             <span style={{ fontSize: 12, color: "var(--gold)" }}>{c.rating}</span>
@@ -1213,7 +1291,9 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
               <div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
                   {matCategories.map(c => (
-                    <button key={c} className={`btn btn-sm ${matFilter === c ? "btn-gold" : "btn-ghost"}`} onClick={() => setMatFilter(c)}>{c}</button>
+                    <button key={c} className={`btn btn-sm ${matFilter === c ? "btn-gold" : "btn-ghost"}`} onClick={() => setMatFilter(c)}>
+                      {lang === "ko" ? c : (c === "전체" ? "All" : CATEGORY_EN[c] || c)}
+                    </button>
                   ))}
                 </div>
 
@@ -1228,7 +1308,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                       <tbody>
                         {filteredMats.map((m, i) => (
                           <tr key={i}>
-                            <td><span className="badge badge-blue">{m.category}</span></td>
+                            <td><span className="badge badge-blue">{lang === "ko" ? m.category : (CATEGORY_EN[m.category] || m.category)}</span></td>
                             <td style={{ fontWeight: 600, color: "var(--text)" }}>{m.item}</td>
                             <td style={{ color: "var(--dim)", fontSize: 11 }}>{m.unit}</td>
                             <td className="mono">${m.light}</td>
@@ -1277,17 +1357,17 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                     </div>
 
                     {tasks.map(tk => {
-                      const st = tk.status;
-                      const stClass = (st === "대기" || st === "Pending") ? "pending" : (st === "진행중" || st === "In Progress") ? "progress" : "done";
                       return (
                       <div key={tk.id} className="task-row">
-                        <input className="task-input" value={tk.desc} onChange={e => updateTask(tk.id, "desc", e.target.value)} />
+                        <input className="task-input"
+                          value={lang === "ko" ? (tk.descKo || tk.desc || "") : (tk.descEn || tk.desc || "")}
+                          onChange={e => updateTask(tk.id, lang === "ko" ? "descKo" : "descEn", e.target.value)} />
                         <input className="task-input" type="number" value={tk.budget} onChange={e => updateTask(tk.id, "budget", e.target.value)} />
                         <input className="task-input" type="number" value={tk.actual} onChange={e => updateTask(tk.id, "actual", e.target.value)} style={{ color: "var(--blue)" }} />
                         <input className="task-input" type="date" value={tk.due} onChange={e => updateTask(tk.id, "due", e.target.value)} />
-                        <button className={`status-pill status-${stClass}`}
+                        <button className={`status-pill status-${tk.status}`}
                           onClick={() => updateTask(tk.id, "status", nextStatus(tk.status))}>
-                          {tk.status}
+                          {t$?.construction.statuses[tk.status] || tk.status}
                         </button>
                         <button className="btn btn-ghost btn-sm" style={{ color: "var(--red)", borderColor: "transparent" }}
                           onClick={() => setTasks(ts => ts.filter(x => x.id !== tk.id))}>✕</button>
@@ -1295,7 +1375,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                     );})}
 
                     <div style={{ marginTop: 16 }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), desc: t$?.construction.newTask, budget: 0, actual: 0, status: t$?.construction.statuses.pending, due: "" }])}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), descKo: "새 공정", descEn: "New Task", budget: 0, actual: 0, status: "pending", due: "" }])}>
                         {t$?.construction.addBtn}
                       </button>
                     </div>
