@@ -490,11 +490,11 @@ export default function App() {
       const lenderNames = LENDERS.map(l => l.name).join(', ');
       const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation, no code block) with estimated 2025 interest rates for these lenders in Northern Virginia. Use the EXACT lender name as the key. Format: {"LenderName": rate_as_number}\nLenders: ${lenderNames}\nReturn only valid JSON, nothing else.`;
       const text = await callClaude(prompt);
-      if (!text || text === "분석 실패" || text === "연결 오류") throw new Error("API 연결 실패");
+      if (!text || text === "분석 실패" || text === "연결 오류" || text.startsWith("오류:")) throw new Error(text || "API 연결 실패");
       const clean = text.replace(/```json|```/g, '').trim();
       const jsonStart = clean.indexOf('{');
       const jsonEnd = clean.lastIndexOf('}') + 1;
-      if (jsonStart === -1) throw new Error("JSON 파싱 오류");
+      if (jsonStart === -1) throw new Error(`응답 오류: ${clean.slice(0, 80)}`);
       const json = JSON.parse(clean.slice(jsonStart, jsonEnd));
       setLiveRates(json);
       setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
