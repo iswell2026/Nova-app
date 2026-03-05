@@ -109,15 +109,155 @@ const CONTRACTORS = [
 ];
 
 const TABS = [
-  { id: "deal", label: "매물 입력", emoji: "🏠" },
-  { id: "flip", label: "Flip 분석", emoji: "📈" },
-  { id: "hold", label: "Hold 분석", emoji: "🏦" },
-  { id: "finance", label: "금융 비교", emoji: "💰" },
-  { id: "contractor", label: "건설사", emoji: "🔨" },
-  { id: "materials", label: "자재 단가", emoji: "🪚" },
-  { id: "construction", label: "공사 현황", emoji: "📋" },
-  { id: "risk", label: "리스크", emoji: "⚠️" },
+  { id: "deal",         labelKo: "매물 입력",  labelEn: "Deal Input",    emoji: "🏠" },
+  { id: "flip",         labelKo: "Flip 분석",  labelEn: "Flip Analysis", emoji: "📈" },
+  { id: "hold",         labelKo: "Hold 분석",  labelEn: "Hold Analysis", emoji: "🏦" },
+  { id: "finance",      labelKo: "금융 비교",  labelEn: "Finance",       emoji: "💰" },
+  { id: "contractor",   labelKo: "건설사",     labelEn: "Contractors",   emoji: "🔨" },
+  { id: "materials",    labelKo: "자재 단가",  labelEn: "Materials",     emoji: "🪚" },
+  { id: "construction", labelKo: "공사 현황",  labelEn: "Construction",  emoji: "📋" },
+  { id: "risk",         labelKo: "리스크",     labelEn: "Risk",          emoji: "⚠️" },
 ];
+
+// ── TRANSLATIONS ─────────────────────────────────────────────────────────────
+const L = {
+  ko: {
+    tabLabel: (t) => t.labelKo,
+    topbar: { monthlyCF: "월 현금흐름" },
+    deal: {
+      cardTitle: "매물 기본 정보", renoTitle: "수리 등급",
+      address: "주소", purchasePrice: "매입가 ($)", area: "면적 (sqft)",
+      yearBuilt: "연식", hoa: "HOA/월", estRent: "예상 렌트 ($/월)", propTax: "재산세 ($/년)",
+    },
+    verdict: {
+      flip:  (roi, profit) => `Flip ROI ${roi} — 기준(18%) 충족. 6개월 내 예상 순이익 ${profit}`,
+      hold:  (cf, dscr)   => `월 현금흐름 ${cf}, DSCR ${dscr} — Hold 조건 충족`,
+      both:  (roi, cf)    => `Flip ROI ${roi} / 월 CF ${cf} — 두 전략 모두 가능`,
+      pass:  (roi, cf)    => `Flip ROI ${roi}, 월 CF ${cf} — 기준 미달. 재검토 필요`,
+    },
+    metrics: { arv: "예상 ARV", renoCost: "수리비 (10% 포함)", equity: "필요 자기자본", flipProfit: "Flip 순이익" },
+    ai: { analyzing: "AI 분석 중...", analyzing2: "분석 중...", dealBtn: "✦ AI 투자 판단", resultLabel: "AI 분석 결과" },
+    flip: {
+      cardTitle: "Flip 수익 계산", stressTitle: "스트레스 테스트",
+      aiBtn: "✦ Flip 전략 AI 분석", aiLabel: "AI 분석",
+      rows: ["매입가","수리비 (10% 포함)","보유 비용 (6개월)","판매 수수료 (7.5%)","총 투자비","예상 ARV","순이익","자기자본 ROI","연환산 수익률"],
+      stress: ["ARV -5%","ARV -10%","+60일 보유","수리비 +20%"],
+    },
+    hold: {
+      cardTitle: "Hold 수익 계산 (연간)", stressTitle: "Hold 스트레스 테스트", equityTitle: "5년 Equity 시나리오",
+      rows: ["월 렌트","공실 손실 (8%)","운영비 (12%)","PM 비용 (9%)","재산세","HOA","월 대출 이자","월 순현금흐름","연 NOI","Cap Rate","Cash-on-Cash","DSCR"],
+      stress: ["공실 2개월","렌트 -10%","유지비 +15%","세금 +10%"],
+      yearEquity: (yr) => `${yr}년 후 Equity`,
+    },
+    finance: {
+      conventional: "🏦 일반 (Conventional)", conventionalDesc: "낮은 금리 · 장기 안정",
+      flip: "📈 플립 (Fix & Flip)", flipDesc: "빠른 승인 · 높은 LTV",
+      rental: "🏠 임대 (DSCR/Rental)", rentalDesc: "소득검증 없음 · 장기",
+      ltvTitle: "LTV 설정", loanLabel: "대출",
+      rateLabel: "금리 · LTV",
+      updated: (t) => `🕐 업데이트: ${t}`, noUpdate: "실시간 금리 조회 가능",
+      refreshing: "조회 중...", refreshBtn: "🔄 금리 실시간 조회",
+      lenderMeta: ["월 이자","6개월 보유","클로징","Points"],
+      website: "웹사이트 →", contact: "📧 문의",
+    },
+    brrrr: {
+      title: "BRRRR 시나리오",
+      labels: ["초기 자기자본","ARV 기준 재융자","Refi 후 회수","잔여 자기자본"],
+    },
+    contractor: {
+      aiBtn: "✦ AI 건설사 계약 가이드", aiLabel: "AI 가이드",
+      analyzing: "분석 중...",
+      website: "웹사이트 →", contact: "📧 견적요청",
+    },
+    materials: {
+      cardTitle: "Northern Virginia 자재 단가 (2025)",
+      gradeLabel: (g) => `현재 등급: ${g}`,
+      headers: ["카테고리","자재/항목","단위","Light","Medium","Heavy","현재 등급 단가"],
+    },
+    construction: {
+      cardTitle: "공사 현황 트래커",
+      budget: "총 예산", spent: "지출", remaining: "잔여",
+      headers: ["공정명","예산 ($)","지출 ($)","예정일","상태",""],
+      addBtn: "+ 공정 추가", newTask: "새 공정",
+      statuses: { pending: "대기", progress: "진행중", done: "완료" },
+    },
+    risk: {
+      labels: ["금리 리스크","LTV 리스크","Flip ROI","DSCR","월 현금흐름","자본 필요액"],
+      rateDesc: (r) => `실질 이자율 ${r}%`,
+      ltvDesc: (l) => `현재 LTV ${l}%`,
+      aiBtn: "✦ AI 리스크 분석", aiLabel: "AI 리스크 분석",
+      analyzing: "...",
+    },
+  },
+  en: {
+    tabLabel: (t) => t.labelEn,
+    topbar: { monthlyCF: "Monthly CF" },
+    deal: {
+      cardTitle: "Property Info", renoTitle: "Reno Level",
+      address: "Address", purchasePrice: "Purchase Price ($)", area: "Area (sqft)",
+      yearBuilt: "Year Built", hoa: "HOA/mo", estRent: "Est. Rent ($/mo)", propTax: "Property Tax ($/yr)",
+    },
+    verdict: {
+      flip:  (roi, profit) => `Flip ROI ${roi} — ≥18% ✓. Est. net profit ${profit} in 6mo`,
+      hold:  (cf, dscr)   => `Monthly CF ${cf}, DSCR ${dscr} — Hold criteria met`,
+      both:  (roi, cf)    => `Flip ROI ${roi} / Monthly CF ${cf} — Both strategies viable`,
+      pass:  (roi, cf)    => `Flip ROI ${roi}, Monthly CF ${cf} — Below threshold. Review needed`,
+    },
+    metrics: { arv: "Est. ARV", renoCost: "Reno Cost (+10%)", equity: "Required Equity", flipProfit: "Net Flip Profit" },
+    ai: { analyzing: "AI Analyzing...", analyzing2: "Analyzing...", dealBtn: "✦ AI Analysis", resultLabel: "AI Analysis" },
+    flip: {
+      cardTitle: "Flip P&L", stressTitle: "Stress Test",
+      aiBtn: "✦ AI Flip Strategy", aiLabel: "AI Analysis",
+      rows: ["Purchase Price","Reno Cost (+10%)","Holding Cost (6mo)","Selling Fee (7.5%)","Total Cost","Est. ARV","Net Profit","Equity ROI","Annual ROI"],
+      stress: ["ARV -5%","ARV -10%","+60d Hold","Reno +20%"],
+    },
+    hold: {
+      cardTitle: "Hold P&L (Annual)", stressTitle: "Hold Stress Test", equityTitle: "5-Year Equity",
+      rows: ["Monthly Rent","Vacancy (8%)","OpEx (12%)","PM Fee (9%)","Property Tax","HOA","Monthly Interest","Monthly CF","Annual NOI","Cap Rate","Cash-on-Cash","DSCR"],
+      stress: ["2-mo Vacancy","Rent -10%","Maint. +15%","Tax +10%"],
+      yearEquity: (yr) => `Equity After ${yr}yr`,
+    },
+    finance: {
+      conventional: "🏦 Conventional", conventionalDesc: "Low rate · Long-term stable",
+      flip: "📈 Fix & Flip", flipDesc: "Fast approval · High LTV",
+      rental: "🏠 DSCR/Rental", rentalDesc: "No income verify · Long-term",
+      ltvTitle: "LTV Setting", loanLabel: "Loan",
+      rateLabel: "Rate · LTV",
+      updated: (t) => `🕐 Updated: ${t}`, noUpdate: "Live rate lookup available",
+      refreshing: "Loading...", refreshBtn: "🔄 Refresh Rates",
+      lenderMeta: ["Mo. Interest","6mo Hold","Closing","Points"],
+      website: "Website →", contact: "📧 Inquire",
+    },
+    brrrr: {
+      title: "BRRRR Scenario",
+      labels: ["Initial Equity","Refi (ARV-based)","Refi Proceeds","Remaining Equity"],
+    },
+    contractor: {
+      aiBtn: "✦ AI Contractor Guide", aiLabel: "AI Guide",
+      analyzing: "Analyzing...",
+      website: "Website →", contact: "📧 Request Quote",
+    },
+    materials: {
+      cardTitle: "Northern Virginia Material Prices (2025)",
+      gradeLabel: (g) => `Current Grade: ${g}`,
+      headers: ["Category","Material/Item","Unit","Light","Medium","Heavy","Current Grade"],
+    },
+    construction: {
+      cardTitle: "Construction Tracker",
+      budget: "Budget", spent: "Spent", remaining: "Remaining",
+      headers: ["Task","Budget ($)","Actual ($)","Due Date","Status",""],
+      addBtn: "+ Add Task", newTask: "New Task",
+      statuses: { pending: "Pending", progress: "In Progress", done: "Done" },
+    },
+    risk: {
+      labels: ["Rate Risk","LTV Risk","Flip ROI","DSCR","Monthly CF","Capital Required"],
+      rateDesc: (r) => `Actual rate ${r}%`,
+      ltvDesc: (l) => `Current LTV ${l}%`,
+      aiBtn: "✦ AI Risk Analysis", aiLabel: "AI Risk Analysis",
+      analyzing: "...",
+    },
+  },
+};
 
 const fmt = (n) => "$" + Math.round(n).toLocaleString();
 const pct = (n) => n.toFixed(1) + "%";
@@ -398,7 +538,13 @@ Return only valid JSON.`;
   };
 
   const updateTask = (id, field, val) => setTasks(t => t.map(x => x.id === id ? { ...x, [field]: val } : x));
-  const nextStatus = (s) => ({ "대기": "진행중", "진행중": "완료", "완료": "대기" }[s]);
+  const nextStatus = (s) => {
+    const map = lang === "ko"
+      ? { "대기": "진행중", "진행중": "완료", "완료": "대기" }
+      : { "Pending": "In Progress", "In Progress": "Done", "Done": "Pending" };
+    return map[s] || s;
+  };
+  const t$ = L[lang]; // shorthand for current language
 
   return (
     <>
@@ -430,7 +576,7 @@ Return only valid JSON.`;
           {TABS.map(t => (
             <button key={t.id} className={`nav-btn ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
               <span className="nav-emoji">{t.emoji}</span>
-              {t.label}
+              {t$?.tabLabel(t)}
             </button>
           ))}
         </aside>
@@ -441,7 +587,8 @@ Return only valid JSON.`;
           {/* TOPBAR */}
           <div className="topbar">
             <div className="topbar-title">
-              {TABS.find(t => t.id === tab)?.emoji} {TABS.find(t => t.id === tab)?.label}<button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{marginLeft:12,padding:"4px 14px",borderRadius:100,border:"1px solid #E2B84B",background:"#E2B84B",color:"#000",fontSize:11,fontWeight:800,cursor:"pointer"}}>{lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}</button>
+              {TABS.find(t => t.id === tab)?.emoji} {t$?.tabLabel(TABS.find(t => t.id === tab))}
+              <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{marginLeft:12,padding:"4px 14px",borderRadius:100,border:"1px solid #E2B84B",background:"#E2B84B",color:"#000",fontSize:11,fontWeight:800,cursor:"pointer"}}>{lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}</button>
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
             <div className="topbar-stats">
@@ -454,7 +601,7 @@ Return only valid JSON.`;
                 <div className={`tstat-val ${flipROI >= 18 ? "gold" : flipROI >= 10 ? "blue" : "red"}`}>{pct(flipROI)}</div>
               </div>
               <div className="tstat">
-                <div className="tstat-label">월 현금흐름</div>
+                <div className="tstat-label">{t$?.topbar.monthlyCF}</div>
                 <div className={`tstat-val ${monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "blue" : "red"}`}>{fmt(monthlyCF)}</div>
               </div>
             </div>
@@ -468,31 +615,31 @@ Return only valid JSON.`;
                 <div className="grid2" style={{ gap: 20 }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     <div className="card">
-                      <div className="card-header"><span className="card-title">매물 기본 정보</span></div>
+                      <div className="card-header"><span className="card-title">{t$?.deal.cardTitle}</span></div>
                       <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                         <div className="field">
-                          <label className="label">주소</label>
+                          <label className="label">{t$?.deal.address}</label>
                           <input className="input" placeholder="1234 Oak St, Fairfax, VA 22031" value={D.address} onChange={e => setDeal(d => ({ ...d, address: e.target.value }))} />
                         </div>
                         <div className="grid2">
-                          <div className="field"><label className="label">매입가 ($)</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">면적 (sqft)</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.purchasePrice}</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.area}</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
                         </div>
                         <div className="grid4">
-                          <div className="field"><label className="label">연식</label><input className="input" type="number" value={D.yearBuilt} onChange={e => setDeal(d => ({ ...d, yearBuilt: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.yearBuilt}</label><input className="input" type="number" value={D.yearBuilt} onChange={e => setDeal(d => ({ ...d, yearBuilt: +e.target.value }))} /></div>
                           <div className="field"><label className="label">Beds</label><input className="input" type="number" value={D.beds} onChange={e => setDeal(d => ({ ...d, beds: +e.target.value }))} /></div>
                           <div className="field"><label className="label">Baths</label><input className="input" type="number" value={D.baths} onChange={e => setDeal(d => ({ ...d, baths: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">HOA/월</label><input className="input" type="number" value={D.hoa} onChange={e => setDeal(d => ({ ...d, hoa: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.hoa}</label><input className="input" type="number" value={D.hoa} onChange={e => setDeal(d => ({ ...d, hoa: +e.target.value }))} /></div>
                         </div>
                         <div className="grid2">
-                          <div className="field"><label className="label">예상 렌트 ($/월)</label><input className="input" type="number" value={D.estimatedRent} onChange={e => setDeal(d => ({ ...d, estimatedRent: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">재산세 ($/년)</label><input className="input" type="number" value={D.propertyTax} onChange={e => setDeal(d => ({ ...d, propertyTax: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.estRent}</label><input className="input" type="number" value={D.estimatedRent} onChange={e => setDeal(d => ({ ...d, estimatedRent: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.propTax}</label><input className="input" type="number" value={D.propertyTax} onChange={e => setDeal(d => ({ ...d, propertyTax: +e.target.value }))} /></div>
                         </div>
                       </div>
                     </div>
 
                     <div className="card">
-                      <div className="card-header"><span className="card-title">수리 등급</span></div>
+                      <div className="card-header"><span className="card-title">{t$?.deal.renoTitle}</span></div>
                       <div className="card-body">
                         <div className="reno-grid">
                           {["Light", "Medium", "Heavy"].map(l => (
@@ -511,21 +658,21 @@ Return only valid JSON.`;
                     <div className={`verdict ${verdictClass}`}>
                       <div className="verdict-badge" style={{ color: verdictColor }}>{verdict}</div>
                       <div className="verdict-text">
-                        {verdict === "FLIP" && `Flip ROI ${pct(flipROI)} — 기준(18%) 충족. 6개월 내 예상 순이익 ${fmt(flipProfit)}`}
-                        {verdict === "HOLD" && `월 현금흐름 ${fmt(monthlyCF)}, DSCR ${dscr.toFixed(2)} — Hold 조건 충족`}
-                        {verdict === "BOTH" && `Flip ROI ${pct(flipROI)} / 월 CF ${fmt(monthlyCF)} — 두 전략 모두 가능`}
-                        {verdict === "PASS" && `Flip ROI ${pct(flipROI)}, 월 CF ${fmt(monthlyCF)} — 기준 미달. 재검토 필요`}
+                        {verdict === "FLIP" && t$?.verdict.flip(pct(flipROI), fmt(flipProfit))}
+                        {verdict === "HOLD" && t$?.verdict.hold(fmt(monthlyCF), dscr.toFixed(2))}
+                        {verdict === "BOTH" && t$?.verdict.both(pct(flipROI), fmt(monthlyCF))}
+                        {verdict === "PASS" && t$?.verdict.pass(pct(flipROI), fmt(monthlyCF))}
                       </div>
                     </div>
 
                     <div className="grid2">
                       {[
-                        { label: "예상 ARV", val: fmt(arv), cls: "gold" },
-                        { label: "수리비 (10% 포함)", val: fmt(renoCost), cls: "blue" },
-                        { label: "필요 자기자본", val: fmt(equity), cls: "blue" },
-                        { label: "Flip 순이익", val: fmt(flipProfit), cls: flipProfit > 0 ? "green" : "red" },
-                        { label: "Cap Rate", val: pct(capRate), cls: capRate >= 6 ? "green" : "blue" },
-                        { label: "DSCR", val: dscr.toFixed(2), cls: dscr >= 1.2 ? "green" : "red" },
+                        { label: t$?.metrics.arv,        val: fmt(arv),           cls: "gold" },
+                        { label: t$?.metrics.renoCost,   val: fmt(renoCost),      cls: "blue" },
+                        { label: t$?.metrics.equity,     val: fmt(equity),        cls: "blue" },
+                        { label: t$?.metrics.flipProfit, val: fmt(flipProfit),    cls: flipProfit > 0 ? "green" : "red" },
+                        { label: "Cap Rate",             val: pct(capRate),       cls: capRate >= 6 ? "green" : "blue" },
+                        { label: "DSCR",                 val: dscr.toFixed(2),   cls: dscr >= 1.2 ? "green" : "red" },
                       ].map(m => (
                         <div key={m.label} className="metric">
                           <div className="metric-label">{m.label}</div>
@@ -537,12 +684,12 @@ Return only valid JSON.`;
                     <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
                       disabled={aiLoading}
                       onClick={() => runAI(`Northern Virginia 부동산 투자 분석. 주소: ${D.address || "Fairfax VA"}, 매입가: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, 월 현금흐름: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. 한글로 투자 판단 3줄 요약.`)}>
-                      {aiLoading ? <><div className="spinner" /> AI 분석 중...</> : "✦ AI 투자 판단"}
+                      {aiLoading ? <><div className="spinner" /> {t$?.ai.analyzing}</> : t$?.ai.dealBtn}
                     </button>
 
                     {aiResult && (
                       <div className="ai-box">
-                        <div className="ai-header"><div className="ai-dot" /><span className="ai-label">AI 분석 결과</span></div>
+                        <div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.ai.resultLabel}</span></div>
                         <div className="ai-text">{aiResult}</div>
                       </div>
                     )}
@@ -556,23 +703,15 @@ Return only valid JSON.`;
               <div>
                 <div className="grid2" style={{ gap: 20 }}>
                   <div className="card">
-                    <div className="card-header"><span className="card-title">Flip 수익 계산</span></div>
+                    <div className="card-header"><span className="card-title">{t$?.flip.cardTitle}</span></div>
                     <div className="card-body">
                       <table className="tbl">
                         <tbody>
-                          {[
-                            ["매입가", fmt(D.purchasePrice), ""],
-                            ["수리비 (10% 포함)", fmt(renoCost), ""],
-                            ["보유 비용 (6개월)", fmt(holdingCost), ""],
-                            ["판매 수수료 (7.5%)", fmt(sellingCost), "red"],
-                            ["총 투자비", fmt(D.purchasePrice + renoCost + holdingCost), ""],
-                            ["예상 ARV", fmt(arv), "gold"],
-                            ["순이익", fmt(flipProfit), flipProfit > 0 ? "green" : "red"],
-                            ["자기자본 ROI", pct(flipROI), flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red"],
-                            ["연환산 수익률", pct(flipROI / (holdMonths / 12)), flipROI >= 18 ? "green" : "blue"],
-                          ].map(([label, val, cls]) => (
-                            <tr key={label}><td>{label}</td><td className={cls || "mono"}>{val}</td></tr>
-                          ))}
+                          {(t$?.flip.rows || []).map((label, i) => {
+                            const vals = [fmt(D.purchasePrice), fmt(renoCost), fmt(holdingCost), fmt(sellingCost), fmt(D.purchasePrice + renoCost + holdingCost), fmt(arv), fmt(flipProfit), pct(flipROI), pct(flipROI / (holdMonths / 12))];
+                            const clss = ["","","","red","","gold", flipProfit > 0 ? "green" : "red", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", flipROI >= 18 ? "green" : "blue"];
+                            return <tr key={i}><td>{label}</td><td className={clss[i] || "mono"}>{vals[i]}</td></tr>;
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -580,20 +719,23 @@ Return only valid JSON.`;
 
                   <div>
                     <div className="card" style={{ marginBottom: 16 }}>
-                      <div className="card-header"><span className="card-title">스트레스 테스트</span></div>
+                      <div className="card-header"><span className="card-title">{t$?.flip.stressTitle}</span></div>
                       <div className="card-body">
                         <div className="stress-grid">
-                          {[
-                            { label: "ARV -5%", val: fmt(arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95), ok: (arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95) > 0 },
-                            { label: "ARV -10%", val: fmt(arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90), ok: (arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90) > 0 },
-                            { label: "+60일 보유", val: fmt(flipProfit - monthlyInterest * 2), ok: (flipProfit - monthlyInterest * 2) > 0 },
-                            { label: "수리비 +20%", val: fmt(arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost), ok: (arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost) > 0 },
-                          ].map(s => (
-                            <div key={s.label} className="stress-item">
-                              <div className="stress-label">{s.label}</div>
-                              <div className="stress-val" style={{ color: s.ok ? "var(--green)" : "var(--red)" }}>{s.val}</div>
-                            </div>
-                          ))}
+                          {(t$?.flip.stress || []).map((label, i) => {
+                            const stressVals = [
+                              { val: fmt(arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95), ok: (arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95) > 0 },
+                              { val: fmt(arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90), ok: (arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90) > 0 },
+                              { val: fmt(flipProfit - monthlyInterest * 2), ok: (flipProfit - monthlyInterest * 2) > 0 },
+                              { val: fmt(arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost), ok: (arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost) > 0 },
+                            ];
+                            return (
+                              <div key={i} className="stress-item">
+                                <div className="stress-label">{label}</div>
+                                <div className="stress-val" style={{ color: stressVals[i].ok ? "var(--green)" : "var(--red)" }}>{stressVals[i].val}</div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
@@ -601,9 +743,9 @@ Return only valid JSON.`;
                     <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}
                       disabled={aiLoading}
                       onClick={() => runAI(`Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`)}>
-                      {aiLoading ? <><div className="spinner" />분석 중...</> : "✦ Flip 전략 AI 분석"}
+                      {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing2}</> : t$?.flip.aiBtn}
                     </button>
-                    {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">AI 분석</span></div><div className="ai-text">{aiResult}</div></div>}
+                    {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.flip.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
                   </div>
                 </div>
               </div>
@@ -614,26 +756,15 @@ Return only valid JSON.`;
               <div>
                 <div className="grid2" style={{ gap: 20 }}>
                   <div className="card">
-                    <div className="card-header"><span className="card-title">Hold 수익 계산 (연간)</span></div>
+                    <div className="card-header"><span className="card-title">{t$?.hold.cardTitle}</span></div>
                     <div className="card-body">
                       <table className="tbl">
                         <tbody>
-                          {[
-                            ["월 렌트", fmt(D.estimatedRent), "gold"],
-                            ["공실 손실 (8%)", fmt(-vacancy), "red"],
-                            ["운영비 (12%)", fmt(-opex), "red"],
-                            ["PM 비용 (9%)", fmt(-pm), "red"],
-                            ["재산세", fmt(-D.propertyTax / 12) + "/월", "red"],
-                            ["HOA", fmt(-D.hoa) + "/월", D.hoa > 0 ? "red" : ""],
-                            ["월 대출 이자", fmt(-monthlyInterest * 1.15), "red"],
-                            ["월 순현금흐름", fmt(monthlyCF), monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "blue" : "red"],
-                            ["연 NOI", fmt(noi), "gold"],
-                            ["Cap Rate", pct(capRate), capRate >= 6 ? "green" : "blue"],
-                            ["Cash-on-Cash", pct(coc), coc >= 8 ? "green" : coc >= 4 ? "blue" : "red"],
-                            ["DSCR", dscr.toFixed(2), dscr >= 1.2 ? "green" : "red"],
-                          ].map(([label, val, cls]) => (
-                            <tr key={label}><td>{label}</td><td className={cls || "mono"}>{val}</td></tr>
-                          ))}
+                          {(t$?.hold.rows || []).map((label, i) => {
+                            const holdVals = [fmt(D.estimatedRent), fmt(-vacancy), fmt(-opex), fmt(-pm), fmt(-D.propertyTax / 12) + "/mo", fmt(-D.hoa) + "/mo", fmt(-monthlyInterest * 1.15), fmt(monthlyCF), fmt(noi), pct(capRate), pct(coc), dscr.toFixed(2)];
+                            const holdClss = ["gold","red","red","red","red", D.hoa > 0 ? "red" : "", "red", monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "blue" : "red", "gold", capRate >= 6 ? "green" : "blue", coc >= 8 ? "green" : coc >= 4 ? "blue" : "red", dscr >= 1.2 ? "green" : "red"];
+                            return <tr key={i}><td>{label}</td><td className={holdClss[i] || "mono"}>{holdVals[i]}</td></tr>;
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -641,33 +772,36 @@ Return only valid JSON.`;
 
                   <div>
                     <div className="card" style={{ marginBottom: 16 }}>
-                      <div className="card-header"><span className="card-title">Hold 스트레스 테스트</span></div>
+                      <div className="card-header"><span className="card-title">{t$?.hold.stressTitle}</span></div>
                       <div className="card-body">
                         <div className="stress-grid">
-                          {[
-                            { label: "공실 2개월", val: fmt(monthlyCF - D.estimatedRent / 6), ok: (monthlyCF - D.estimatedRent / 6) > 0 },
-                            { label: "렌트 -10%", val: fmt(monthlyCF - D.estimatedRent * 0.1), ok: (monthlyCF - D.estimatedRent * 0.1) > 0 },
-                            { label: "유지비 +15%", val: fmt(monthlyCF - opex * 0.15), ok: (monthlyCF - opex * 0.15) > 0 },
-                            { label: "세금 +10%", val: fmt(monthlyCF - D.propertyTax * 0.1 / 12), ok: (monthlyCF - D.propertyTax * 0.1 / 12) > 0 },
-                          ].map(s => (
-                            <div key={s.label} className="stress-item">
-                              <div className="stress-label">{s.label}</div>
-                              <div className="stress-val" style={{ color: s.ok ? "var(--green)" : "var(--red)" }}>{s.val}</div>
-                            </div>
-                          ))}
+                          {(t$?.hold.stress || []).map((label, i) => {
+                            const holdStress = [
+                              { val: fmt(monthlyCF - D.estimatedRent / 6), ok: (monthlyCF - D.estimatedRent / 6) > 0 },
+                              { val: fmt(monthlyCF - D.estimatedRent * 0.1), ok: (monthlyCF - D.estimatedRent * 0.1) > 0 },
+                              { val: fmt(monthlyCF - opex * 0.15), ok: (monthlyCF - opex * 0.15) > 0 },
+                              { val: fmt(monthlyCF - D.propertyTax * 0.1 / 12), ok: (monthlyCF - D.propertyTax * 0.1 / 12) > 0 },
+                            ];
+                            return (
+                              <div key={i} className="stress-item">
+                                <div className="stress-label">{label}</div>
+                                <div className="stress-val" style={{ color: holdStress[i].ok ? "var(--green)" : "var(--red)" }}>{holdStress[i].val}</div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
 
                     <div className="card">
-                      <div className="card-header"><span className="card-title">5년 Equity 시나리오</span></div>
+                      <div className="card-header"><span className="card-title">{t$?.hold.equityTitle}</span></div>
                       <div className="card-body">
                         <table className="tbl">
                           <tbody>
                             {[1, 2, 3, 5].map(yr => {
                               const appreciation = D.purchasePrice * Math.pow(1.04, yr) - D.purchasePrice;
                               const equity5 = equity + appreciation + (annualDebt * 0.2 * yr);
-                              return <tr key={yr}><td>{yr}년 후 Equity</td><td className="green">{fmt(equity5)}</td></tr>;
+                              return <tr key={yr}><td>{t$?.hold.yearEquity(yr)}</td><td className="green">{fmt(equity5)}</td></tr>;
                             })}
                           </tbody>
                         </table>
@@ -683,9 +817,9 @@ Return only valid JSON.`;
               <div>
                 <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
                   {[
-                    { key: "conventional", label: "🏦 일반 (Conventional)", color: "var(--blue)", desc: "낮은 금리 · 장기 안정" },
-                    { key: "flip",         label: "📈 플립 (Fix & Flip)",    color: "var(--gold)", desc: "빠른 승인 · 높은 LTV" },
-                    { key: "rental",       label: "🏠 임대 (DSCR/Rental)",   color: "var(--green)", desc: "소득검증 없음 · 장기" },
+                    { key: "conventional", label: t$?.finance.conventional, color: "var(--blue)", desc: t$?.finance.conventionalDesc },
+                    { key: "flip",         label: t$?.finance.flip,         color: "var(--gold)", desc: t$?.finance.flipDesc },
+                    { key: "rental",       label: t$?.finance.rental,       color: "var(--green)", desc: t$?.finance.rentalDesc },
                   ].map(info => (
                     <button key={info.key} onClick={() => setFinCat(info.key)}
                       style={{ flex: 1, padding: "14px 10px", borderRadius: 14, border: "1px solid " + (finCat === info.key ? info.color : "var(--border)"), background: finCat === info.key ? info.color + "22" : "var(--bg2)", cursor: "pointer", fontFamily: "Sora,sans-serif", transition: "all 0.2s" }}>
@@ -697,21 +831,21 @@ Return only valid JSON.`;
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                   <div style={{ fontSize: 11, color: "var(--dim)" }}>
-                    {rateUpdatedAt ? "🕐 업데이트: " + rateUpdatedAt : "실시간 금리 조회 가능"}
+                    {rateUpdatedAt ? t$?.finance.updated(rateUpdatedAt) : t$?.finance.noUpdate}
                   </div>
                   <button onClick={refreshRates} disabled={rateRefreshing}
                     style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1px solid var(--gold)", background: "var(--gold)22", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
-                    {rateRefreshing ? <><div className="spinner"/>조회 중...</> : "🔄 금리 실시간 조회"}
+                    {rateRefreshing ? <><div className="spinner"/>{t$?.finance.refreshing}</> : t$?.finance.refreshBtn}
                   </button>
                 </div>
 
                 <div className="card" style={{ marginBottom: 16 }}>
-                  <div className="card-header"><span className="card-title">LTV 설정</span></div>
+                  <div className="card-header"><span className="card-title">{t$?.finance.ltvTitle}</span></div>
                   <div className="card-body">
                     <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                       <input type="range" min={60} max={85} value={ltv} onChange={e => setLtv(+e.target.value)} style={{ flex: 1, accentColor: "var(--gold)" }} />
                       <span style={{ fontFamily: "DM Mono", fontSize: 20, color: "var(--gold)", minWidth: 60 }}>{ltv}%</span>
-                      <span style={{ fontSize: 12, color: "var(--dim)" }}>대출 {fmt(D.purchasePrice * ltv / 100)}</span>
+                      <span style={{ fontSize: 12, color: "var(--dim)" }}>{t$?.finance.loanLabel} {fmt(D.purchasePrice * ltv / 100)}</span>
                     </div>
                   </div>
                 </div>
@@ -736,26 +870,29 @@ Return only valid JSON.`;
                             {liveRates[l.name] ? liveRates[l.name] : l.rate}%
                             {liveRates[l.name] && <span style={{ fontSize: 9, color: "var(--green)", marginLeft: 4 }}>LIVE</span>}
                           </div>
-                          <div style={{ fontSize: 9, color: "var(--dim)" }}>금리 · LTV {l.ltv}%</div>
+                          <div style={{ fontSize: 9, color: "var(--dim)" }}>{t$?.finance.rateLabel} {l.ltv}%</div>
                         </div>
                       </div>
                       <div style={{ padding: "12px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
                         <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{l.review}</div>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                           <div style={{ display: "flex", gap: 14 }}>
-                            {[["월 이자", fmt(mi), cc], ["6개월 보유", fmt(sixMo), "var(--mid)"], ["클로징", l.speed, "var(--mid)"], ["Points", String(l.points), "var(--mid)"]].map(([label, val, color]) => (
-                              <div key={label}>
-                                <div style={{ fontSize: 8, color: "var(--dim)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{label}</div>
-                                <div style={{ fontFamily: "DM Mono", fontSize: 13, color }}>{val}</div>
+                            {(t$?.finance.lenderMeta || []).map((lmeta, mi_i) => {
+                              const metaVals = [fmt(mi), fmt(sixMo), l.speed, String(l.points)];
+                              const metaColors = [cc, "var(--mid)", "var(--mid)", "var(--mid)"];
+                              return (
+                              <div key={mi_i}>
+                                <div style={{ fontSize: 8, color: "var(--dim)", textTransform: "uppercase", letterSpacing: "0.1em" }}>{lmeta}</div>
+                                <div style={{ fontFamily: "DM Mono", fontSize: 13, color: metaColors[mi_i] }}>{metaVals[mi_i]}</div>
                               </div>
-                            ))}
+                            );})}
                           </div>
                           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                             <span style={{ fontSize: 12, color: "var(--gold)" }}>{l.rating}</span>
                             <a href={"https://" + l.website} target="_blank" rel="noreferrer"
-                              style={{ fontSize: 9, color: "var(--blue)", textDecoration: "none", background: "var(--blue2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>웹사이트 →</a>
+                              style={{ fontSize: 9, color: "var(--blue)", textDecoration: "none", background: "var(--blue2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>{t$?.finance.website}</a>
                             <a href={`mailto:${l.email || ""}?subject=Loan Inquiry - ISWELL PROPERTIES&body=Hello ${l.name},%0D%0A%0D%0AMy name is David Kim with ISWELL PROPERTIES.%0D%0AWe are interested in financing for a property we are acquiring.%0D%0A%0D%0A• Property Address: ${deal.address || "TBD"}%0D%0A• Purchase Price: $${deal.purchasePrice.toLocaleString()}%0D%0A• Lender: ${l.name}%0D%0A• Rate: ${l.rate}%%0D%0A• LTV: ${l.ltv}%%0D%0A• Closing Speed: ${l.speed}%0D%0A%0D%0AWe look forward to discussing the loan terms with you.%0D%0A%0D%0ABest regards,%0D%0ADavid Kim%0D%0AISWELL PROPERTIES%0D%0Aiswell.properties@gmail.com`}
-                              style={{ fontSize: 9, color: "var(--green)", textDecoration: "none", background: "var(--green2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>📧 문의</a>
+                              style={{ fontSize: 9, color: "var(--green)", textDecoration: "none", background: "var(--green2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>{t$?.finance.contact}</a>
                           </div>
                         </div>
                       </div>
@@ -764,17 +901,14 @@ Return only valid JSON.`;
                 })}
 
                 <div className="card" style={{ marginTop: 16 }}>
-                  <div className="card-header"><span className="card-title">BRRRR 시나리오</span></div>
+                  <div className="card-header"><span className="card-title">{t$?.brrrr.title}</span></div>
                   <div className="card-body">
                     <div className="grid4">
-                      {[
-                        { label: "초기 자기자본", val: fmt(equity) },
-                        { label: "ARV 기준 재융자", val: fmt(arv * 0.75) },
-                        { label: "Refi 후 회수", val: fmt(Math.max(0, arv * 0.75 - loanAmt)) },
-                        { label: "잔여 자기자본", val: fmt(equity - Math.max(0, arv * 0.75 - loanAmt)) },
-                      ].map(m => (
-                        <div key={m.label} className="metric"><div className="metric-label">{m.label}</div><div className="metric-val gold">{m.val}</div></div>
-                      ))}
+                      {(t$?.brrrr.labels || []).map((label, i) => {
+                        const bVals = [fmt(equity), fmt(arv * 0.75), fmt(Math.max(0, arv * 0.75 - loanAmt)), fmt(equity - Math.max(0, arv * 0.75 - loanAmt))];
+                        return (
+                        <div key={i} className="metric"><div className="metric-label">{label}</div><div className="metric-val gold">{bVals[i]}</div></div>
+                      );})}
                     </div>
                   </div>
                 </div>
@@ -824,10 +958,10 @@ Return only valid JSON.`;
                               <span style={{ fontFamily: "DM Mono", fontSize: 12, color: cc, minWidth: 28 }}>{c.score}</span>
                             </div>
                             <a href={"https://" + c.website} target="_blank" rel="noreferrer"
-                              style={{ fontSize: 9, color: "var(--blue)", textDecoration: "none", background: "var(--blue2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>웹사이트 →</a>
+                              style={{ fontSize: 9, color: "var(--blue)", textDecoration: "none", background: "var(--blue2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>{t$?.contractor.website}</a>
                             <a href={`mailto:${c.email || ""}?subject=Construction Estimate Request - ISWELL PROPERTIES&body=Hello ${c.name},%0D%0A%0D%0AMy name is David Kim with ISWELL PROPERTIES.
 Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimate for a property we are acquiring.%0D%0A%0D%0A• Property Address: ${deal.address || "TBD"}%0D%0A• Purchase Price: $${deal.purchasePrice.toLocaleString()}%0D%0A• Building Size: ${deal.sqft} sqft%0D%0A• Year Built: ${deal.yearBuilt}%0D%0A• Contractor: ${c.name}%0D%0A%0D%0APlease provide us with your estimate at your earliest convenience.%0D%0A%0D%0ABest regards,%0D%0ADavid Kim%0D%0AISWELL PROPERTIES%0D%0Aiswell.properties@gmail.com`}
-                              style={{ fontSize: 9, color: "var(--green)", textDecoration: "none", background: "var(--green2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>📧 견적요청</a>
+                              style={{ fontSize: 9, color: "var(--green)", textDecoration: "none", background: "var(--green2)", padding: "4px 10px", borderRadius: 100, fontWeight: 700 }}>{t$?.contractor.contact}</a>
                           </div>
                         </div>
                       </div>
@@ -837,9 +971,9 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                 <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
                   disabled={aiLoading}
                   onClick={() => runAI("Northern Virginia 부동산 투자자. " + gcCat + " 건설사 계약 전 핵심 체크포인트 5가지 한글로.")}>
-                  {aiLoading ? <><div className="spinner"/>분석 중...</> : "✦ AI 건설사 계약 가이드"}
+                  {aiLoading ? <><div className="spinner"/>{t$?.contractor.analyzing}</> : t$?.contractor.aiBtn}
                 </button>
-                {aiResult && <div className="ai-box" style={{ marginTop: 12 }}><div className="ai-header"><div className="ai-dot"/><span className="ai-label">AI 가이드</span></div><div className="ai-text">{aiResult}</div></div>}
+                {aiResult && <div className="ai-box" style={{ marginTop: 12 }}><div className="ai-header"><div className="ai-dot"/><span className="ai-label">{t$?.contractor.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
               </div>
             )}
             {/* ── 6. 자재 단가 ──────────────────────────────────────── */}
@@ -853,12 +987,12 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
 
                 <div className="card">
                   <div className="card-header">
-                    <span className="card-title">Northern Virginia 자재 단가 (2025)</span>
-                    <span style={{ fontSize: 10, color: "var(--dim)" }}>현재 등급: <span style={{ color: "var(--gold)" }}>{D.renoLevel}</span></span>
+                    <span className="card-title">{t$?.materials.cardTitle}</span>
+                    <span style={{ fontSize: 10, color: "var(--dim)" }}>{t$?.materials.gradeLabel(D.renoLevel)}</span>
                   </div>
                   <div className="card-body" style={{ padding: 0, overflowX: "auto" }}>
                     <table className="tbl" style={{ minWidth: 500 }}>
-                      <thead><tr><th>카테고리</th><th>자재/항목</th><th>단위</th><th>Light</th><th>Medium</th><th>Heavy</th><th>현재 등급 단가</th></tr></thead>
+                      <thead><tr>{(t$?.materials.headers || []).map(h => <th key={h}>{h}</th>)}</tr></thead>
                       <tbody>
                         {filteredMats.map((m, i) => (
                           <tr key={i}>
@@ -883,12 +1017,12 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
               <div>
                 <div className="card" style={{ marginBottom: 16 }}>
                   <div className="card-header">
-                    <span className="card-title">공사 현황 트래커</span>
+                    <span className="card-title">{t$?.construction.cardTitle}</span>
                     <div style={{ display: "flex", gap: 16 }}>
                       {[
-                        { label: "총 예산", val: fmt(trackerBudget), cls: "gold" },
-                        { label: "지출", val: fmt(trackerActual), cls: "blue" },
-                        { label: "잔여", val: fmt(trackerBudget - trackerActual), cls: trackerBudget - trackerActual >= 0 ? "green" : "red" },
+                        { label: t$?.construction.budget,   val: fmt(trackerBudget), cls: "gold" },
+                        { label: t$?.construction.spent,    val: fmt(trackerActual), cls: "blue" },
+                        { label: t$?.construction.remaining, val: fmt(trackerBudget - trackerActual), cls: trackerBudget - trackerActual >= 0 ? "green" : "red" },
                       ].map(s => (
                         <div key={s.label} style={{ textAlign: "right" }}>
                           <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--dim)" }}>{s.label}</div>
@@ -905,29 +1039,32 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
 
                     {/* Header */}
                     <div className="task-row" style={{ borderBottom: "1px solid var(--border)", paddingBottom: 8, marginBottom: 4 }}>
-                      {["공정명", "예산 ($)", "지출 ($)", "예정일", "상태", ""].map(h => (
+                      {(t$?.construction.headers || []).map(h => (
                         <div key={h} style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--dim)" }}>{h}</div>
                       ))}
                     </div>
 
-                    {tasks.map(t => (
-                      <div key={t.id} className="task-row">
-                        <input className="task-input" value={t.desc} onChange={e => updateTask(t.id, "desc", e.target.value)} />
-                        <input className="task-input" type="number" value={t.budget} onChange={e => updateTask(t.id, "budget", e.target.value)} />
-                        <input className="task-input" type="number" value={t.actual} onChange={e => updateTask(t.id, "actual", e.target.value)} style={{ color: "var(--blue)" }} />
-                        <input className="task-input" type="date" value={t.due} onChange={e => updateTask(t.id, "due", e.target.value)} />
-                        <button className={`status-pill status-${t.status === "대기" ? "pending" : t.status === "진행중" ? "progress" : "done"}`}
-                          onClick={() => updateTask(t.id, "status", nextStatus(t.status))}>
-                          {t.status}
+                    {tasks.map(tk => {
+                      const st = tk.status;
+                      const stClass = (st === "대기" || st === "Pending") ? "pending" : (st === "진행중" || st === "In Progress") ? "progress" : "done";
+                      return (
+                      <div key={tk.id} className="task-row">
+                        <input className="task-input" value={tk.desc} onChange={e => updateTask(tk.id, "desc", e.target.value)} />
+                        <input className="task-input" type="number" value={tk.budget} onChange={e => updateTask(tk.id, "budget", e.target.value)} />
+                        <input className="task-input" type="number" value={tk.actual} onChange={e => updateTask(tk.id, "actual", e.target.value)} style={{ color: "var(--blue)" }} />
+                        <input className="task-input" type="date" value={tk.due} onChange={e => updateTask(tk.id, "due", e.target.value)} />
+                        <button className={`status-pill status-${stClass}`}
+                          onClick={() => updateTask(tk.id, "status", nextStatus(tk.status))}>
+                          {tk.status}
                         </button>
                         <button className="btn btn-ghost btn-sm" style={{ color: "var(--red)", borderColor: "transparent" }}
-                          onClick={() => setTasks(ts => ts.filter(x => x.id !== t.id))}>✕</button>
+                          onClick={() => setTasks(ts => ts.filter(x => x.id !== tk.id))}>✕</button>
                       </div>
-                    ))}
+                    );})}
 
                     <div style={{ marginTop: 16 }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), desc: "새 공정", budget: 0, actual: 0, status: "대기", due: "" }])}>
-                        + 공정 추가
+                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), desc: t$?.construction.newTask, budget: 0, actual: 0, status: t$?.construction.statuses.pending, due: "" }])}>
+                        {t$?.construction.addBtn}
                       </button>
                     </div>
                   </div>
@@ -939,32 +1076,29 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
             {tab === "risk" && (
               <div>
                 <div className="grid2" style={{ gap: 16, marginBottom: 16 }}>
-                  {[
-                    { label: "금리 리스크", val: `실질 이자율 ${lender.rate}%`, badge: lender.rate > 9 ? "HIGH" : lender.rate > 7.5 ? "MED" : "LOW", color: lender.rate > 9 ? "red" : lender.rate > 7.5 ? "gold" : "green" },
-                    { label: "LTV 리스크", val: `현재 LTV ${ltv}%`, badge: ltv > 80 ? "HIGH" : ltv > 75 ? "MED" : "LOW", color: ltv > 80 ? "red" : ltv > 75 ? "gold" : "green" },
-                    { label: "Flip ROI", val: pct(flipROI), badge: flipROI >= 18 ? "GOOD" : flipROI >= 10 ? "MED" : "LOW", color: flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red" },
-                    { label: "DSCR", val: dscr.toFixed(2), badge: dscr >= 1.2 ? "GOOD" : dscr >= 1.0 ? "MED" : "RISK", color: dscr >= 1.2 ? "green" : dscr >= 1.0 ? "gold" : "red" },
-                    { label: "월 현금흐름", val: fmt(monthlyCF), badge: monthlyCF >= 500 ? "GOOD" : monthlyCF >= 0 ? "MED" : "RISK", color: monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "gold" : "red" },
-                    { label: "자본 필요액", val: fmt(equity), badge: equity < 200000 ? "LOW" : equity < 400000 ? "MED" : "HIGH", color: equity < 200000 ? "green" : equity < 400000 ? "gold" : "red" },
-                  ].map(r => (
-                    <div key={r.label} className="card">
+                  {(t$?.risk.labels || []).map((label, ri) => {
+                    const riskVals = [t$?.risk.rateDesc(lender.rate), t$?.risk.ltvDesc(ltv), pct(flipROI), dscr.toFixed(2), fmt(monthlyCF), fmt(equity)];
+                    const riskBadges = [lender.rate > 9 ? "HIGH" : lender.rate > 7.5 ? "MED" : "LOW", ltv > 80 ? "HIGH" : ltv > 75 ? "MED" : "LOW", flipROI >= 18 ? "GOOD" : flipROI >= 10 ? "MED" : "LOW", dscr >= 1.2 ? "GOOD" : dscr >= 1.0 ? "MED" : "RISK", monthlyCF >= 500 ? "GOOD" : monthlyCF >= 0 ? "MED" : "RISK", equity < 200000 ? "LOW" : equity < 400000 ? "MED" : "HIGH"];
+                    const riskColors = [lender.rate > 9 ? "red" : lender.rate > 7.5 ? "gold" : "green", ltv > 80 ? "red" : ltv > 75 ? "gold" : "green", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", dscr >= 1.2 ? "green" : dscr >= 1.0 ? "gold" : "red", monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "gold" : "red", equity < 200000 ? "green" : equity < 400000 ? "gold" : "red"];
+                    return (
+                    <div key={ri} className="card">
                       <div className="card-body" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
-                          <div className="metric-label">{r.label}</div>
-                          <div className="metric-val" style={{ color: `var(--${r.color})` }}>{r.val}</div>
+                          <div className="metric-label">{label}</div>
+                          <div className="metric-val" style={{ color: `var(--${riskColors[ri]})` }}>{riskVals[ri]}</div>
                         </div>
-                        <span className={`badge badge-${r.color === "green" ? "green" : r.color === "gold" ? "gold" : "red"}`}>{r.badge}</span>
+                        <span className={`badge badge-${riskColors[ri] === "green" ? "green" : riskColors[ri] === "gold" ? "gold" : "red"}`}>{riskBadges[ri]}</span>
                       </div>
                     </div>
-                  ))}
+                  );})}
                 </div>
 
                 <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginBottom: 16 }}
                   disabled={aiLoading}
                   onClick={() => runAI(`Northern Virginia 부동산 투자 리스크 분석. 매입가: ${fmt(D.purchasePrice)}, Flip ROI: ${pct(flipROI)}, DSCR: ${dscr.toFixed(2)}, 월 CF: ${fmt(monthlyCF)}, 금리: ${lender.rate}%. 한글로 주요 리스크 3가지와 대응 전략을 설명해줘.`)}>
-                  {aiLoading ? <><div className="spinner" />...</> : "✦ AI 리스크 분석"}
+                  {aiLoading ? <><div className="spinner" />{t$?.risk.analyzing}</> : t$?.risk.aiBtn}
                 </button>
-                {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">AI 리스크 분석</span></div><div className="ai-text">{aiResult}</div></div>}
+                {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.risk.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
               </div>
             )}
 
