@@ -110,16 +110,15 @@ const CONTRACTORS = [
 ];
 
 const TABS = [
-  { id: "deal",         labelKo: "매물 입력",  labelEn: "Deal Input",    emoji: "🏠" },
-  { id: "flip",         labelKo: "Flip 분석",  labelEn: "Flip Analysis", emoji: "📈" },
-  { id: "hold",         labelKo: "Hold 분석",  labelEn: "Hold Analysis", emoji: "🏦" },
-  { id: "finance",      labelKo: "금융 비교",  labelEn: "Finance",       emoji: "💰" },
-  { id: "contractor",   labelKo: "건설사",     labelEn: "Contractors",   emoji: "🔨" },
-  { id: "materials",    labelKo: "자재 단가",  labelEn: "Materials",     emoji: "🪚" },
-  { id: "construction", labelKo: "공사 현황",   labelEn: "Construction", emoji: "📋" },
-  { id: "risk",         labelKo: "리스크",      labelEn: "Risk",         emoji: "⚠️" },
-  { id: "screen",       labelKo: "딜 스크리닝", labelEn: "Deal Screen",  emoji: "🔍" },
-  { id: "mycheck",      labelKo: "내 물건 점검",labelEn: "My Property",  emoji: "💼" },
+  { id: "deal",         labelKo: "딜 스크리닝", labelEn: "Deal Screen",   emoji: "🔍" },
+  { id: "flip",         labelKo: "Flip 분석",   labelEn: "Flip Analysis", emoji: "📈" },
+  { id: "hold",         labelKo: "Hold 분석",   labelEn: "Hold Analysis", emoji: "🏦" },
+  { id: "finance",      labelKo: "금융 비교",   labelEn: "Finance",       emoji: "💰" },
+  { id: "contractor",   labelKo: "건설사",      labelEn: "Contractors",   emoji: "🔨" },
+  { id: "materials",    labelKo: "자재 단가",   labelEn: "Materials",     emoji: "🪚" },
+  { id: "construction", labelKo: "공사 현황",   labelEn: "Construction",  emoji: "📋" },
+  { id: "risk",         labelKo: "리스크",      labelEn: "Risk",          emoji: "⚠️" },
+  { id: "mycheck",      labelKo: "내 물건 점검",labelEn: "My Property",   emoji: "💼" },
 ];
 
 // ── TRANSLATIONS ─────────────────────────────────────────────────────────────
@@ -525,6 +524,7 @@ export default function App() {
   const [screenInput, setScreenInput] = useState({ url: "", price: 650000, sqft: 2200, beds: 4, baths: 2, reno: "Medium" });
   const [screenLoading, setScreenLoading] = useState(false);
   const [screenResult, setScreenResult] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
   // 내 물건 점검
   const [myProp, setMyProp] = useState({ purchase: 650000, reno: 80000, loan: 520000, rate: 7.0, holdMonths: 12, rent: 3200, arv: 750000 });
@@ -678,90 +678,241 @@ export default function App() {
 
             {/* ── 1. 매물 입력 ─────────────────────────────────────── */}
             {tab === "deal" && (
-              <div>
-                <div className="grid2" style={{ gap: 20 }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    <div className="card">
-                      <div className="card-header"><span className="card-title">{t$?.deal.cardTitle}</span></div>
-                      <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        <div className="field">
-                          <label className="label">{t$?.deal.address}</label>
-                          <input className="input" placeholder="1234 Oak St, Fairfax, VA 22031" value={D.address} onChange={e => setDeal(d => ({ ...d, address: e.target.value }))} />
-                        </div>
-                        <div className="grid2">
-                          <div className="field"><label className="label">{t$?.deal.purchasePrice}</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">{t$?.deal.area}</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
-                        </div>
-                        <div className="grid4">
-                          <div className="field"><label className="label">{t$?.deal.yearBuilt}</label><input className="input" type="number" value={D.yearBuilt} onChange={e => setDeal(d => ({ ...d, yearBuilt: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">Beds</label><input className="input" type="number" value={D.beds} onChange={e => setDeal(d => ({ ...d, beds: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">Baths</label><input className="input" type="number" value={D.baths} onChange={e => setDeal(d => ({ ...d, baths: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">{t$?.deal.hoa}</label><input className="input" type="number" value={D.hoa} onChange={e => setDeal(d => ({ ...d, hoa: +e.target.value }))} /></div>
-                        </div>
-                        <div className="grid2">
-                          <div className="field"><label className="label">{t$?.deal.estRent}</label><input className="input" type="number" value={D.estimatedRent} onChange={e => setDeal(d => ({ ...d, estimatedRent: +e.target.value }))} /></div>
-                          <div className="field"><label className="label">{t$?.deal.propTax}</label><input className="input" type="number" value={D.propertyTax} onChange={e => setDeal(d => ({ ...d, propertyTax: +e.target.value }))} /></div>
-                        </div>
-                      </div>
-                    </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
-                    <div className="card">
-                      <div className="card-header"><span className="card-title">{t$?.deal.renoTitle}</span></div>
-                      <div className="card-body">
-                        <div className="reno-grid">
-                          {["Light", "Medium", "Heavy"].map(l => (
-                            <button key={l} className={`reno-btn ${D.renoLevel === l ? "active" : ""}`} onClick={() => setDeal(d => ({ ...d, renoLevel: l }))}>
-                              {l}
-                              <div style={{ fontSize: 9, fontWeight: 400, marginTop: 2, opacity: 0.7 }}>${({ Light: 28, Medium: 65, Heavy: 115 }[l])}/sqft</div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                {/* ── STEP 1: 빠른 스크리닝 입력 ── */}
+                <div className="card">
+                  <div className="card-header">
+                    <span className="card-title">🔍 {lang === "ko" ? "빠른 딜 스크리닝" : "Quick Deal Screen"}</span>
+                    <span style={{ fontSize: 11, color: "var(--dim)" }}>{lang === "ko" ? "나쁜 딜 빠르게 걸러내기" : "Fast bad deal filter"}</span>
                   </div>
-
-                  {/* RIGHT — Quick Summary */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div className={`verdict ${verdictClass}`}>
-                      <div className="verdict-badge" style={{ color: verdictColor }}>{verdict}</div>
-                      <div className="verdict-text">
-                        {verdict === "FLIP" && t$?.verdict.flip(pct(flipROI), fmt(flipProfit))}
-                        {verdict === "HOLD" && t$?.verdict.hold(fmt(monthlyCF), dscr.toFixed(2))}
-                        {verdict === "BOTH" && t$?.verdict.both(pct(flipROI), fmt(monthlyCF))}
-                        {verdict === "PASS" && t$?.verdict.pass(pct(flipROI), fmt(monthlyCF))}
-                      </div>
+                  <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    {/* URL / 주소 */}
+                    <div className="field">
+                      <label className="label">{lang === "ko" ? "Zillow/MLS URL 또는 주소 직접 입력" : "Zillow/MLS URL or Address"}</label>
+                      <input className="input" placeholder={lang === "ko" ? "예: zillow.com/... 또는 123 Oak St, Fairfax VA" : "e.g. zillow.com/... or 123 Oak St, Fairfax VA"}
+                        value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} />
                     </div>
-
-                    <div className="grid2">
+                    {/* 기본 정보 */}
+                    <div className="grid4" style={{ gap: 10 }}>
                       {[
-                        { label: t$?.metrics.arv,        val: fmt(arv),           cls: "gold" },
-                        { label: t$?.metrics.renoCost,   val: fmt(renoCost),      cls: "blue" },
-                        { label: t$?.metrics.equity,     val: fmt(equity),        cls: "blue" },
-                        { label: t$?.metrics.flipProfit, val: fmt(flipProfit),    cls: flipProfit > 0 ? "green" : "red" },
-                        { label: "Cap Rate",             val: pct(capRate),       cls: capRate >= 6 ? "green" : "blue" },
-                        { label: "DSCR",                 val: dscr.toFixed(2),   cls: dscr >= 1.2 ? "green" : "red" },
-                      ].map(m => (
-                        <div key={m.label} className="metric">
-                          <div className="metric-label">{m.label}</div>
-                          <div className={`metric-val ${m.cls}`}>{m.val}</div>
+                        { label: lang === "ko" ? "매입 희망가 ($)" : "Asking Price ($)", key: "price" },
+                        { label: "Sqft", key: "sqft" },
+                        { label: lang === "ko" ? "침실" : "Beds", key: "beds" },
+                        { label: lang === "ko" ? "욕실" : "Baths", key: "baths" },
+                      ].map(({ label, key }) => (
+                        <div key={key} className="field">
+                          <label className="label">{label}</label>
+                          <input className="input" type="number" value={screenInput[key]} onChange={e => setScreenInput(s => ({ ...s, [key]: +e.target.value }))} />
                         </div>
                       ))}
                     </div>
-
-                    <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
-                      disabled={aiLoading}
-                      onClick={() => runAI(`Northern Virginia 부동산 투자 분석. 주소: ${D.address || "Fairfax VA"}, 매입가: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, 월 현금흐름: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. 한글로 투자 판단 3줄 요약.`)}>
-                      {aiLoading ? <><div className="spinner" /> {t$?.ai.analyzing}</> : t$?.ai.dealBtn}
-                    </button>
-
-                    {aiResult && (
-                      <div className="ai-box">
-                        <div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.ai.resultLabel}</span></div>
-                        <div className="ai-text">{aiResult}</div>
+                    {/* 수리 등급 */}
+                    <div>
+                      <label className="label">{lang === "ko" ? "수리 등급" : "Reno Level"}</label>
+                      <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                        {["Light","Medium","Heavy"].map(r => (
+                          <button key={r} onClick={() => setScreenInput(s => ({ ...s, reno: r }))}
+                            style={{ padding: "6px 18px", borderRadius: 100, fontSize: 11, fontWeight: 700, cursor: "pointer",
+                              border: `1px solid ${screenInput.reno === r ? "var(--gold)" : "var(--border)"}`,
+                              background: screenInput.reno === r ? "var(--gold)22" : "transparent",
+                              color: screenInput.reno === r ? "var(--gold)" : "var(--dim)" }}>
+                            {r} <span style={{ fontWeight: 400, opacity: 0.7 }}>${({Light:28,Medium:65,Heavy:115}[r])}/sqft</span>
+                          </button>
+                        ))}
                       </div>
-                    )}
+                    </div>
+                    {/* 스크리닝 버튼 */}
+                    <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
+                      disabled={screenLoading}
+                      onClick={async () => {
+                        setScreenLoading(true); setScreenResult(null); setShowDetail(false);
+                        const p = screenInput;
+                        const prompt = `You are a NoVA real estate investment expert. Analyze this deal strictly using ISWELL criteria (Flip ROI ≥18%, Monthly CF ≥$500, DSCR ≥1.2) for Northern Virginia market.
+Property: ${p.url || "NoVA property"}, Asking: $${Number(p.price).toLocaleString()}, Sqft: ${p.sqft}, Beds: ${p.beds}/${p.baths}ba, Reno: ${p.reno}
+Return ONLY valid JSON (no markdown): {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence","risks":["risk1","risk2","risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":number,"maxHoldPrice":number,"recommendation":"2-3 sentences in Korean"}
+maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max purchase price for $500+/mo cash flow.`;
+                        const text = await callClaude(prompt);
+                        try {
+                          const clean = text.replace(/```json|```/g, '').trim();
+                          const j = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}') + 1));
+                          setScreenResult(j);
+                        } catch { setScreenResult({ verdict: "PASS", verdictReason: text, risks: [], roiRange: {}, recommendation: text }); }
+                        setScreenLoading(false);
+                      }}>
+                      {screenLoading ? <><div className="spinner" />{lang === "ko" ? "분석 중..." : "Screening..."}</> : lang === "ko" ? "🔍 AI 딜 스크리닝" : "🔍 AI Screen This Deal"}
+                    </button>
                   </div>
                 </div>
+
+                {/* ── STEP 2: 스크리닝 결과 ── */}
+                {screenResult && (
+                  <div className="card">
+                    <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                      {/* 판정 */}
+                      <div style={{ display: "flex", alignItems: "center", gap: 16, background: screenResult.verdict === "GO" ? "var(--green)18" : screenResult.verdict === "WATCH" ? "var(--gold)18" : "var(--red)18", borderRadius: 12, padding: "16px 20px" }}>
+                        <div style={{ fontSize: 40, fontWeight: 900, color: screenResult.verdict === "GO" ? "var(--green)" : screenResult.verdict === "WATCH" ? "var(--gold)" : "var(--red)", minWidth: 80 }}>{screenResult.verdict}</div>
+                        <div style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.6 }}>{screenResult.verdictReason}</div>
+                      </div>
+
+                      {/* PASS → 목표 매입가 역산 */}
+                      {(screenResult.verdict === "PASS" || screenResult.verdict === "WATCH") && (screenResult.maxFlipPrice || screenResult.maxHoldPrice) && (
+                        <div>
+                          <div className="metric-label" style={{ marginBottom: 8 }}>
+                            {lang === "ko" ? "💡 GO 되려면 얼마에 사야 할까?" : "💡 What price makes this a GO?"}
+                          </div>
+                          <div className="grid2" style={{ gap: 10 }}>
+                            {screenResult.maxFlipPrice && (
+                              <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
+                                <div className="metric-label">Flip 18% 달성 최대가</div>
+                                <div className="metric-val green" style={{ fontSize: 20 }}>{fmt(screenResult.maxFlipPrice)}</div>
+                                <div style={{ fontSize: 10, color: "var(--red)", marginTop: 4 }}>
+                                  현재가 대비 {fmt(Number(screenInput.price) - screenResult.maxFlipPrice)} ({(((Number(screenInput.price) - screenResult.maxFlipPrice) / Number(screenInput.price)) * 100).toFixed(1)}%) 할인 필요
+                                </div>
+                              </div>
+                            )}
+                            {screenResult.maxHoldPrice && (
+                              <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
+                                <div className="metric-label">Hold CF $500+ 최대가</div>
+                                <div className="metric-val blue" style={{ fontSize: 20 }}>{fmt(screenResult.maxHoldPrice)}</div>
+                                <div style={{ fontSize: 10, color: "var(--red)", marginTop: 4 }}>
+                                  현재가 대비 {fmt(Number(screenInput.price) - screenResult.maxHoldPrice)} ({(((Number(screenInput.price) - screenResult.maxHoldPrice) / Number(screenInput.price)) * 100).toFixed(1)}%) 할인 필요
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Top 3 리스크 */}
+                      {screenResult.risks?.length > 0 && (
+                        <div>
+                          <div className="metric-label" style={{ marginBottom: 8 }}>{lang === "ko" ? "Top 3 리스크" : "Top 3 Risks"}</div>
+                          {screenResult.risks.map((r, i) => (
+                            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 6 }}>
+                              <span style={{ color: "var(--red)", fontWeight: 800, fontSize: 12, minWidth: 18 }}>{i+1}.</span>
+                              <span style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.5 }}>{r}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* ROI Range */}
+                      {screenResult.roiRange && Object.keys(screenResult.roiRange).length > 0 && (
+                        <div>
+                          <div className="metric-label" style={{ marginBottom: 8 }}>{lang === "ko" ? "ROI 범위" : "ROI Range"}</div>
+                          <div style={{ display: "flex", gap: 10 }}>
+                            {[["Optimistic","optimistic","green"],["Realistic","realistic","gold"],["Worst","worst","red"]].map(([label, key, color]) => (
+                              <div key={key} style={{ flex: 1, textAlign: "center", background: "var(--bg3)", borderRadius: 10, padding: "10px 8px" }}>
+                                <div style={{ fontSize: 9, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>{label}</div>
+                                <div style={{ fontSize: 18, fontWeight: 800, color: `var(--${color})` }}>{screenResult.roiRange[key] || "—"}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* AI 추천 */}
+                      {screenResult.recommendation && (
+                        <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{lang === "ko" ? "AI 추천" : "AI Recommendation"}</span></div><div className="ai-text">{screenResult.recommendation}</div></div>
+                      )}
+
+                      {/* GO/WATCH → 상세 분석 버튼 */}
+                      {(screenResult.verdict === "GO" || screenResult.verdict === "WATCH") && (
+                        <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
+                          onClick={() => {
+                            setDeal(d => ({ ...d,
+                              address: screenInput.url,
+                              purchasePrice: Number(screenInput.price),
+                              sqft: Number(screenInput.sqft),
+                              beds: Number(screenInput.beds),
+                              baths: Number(screenInput.baths),
+                              renoLevel: screenInput.reno,
+                            }));
+                            setShowDetail(true);
+                          }}>
+                          {lang === "ko" ? "📊 상세 분석 시작 (Flip / Hold 탭 연동)" : "📊 Start Detailed Analysis"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── STEP 3: 상세 분석 (GO/WATCH 통과 후) ── */}
+                {showDetail && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold)", opacity: 0.7, marginBottom: 12 }}>
+                      {lang === "ko" ? "📊 상세 분석 — Flip / Hold / 리스크 탭 연동" : "📊 Detailed Analysis — connected to Flip / Hold / Risk tabs"}
+                    </div>
+                    <div className="grid2" style={{ gap: 20 }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <div className="card">
+                          <div className="card-header"><span className="card-title">{t$?.deal.cardTitle}</span></div>
+                          <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                            <div className="field">
+                              <label className="label">{t$?.deal.address}</label>
+                              <input className="input" placeholder="1234 Oak St, Fairfax, VA 22031" value={D.address} onChange={e => setDeal(d => ({ ...d, address: e.target.value }))} />
+                            </div>
+                            <div className="grid2">
+                              <div className="field"><label className="label">{t$?.deal.purchasePrice}</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
+                              <div className="field"><label className="label">{t$?.deal.area}</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
+                            </div>
+                            <div className="grid4">
+                              <div className="field"><label className="label">{t$?.deal.yearBuilt}</label><input className="input" type="number" value={D.yearBuilt} onChange={e => setDeal(d => ({ ...d, yearBuilt: +e.target.value }))} /></div>
+                              <div className="field"><label className="label">Beds</label><input className="input" type="number" value={D.beds} onChange={e => setDeal(d => ({ ...d, beds: +e.target.value }))} /></div>
+                              <div className="field"><label className="label">Baths</label><input className="input" type="number" value={D.baths} onChange={e => setDeal(d => ({ ...d, baths: +e.target.value }))} /></div>
+                              <div className="field"><label className="label">{t$?.deal.hoa}</label><input className="input" type="number" value={D.hoa} onChange={e => setDeal(d => ({ ...d, hoa: +e.target.value }))} /></div>
+                            </div>
+                            <div className="grid2">
+                              <div className="field"><label className="label">{t$?.deal.estRent}</label><input className="input" type="number" value={D.estimatedRent} onChange={e => setDeal(d => ({ ...d, estimatedRent: +e.target.value }))} /></div>
+                              <div className="field"><label className="label">{t$?.deal.propTax}</label><input className="input" type="number" value={D.propertyTax} onChange={e => setDeal(d => ({ ...d, propertyTax: +e.target.value }))} /></div>
+                            </div>
+                            <div className="reno-grid">
+                              {["Light","Medium","Heavy"].map(l => (
+                                <button key={l} className={`reno-btn ${D.renoLevel === l ? "active" : ""}`} onClick={() => setDeal(d => ({ ...d, renoLevel: l }))}>
+                                  {l}<div style={{ fontSize: 9, fontWeight: 400, marginTop: 2, opacity: 0.7 }}>${({Light:28,Medium:65,Heavy:115}[l])}/sqft</div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <div className={`verdict ${verdictClass}`}>
+                          <div className="verdict-badge" style={{ color: verdictColor }}>{verdict}</div>
+                          <div className="verdict-text">
+                            {verdict === "FLIP" && t$?.verdict.flip(pct(flipROI), fmt(flipProfit))}
+                            {verdict === "HOLD" && t$?.verdict.hold(fmt(monthlyCF), dscr.toFixed(2))}
+                            {verdict === "BOTH" && t$?.verdict.both(pct(flipROI), fmt(monthlyCF))}
+                            {verdict === "PASS" && t$?.verdict.pass(pct(flipROI), fmt(monthlyCF))}
+                          </div>
+                        </div>
+                        <div className="grid2">
+                          {[
+                            { label: t$?.metrics.arv,        val: fmt(arv),        cls: "gold" },
+                            { label: t$?.metrics.renoCost,   val: fmt(renoCost),   cls: "blue" },
+                            { label: t$?.metrics.equity,     val: fmt(equity),     cls: "blue" },
+                            { label: t$?.metrics.flipProfit, val: fmt(flipProfit), cls: flipProfit > 0 ? "green" : "red" },
+                            { label: "Cap Rate",             val: pct(capRate),    cls: capRate >= 6 ? "green" : "blue" },
+                            { label: "DSCR",                 val: dscr.toFixed(2), cls: dscr >= 1.2 ? "green" : "red" },
+                          ].map(m => (
+                            <div key={m.label} className="metric">
+                              <div className="metric-label">{m.label}</div>
+                              <div className={`metric-val ${m.cls}`}>{m.val}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
+                          disabled={aiLoading}
+                          onClick={() => runAI(`Northern Virginia 부동산 투자 분석. 주소: ${D.address || "Fairfax VA"}, 매입가: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, 월 현금흐름: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. 한글로 투자 판단 3줄 요약.`)}>
+                          {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing}</> : t$?.ai.dealBtn}
+                        </button>
+                        {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.ai.resultLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1169,106 +1320,6 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                   {aiLoading ? <><div className="spinner" />{t$?.risk.analyzing}</> : t$?.risk.aiBtn}
                 </button>
                 {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.risk.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
-              </div>
-            )}
-
-            {/* ── 🔍 딜 스크리닝 ─────────────────────────────────── */}
-            {tab === "screen" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div className="card">
-                  <div className="card-header"><span className="card-title">{t$?.screen.cardTitle}</span></div>
-                  <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div>
-                      <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{t$?.screen.urlLabel}</label>
-                      <input className="task-input" style={{ width: "100%", marginTop: 4 }} placeholder={t$?.screen.placeholder} value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} />
-                    </div>
-                    <div className="grid4" style={{ gap: 10 }}>
-                      {[
-                        { label: t$?.screen.priceLabel, key: "price", type: "number" },
-                        { label: t$?.screen.sqftLabel,  key: "sqft",  type: "number" },
-                        { label: t$?.screen.bedsLabel,  key: "beds",  type: "number" },
-                        { label: t$?.screen.bathsLabel, key: "baths", type: "number" },
-                      ].map(({ label, key, type }) => (
-                        <div key={key}>
-                          <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</label>
-                          <input className="task-input" style={{ width: "100%", marginTop: 4 }} type={type} value={screenInput[key]} onChange={e => setScreenInput(s => ({ ...s, [key]: e.target.value }))} />
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{t$?.screen.renoLabel}</label>
-                      <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                        {["Light","Medium","Heavy"].map(r => (
-                          <button key={r} onClick={() => setScreenInput(s => ({ ...s, reno: r }))}
-                            style={{ padding: "6px 16px", borderRadius: 100, fontSize: 11, fontWeight: 700, cursor: "pointer", border: `1px solid ${screenInput.reno === r ? "var(--gold)" : "var(--border)"}`, background: screenInput.reno === r ? "var(--gold)22" : "transparent", color: screenInput.reno === r ? "var(--gold)" : "var(--dim)" }}>
-                            {r}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center", marginTop: 4 }}
-                      disabled={screenLoading}
-                      onClick={async () => {
-                        setScreenLoading(true); setScreenResult(null);
-                        const p = screenInput;
-                        const prompt = `You are a NoVA real estate investment expert. Analyze this deal and return ONLY valid JSON (no markdown):
-Property: ${p.url || "NoVA property"}, Price: $${Number(p.price).toLocaleString()}, Sqft: ${p.sqft}, Beds: ${p.beds}, Baths: ${p.baths}, Reno: ${p.reno}
-Apply ISWELL investment criteria for Northern Virginia: Flip ROI ≥18%, Monthly CF ≥$500, DSCR ≥1.2.
-Return: {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence","risks":["risk1","risk2","risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"flipProfit":"$X","monthlyRent":"$X","recommendation":"2-3 sentences in Korean"}`;
-                        const text = await callClaude(prompt);
-                        try {
-                          const clean = text.replace(/```json|```/g, '').trim();
-                          const j = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}') + 1));
-                          setScreenResult(j);
-                        } catch { setScreenResult({ verdict: "PASS", verdictReason: text, risks: [], roiRange: {}, recommendation: text }); }
-                        setScreenLoading(false);
-                      }}>
-                      {screenLoading ? <><div className="spinner" />{t$?.screen.analyzing}</> : t$?.screen.analyzeBtn}
-                    </button>
-                  </div>
-                </div>
-
-                {screenResult && (
-                  <div className="card">
-                    <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      {/* 판정 */}
-                      <div className="verdict" style={{ background: screenResult.verdict === "GO" ? "var(--green)18" : screenResult.verdict === "WATCH" ? "var(--gold)18" : "var(--red)18", borderRadius: 12 }}>
-                        <div style={{ fontSize: 36, fontWeight: 900, color: screenResult.verdict === "GO" ? "var(--green)" : screenResult.verdict === "WATCH" ? "var(--gold)" : "var(--red)" }}>{screenResult.verdict}</div>
-                        <div style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.5 }}>{screenResult.verdictReason}</div>
-                      </div>
-                      {/* Top 3 리스크 */}
-                      {screenResult.risks?.length > 0 && (
-                        <div>
-                          <div className="metric-label" style={{ marginBottom: 8 }}>{t$?.screen.risksLabel}</div>
-                          {screenResult.risks.map((r, i) => (
-                            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 6 }}>
-                              <span style={{ color: "var(--red)", fontWeight: 800, fontSize: 12, minWidth: 18 }}>{i + 1}.</span>
-                              <span style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.5 }}>{r}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {/* ROI Range */}
-                      {screenResult.roiRange && (
-                        <div>
-                          <div className="metric-label" style={{ marginBottom: 8 }}>{t$?.screen.roiLabel}</div>
-                          <div style={{ display: "flex", gap: 12 }}>
-                            {[["Optimistic","optimistic","green"],["Realistic","realistic","gold"],["Worst","worst","red"]].map(([label, key, color]) => (
-                              <div key={key} style={{ flex: 1, textAlign: "center", background: "var(--bg3)", borderRadius: 10, padding: "10px 8px" }}>
-                                <div style={{ fontSize: 9, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>{label}</div>
-                                <div style={{ fontSize: 18, fontWeight: 800, color: `var(--${color})` }}>{screenResult.roiRange[key] || "—"}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {/* AI 추천 */}
-                      {screenResult.recommendation && (
-                        <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">AI 추천</span></div><div className="ai-text">{screenResult.recommendation}</div></div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
