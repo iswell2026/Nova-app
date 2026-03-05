@@ -116,8 +116,10 @@ const TABS = [
   { id: "finance",      labelKo: "금융 비교",  labelEn: "Finance",       emoji: "💰" },
   { id: "contractor",   labelKo: "건설사",     labelEn: "Contractors",   emoji: "🔨" },
   { id: "materials",    labelKo: "자재 단가",  labelEn: "Materials",     emoji: "🪚" },
-  { id: "construction", labelKo: "공사 현황",  labelEn: "Construction",  emoji: "📋" },
-  { id: "risk",         labelKo: "리스크",     labelEn: "Risk",          emoji: "⚠️" },
+  { id: "construction", labelKo: "공사 현황",   labelEn: "Construction", emoji: "📋" },
+  { id: "risk",         labelKo: "리스크",      labelEn: "Risk",         emoji: "⚠️" },
+  { id: "screen",       labelKo: "딜 스크리닝", labelEn: "Deal Screen",  emoji: "🔍" },
+  { id: "mycheck",      labelKo: "내 물건 점검",labelEn: "My Property",  emoji: "💼" },
 ];
 
 // ── TRANSLATIONS ─────────────────────────────────────────────────────────────
@@ -189,6 +191,24 @@ const L = {
       aiBtn: "✦ AI 리스크 분석", aiLabel: "AI 리스크 분석",
       analyzing: "...",
     },
+    screen: {
+      cardTitle: "딜 스크리닝", placeholder: "Zillow/MLS URL 또는 주소 + 가격 입력",
+      urlLabel: "매물 URL / 주소", priceLabel: "매입 희망가 ($)", sqftLabel: "면적 (sqft)",
+      bedsLabel: "침실", bathsLabel: "욕실", renoLabel: "수리 등급",
+      analyzeBtn: "🔍 AI 딜 스크리닝", analyzing: "분석 중...",
+      verdictLabel: "판정", risksLabel: "Top 3 리스크", roiLabel: "ROI 범위",
+      goLabel: "GO", passLabel: "PASS", watchLabel: "WATCH",
+    },
+    mycheck: {
+      cardTitle: "내 물건 점검", subTitle: "매각 vs 임대 분석",
+      purchaseLabel: "매입가 ($)", renoLabel: "공사비 ($)",
+      loanLabel: "대출금액 ($)", rateLabel: "금리 (%)",
+      holdLabel: "보유 기간 (개월)", rentLabel: "월 렌트 ($)",
+      arvLabel: "현재 ARV ($)",
+      analyzeBtn: "💼 AI 매각 vs 임대 분석", analyzing: "분석 중...",
+      sellLabel: "지금 매각", holdLabel2: "임대 유지",
+      breakevenLabel: "손익분기", verdictLabel: "AI 추천",
+    },
   },
   en: {
     tabLabel: (t) => t.labelEn,
@@ -256,6 +276,24 @@ const L = {
       ltvDesc: (l) => `Current LTV ${l}%`,
       aiBtn: "✦ AI Risk Analysis", aiLabel: "AI Risk Analysis",
       analyzing: "...",
+    },
+    screen: {
+      cardTitle: "Deal Screening", placeholder: "Paste Zillow/MLS URL or enter address + price",
+      urlLabel: "Property URL / Address", priceLabel: "Asking Price ($)", sqftLabel: "Sqft",
+      bedsLabel: "Beds", bathsLabel: "Baths", renoLabel: "Reno Level",
+      analyzeBtn: "🔍 AI Screen This Deal", analyzing: "Screening...",
+      verdictLabel: "Verdict", risksLabel: "Top 3 Risks", roiLabel: "ROI Range",
+      goLabel: "GO", passLabel: "PASS", watchLabel: "WATCH",
+    },
+    mycheck: {
+      cardTitle: "My Property Check", subTitle: "Sell vs Hold Analysis",
+      purchaseLabel: "Purchase Price ($)", renoLabel: "Reno Cost ($)",
+      loanLabel: "Loan Amount ($)", rateLabel: "Interest Rate (%)",
+      holdLabel: "Hold Period (months)", rentLabel: "Monthly Rent ($)",
+      arvLabel: "Current ARV ($)",
+      analyzeBtn: "💼 AI Sell vs Hold Analysis", analyzing: "Analyzing...",
+      sellLabel: "Sell Now", holdLabel2: "Hold & Rent",
+      breakevenLabel: "Breakeven", verdictLabel: "AI Recommendation",
     },
   },
 };
@@ -482,6 +520,16 @@ export default function App() {
   const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
   const [rateError, setRateError] = useState(null);
   const [liveRates, setLiveRates] = useState({});
+
+  // 딜 스크리닝
+  const [screenInput, setScreenInput] = useState({ url: "", price: 650000, sqft: 2200, beds: 4, baths: 2, reno: "Medium" });
+  const [screenLoading, setScreenLoading] = useState(false);
+  const [screenResult, setScreenResult] = useState(null);
+
+  // 내 물건 점검
+  const [myProp, setMyProp] = useState({ purchase: 650000, reno: 80000, loan: 520000, rate: 7.0, holdMonths: 12, rent: 3200, arv: 750000 });
+  const [myCheckLoading, setMyCheckLoading] = useState(false);
+  const [myCheckResult, setMyCheckResult] = useState(null);
 
   const refreshRates = async () => {
     setRateRefreshing(true);
@@ -1121,6 +1169,177 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                   {aiLoading ? <><div className="spinner" />{t$?.risk.analyzing}</> : t$?.risk.aiBtn}
                 </button>
                 {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.risk.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
+              </div>
+            )}
+
+            {/* ── 🔍 딜 스크리닝 ─────────────────────────────────── */}
+            {tab === "screen" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="card">
+                  <div className="card-header"><span className="card-title">{t$?.screen.cardTitle}</span></div>
+                  <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div>
+                      <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{t$?.screen.urlLabel}</label>
+                      <input className="task-input" style={{ width: "100%", marginTop: 4 }} placeholder={t$?.screen.placeholder} value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} />
+                    </div>
+                    <div className="grid4" style={{ gap: 10 }}>
+                      {[
+                        { label: t$?.screen.priceLabel, key: "price", type: "number" },
+                        { label: t$?.screen.sqftLabel,  key: "sqft",  type: "number" },
+                        { label: t$?.screen.bedsLabel,  key: "beds",  type: "number" },
+                        { label: t$?.screen.bathsLabel, key: "baths", type: "number" },
+                      ].map(({ label, key, type }) => (
+                        <div key={key}>
+                          <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</label>
+                          <input className="task-input" style={{ width: "100%", marginTop: 4 }} type={type} value={screenInput[key]} onChange={e => setScreenInput(s => ({ ...s, [key]: e.target.value }))} />
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{t$?.screen.renoLabel}</label>
+                      <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                        {["Light","Medium","Heavy"].map(r => (
+                          <button key={r} onClick={() => setScreenInput(s => ({ ...s, reno: r }))}
+                            style={{ padding: "6px 16px", borderRadius: 100, fontSize: 11, fontWeight: 700, cursor: "pointer", border: `1px solid ${screenInput.reno === r ? "var(--gold)" : "var(--border)"}`, background: screenInput.reno === r ? "var(--gold)22" : "transparent", color: screenInput.reno === r ? "var(--gold)" : "var(--dim)" }}>
+                            {r}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center", marginTop: 4 }}
+                      disabled={screenLoading}
+                      onClick={async () => {
+                        setScreenLoading(true); setScreenResult(null);
+                        const p = screenInput;
+                        const prompt = `You are a NoVA real estate investment expert. Analyze this deal and return ONLY valid JSON (no markdown):
+Property: ${p.url || "NoVA property"}, Price: $${Number(p.price).toLocaleString()}, Sqft: ${p.sqft}, Beds: ${p.beds}, Baths: ${p.baths}, Reno: ${p.reno}
+Apply ISWELL investment criteria for Northern Virginia: Flip ROI ≥18%, Monthly CF ≥$500, DSCR ≥1.2.
+Return: {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence","risks":["risk1","risk2","risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"flipProfit":"$X","monthlyRent":"$X","recommendation":"2-3 sentences in Korean"}`;
+                        const text = await callClaude(prompt);
+                        try {
+                          const clean = text.replace(/```json|```/g, '').trim();
+                          const j = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}') + 1));
+                          setScreenResult(j);
+                        } catch { setScreenResult({ verdict: "PASS", verdictReason: text, risks: [], roiRange: {}, recommendation: text }); }
+                        setScreenLoading(false);
+                      }}>
+                      {screenLoading ? <><div className="spinner" />{t$?.screen.analyzing}</> : t$?.screen.analyzeBtn}
+                    </button>
+                  </div>
+                </div>
+
+                {screenResult && (
+                  <div className="card">
+                    <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                      {/* 판정 */}
+                      <div className="verdict" style={{ background: screenResult.verdict === "GO" ? "var(--green)18" : screenResult.verdict === "WATCH" ? "var(--gold)18" : "var(--red)18", borderRadius: 12 }}>
+                        <div style={{ fontSize: 36, fontWeight: 900, color: screenResult.verdict === "GO" ? "var(--green)" : screenResult.verdict === "WATCH" ? "var(--gold)" : "var(--red)" }}>{screenResult.verdict}</div>
+                        <div style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.5 }}>{screenResult.verdictReason}</div>
+                      </div>
+                      {/* Top 3 리스크 */}
+                      {screenResult.risks?.length > 0 && (
+                        <div>
+                          <div className="metric-label" style={{ marginBottom: 8 }}>{t$?.screen.risksLabel}</div>
+                          {screenResult.risks.map((r, i) => (
+                            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 6 }}>
+                              <span style={{ color: "var(--red)", fontWeight: 800, fontSize: 12, minWidth: 18 }}>{i + 1}.</span>
+                              <span style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.5 }}>{r}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* ROI Range */}
+                      {screenResult.roiRange && (
+                        <div>
+                          <div className="metric-label" style={{ marginBottom: 8 }}>{t$?.screen.roiLabel}</div>
+                          <div style={{ display: "flex", gap: 12 }}>
+                            {[["Optimistic","optimistic","green"],["Realistic","realistic","gold"],["Worst","worst","red"]].map(([label, key, color]) => (
+                              <div key={key} style={{ flex: 1, textAlign: "center", background: "var(--bg3)", borderRadius: 10, padding: "10px 8px" }}>
+                                <div style={{ fontSize: 9, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>{label}</div>
+                                <div style={{ fontSize: 18, fontWeight: 800, color: `var(--${color})` }}>{screenResult.roiRange[key] || "—"}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {/* AI 추천 */}
+                      {screenResult.recommendation && (
+                        <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">AI 추천</span></div><div className="ai-text">{screenResult.recommendation}</div></div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── 💼 내 물건 점검 ─────────────────────────────────── */}
+            {tab === "mycheck" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div className="card">
+                  <div className="card-header">
+                    <span className="card-title">{t$?.mycheck.cardTitle}</span>
+                    <span style={{ fontSize: 11, color: "var(--dim)" }}>{t$?.mycheck.subTitle}</span>
+                  </div>
+                  <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div className="grid2" style={{ gap: 10 }}>
+                      {[
+                        { label: t$?.mycheck.purchaseLabel, key: "purchase" },
+                        { label: t$?.mycheck.renoLabel,     key: "reno" },
+                        { label: t$?.mycheck.loanLabel,     key: "loan" },
+                        { label: t$?.mycheck.rateLabel,     key: "rate" },
+                        { label: t$?.mycheck.holdLabel,     key: "holdMonths" },
+                        { label: t$?.mycheck.rentLabel,     key: "rent" },
+                        { label: t$?.mycheck.arvLabel,      key: "arv" },
+                      ].map(({ label, key }) => (
+                        <div key={key}>
+                          <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</label>
+                          <input className="task-input" style={{ width: "100%", marginTop: 4 }} type="number" value={myProp[key]} onChange={e => setMyProp(s => ({ ...s, [key]: e.target.value }))} />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 간단 자동 계산 요약 */}
+                    {(() => {
+                      const p = myProp;
+                      const totalCost = Number(p.purchase) + Number(p.reno);
+                      const monthlyInt = Number(p.loan) * (Number(p.rate)/100/12);
+                      const holdCost = monthlyInt * Number(p.holdMonths) + (7800/12) * Number(p.holdMonths);
+                      const sellProfit = Number(p.arv) - totalCost - holdCost - Number(p.arv)*0.075;
+                      const monthlyRentNet = Number(p.rent) - monthlyInt - (7800/12) - Number(p.rent)*0.21;
+                      return (
+                        <div className="grid2" style={{ gap: 10, marginTop: 4 }}>
+                          <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
+                            <div className="metric-label">{t$?.mycheck.sellLabel}</div>
+                            <div className="metric-val" style={{ color: sellProfit >= 0 ? "var(--green)" : "var(--red)", fontSize: 22, marginTop: 4 }}>{fmt(sellProfit)}</div>
+                          </div>
+                          <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
+                            <div className="metric-label">{t$?.mycheck.holdLabel2} (월 CF)</div>
+                            <div className="metric-val" style={{ color: monthlyRentNet >= 0 ? "var(--green)" : "var(--red)", fontSize: 22, marginTop: 4 }}>{fmt(monthlyRentNet)}/mo</div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center", marginTop: 4 }}
+                      disabled={myCheckLoading}
+                      onClick={async () => {
+                        setMyCheckLoading(true); setMyCheckResult(null);
+                        const p = myProp;
+                        const totalCost = Number(p.purchase) + Number(p.reno);
+                        const prompt = `Northern Virginia 부동산 투자 분석. 매입가: $${Number(p.purchase).toLocaleString()}, 공사비: $${Number(p.reno).toLocaleString()}, 대출: $${Number(p.loan).toLocaleString()}, 금리: ${p.rate}%, 보유: ${p.holdMonths}개월, 월렌트: $${Number(p.rent).toLocaleString()}, 현재ARV: $${Number(p.arv).toLocaleString()}.
+총 투자: $${totalCost.toLocaleString()}. 이 딜의 매각 vs 임대 중 어떤 전략이 나은지 분석해줘. 손익분기점과 핵심 리스크도 포함해서 한글로 답해줘.`;
+                        const text = await callClaude(prompt);
+                        setMyCheckResult(text);
+                        setMyCheckLoading(false);
+                      }}>
+                      {myCheckLoading ? <><div className="spinner" />{t$?.mycheck.analyzing}</> : t$?.mycheck.analyzeBtn}
+                    </button>
+                  </div>
+                </div>
+
+                {myCheckResult && (
+                  <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.mycheck.verdictLabel}</span></div><div className="ai-text">{myCheckResult}</div></div>
+                )}
               </div>
             )}
 
