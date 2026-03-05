@@ -730,7 +730,7 @@ export default function App() {
                         const p = screenInput;
                         const prompt = `You are a NoVA real estate investment expert. Analyze this deal strictly using ISWELL criteria (Flip ROI ≥18%, Monthly CF ≥$500, DSCR ≥1.2) for Northern Virginia market.
 Property: ${p.url || "NoVA property"}, Asking: $${Number(p.price).toLocaleString()}, Sqft: ${p.sqft}, Beds: ${p.beds}/${p.baths}ba, Reno: ${p.reno}
-Return ONLY valid JSON (no markdown): {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence","risks":["risk1","risk2","risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":number,"maxHoldPrice":number,"recommendation":"2-3 sentences in Korean"}
+Return ONLY valid JSON (no markdown): {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence","risks":["risk1","risk2","risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":number,"maxHoldPrice":number,"recommendation":"2-3 sentences in ${lang === 'ko' ? 'Korean' : 'English'}"}
 maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max purchase price for $500+/mo cash flow.`;
                         const text = await callClaude(prompt);
                         try {
@@ -905,7 +905,9 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                         </div>
                         <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
                           disabled={aiLoading}
-                          onClick={() => runAI(`Northern Virginia 부동산 투자 분석. 주소: ${D.address || "Fairfax VA"}, 매입가: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, 월 현금흐름: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. 한글로 투자 판단 3줄 요약.`)}>
+                          onClick={() => runAI(lang === "ko"
+                            ? `Northern Virginia 부동산 투자 분석. 주소: ${D.address || "Fairfax VA"}, 매입가: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, 월 현금흐름: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. 한글로 투자 판단 3줄 요약.`
+                            : `NoVA real estate analysis. Address: ${D.address || "Fairfax VA"}, Purchase: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, Monthly CF: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. Summarize investment verdict in 3 lines.`)}>
                           {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing}</> : t$?.ai.dealBtn}
                         </button>
                         {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.ai.resultLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
@@ -960,7 +962,9 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
 
                     <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}
                       disabled={aiLoading}
-                      onClick={() => runAI(`Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`)}>
+                      onClick={() => runAI(lang === "ko"
+                        ? `Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`
+                        : `Flip analysis: Purchase ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, Reno ${fmt(renoCost)}, Net profit ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Explain key risks and success conditions for this NoVA deal.`)}>
                       {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing2}</> : t$?.flip.aiBtn}
                     </button>
                     {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.flip.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
@@ -1191,7 +1195,9 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                 })}
                 <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
                   disabled={aiLoading}
-                  onClick={() => runAI("Northern Virginia 부동산 투자자. " + gcCat + " 건설사 계약 전 핵심 체크포인트 5가지 한글로.")}>
+                  onClick={() => runAI(lang === "ko"
+                    ? `Northern Virginia 부동산 투자자. ${gcCat} 건설사 계약 전 핵심 체크포인트 5가지 한글로.`
+                    : `NoVA real estate investor. List 5 key checkpoints before signing a ${gcCat} contractor contract.`)}>
                   {aiLoading ? <><div className="spinner"/>{t$?.contractor.analyzing}</> : t$?.contractor.aiBtn}
                 </button>
                 {aiResult && <div className="ai-box" style={{ marginTop: 12 }}><div className="ai-header"><div className="ai-dot"/><span className="ai-label">{t$?.contractor.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
@@ -1316,7 +1322,9 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
 
                 <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginBottom: 16 }}
                   disabled={aiLoading}
-                  onClick={() => runAI(`Northern Virginia 부동산 투자 리스크 분석. 매입가: ${fmt(D.purchasePrice)}, Flip ROI: ${pct(flipROI)}, DSCR: ${dscr.toFixed(2)}, 월 CF: ${fmt(monthlyCF)}, 금리: ${lender.rate}%. 한글로 주요 리스크 3가지와 대응 전략을 설명해줘.`)}>
+                  onClick={() => runAI(lang === "ko"
+                    ? `Northern Virginia 부동산 투자 리스크 분석. 매입가: ${fmt(D.purchasePrice)}, Flip ROI: ${pct(flipROI)}, DSCR: ${dscr.toFixed(2)}, 월 CF: ${fmt(monthlyCF)}, 금리: ${lender.rate}%. 한글로 주요 리스크 3가지와 대응 전략을 설명해줘.`
+                    : `NoVA real estate risk analysis. Purchase: ${fmt(D.purchasePrice)}, Flip ROI: ${pct(flipROI)}, DSCR: ${dscr.toFixed(2)}, Monthly CF: ${fmt(monthlyCF)}, Rate: ${lender.rate}%. List top 3 risks and mitigation strategies.`)}>
                   {aiLoading ? <><div className="spinner" />{t$?.risk.analyzing}</> : t$?.risk.aiBtn}
                 </button>
                 {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.risk.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
@@ -1377,8 +1385,9 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                         setMyCheckLoading(true); setMyCheckResult(null);
                         const p = myProp;
                         const totalCost = Number(p.purchase) + Number(p.reno);
-                        const prompt = `Northern Virginia 부동산 투자 분석. 매입가: $${Number(p.purchase).toLocaleString()}, 공사비: $${Number(p.reno).toLocaleString()}, 대출: $${Number(p.loan).toLocaleString()}, 금리: ${p.rate}%, 보유: ${p.holdMonths}개월, 월렌트: $${Number(p.rent).toLocaleString()}, 현재ARV: $${Number(p.arv).toLocaleString()}.
-총 투자: $${totalCost.toLocaleString()}. 이 딜의 매각 vs 임대 중 어떤 전략이 나은지 분석해줘. 손익분기점과 핵심 리스크도 포함해서 한글로 답해줘.`;
+                        const prompt = lang === "ko"
+                          ? `Northern Virginia 부동산 투자 분석. 매입가: $${Number(p.purchase).toLocaleString()}, 공사비: $${Number(p.reno).toLocaleString()}, 대출: $${Number(p.loan).toLocaleString()}, 금리: ${p.rate}%, 보유: ${p.holdMonths}개월, 월렌트: $${Number(p.rent).toLocaleString()}, 현재ARV: $${Number(p.arv).toLocaleString()}. 총 투자: $${totalCost.toLocaleString()}. 이 딜의 매각 vs 임대 중 어떤 전략이 나은지 분석해줘. 손익분기점과 핵심 리스크도 포함해서 한글로 답해줘.`
+                          : `NoVA property analysis. Purchase: $${Number(p.purchase).toLocaleString()}, Reno: $${Number(p.reno).toLocaleString()}, Loan: $${Number(p.loan).toLocaleString()}, Rate: ${p.rate}%, Hold: ${p.holdMonths}mo, Rent: $${Number(p.rent).toLocaleString()}/mo, ARV: $${Number(p.arv).toLocaleString()}. Total invested: $${totalCost.toLocaleString()}. Should I sell now or hold and rent? Include breakeven and top risks.`;
                         const text = await callClaude(prompt);
                         setMyCheckResult(text);
                         setMyCheckLoading(false);
