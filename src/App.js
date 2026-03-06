@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 // ── Claude API ──────────────────────────────────────────────────────────────
 const callClaude = async (prompt) => {
@@ -6,12 +6,11 @@ const callClaude = async (prompt) => {
     const res = await fetch("/api/claude", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({ prompt: (prompt || "").replace(/[\uD800-\uDFFF]/g, "") })
     });
     const data = await res.json();
-    if (!res.ok) return `오류: ${data.error || res.status}`;
     return data.content?.[0]?.text || "분석 실패";
-  } catch(e) { return `연결 오류: ${e.message}`; }
+  } catch { return "연결 오류"; }
 };
 
 // ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
@@ -109,93 +108,15 @@ const CONTRACTORS = [
   { category: "rental", label: "🏠 Rental / Light", name: "Express Reno VA", sqft: "$15–$26", score: 83, phone: "703-440-9900", website: "expressrenova.com", specialty: "Fast Rental Turnover", review: "임대 회전율 극대화 전문. 5일 이내 완공 기록 보유. Fairfax·Reston 기반.", rating: "4.3★ (95+ reviews)" },
 ];
 
-// ── 번역 상수 (English translations for data arrays) ──────────────────────
-const CATEGORY_EN = {
-  "바닥재":"Flooring","주방":"Kitchen","욕실":"Bathroom","페인트":"Paint",
-  "지붕":"Roofing","HVAC":"HVAC","전기":"Electrical","배관":"Plumbing","창문":"Windows","문":"Doors",
-};
-const BADGE_EN = {
-  "최저금리":"Best Rate","추천":"Top Pick","NoVA본사":"NoVA HQ","우대할인":"Member Disc.",
-  "VA 1위":"VA #1","클로징무료":"Zero Closing","재이용무료":"Free Repeat","최빠른":"Fastest",
-  "테크기반":"Tech-Based","Forbes선정":"Forbes Pick","조건유연":"Flexible","포트폴리오":"Portfolio",
-  "STR가능":"STR OK","BRRRR전문":"BRRRR Pro","AI승인":"AI Approval","최저5.75%":"Low 5.75%",
-  "플립→임대":"Flip→Rental","다건가능":"Multi-Loan","NoVA전문":"NoVA Pro",
-};
-const REVIEW_EN = {
-  "Navy Federal Credit Union":"Lowest rates for NoVA military & federal employees. 80% LTV available. Member-only terms.",
-  "PenFed Credit Union":"NoVA-based federal credit union. Top-tier rate competitiveness. Easy membership signup.",
-  "Capital One (McLean HQ)":"McLean VA HQ with dedicated NoVA investor team. Venture X client perks. Best online portal.",
-  "Bank of America Investment":"Rate discount for Preferred Rewards members. Dedicated NoVA investor team. Easy online application.",
-  "Wells Fargo Investment Loan":"Largest U.S. bank. Multiple NoVA branches. Investor conventional specialist. Loyalty perks.",
-  "Chase Investment Mortgage":"Nationwide network. Private Client perks. Fairfax & Arlington branches. Excellent online management.",
-  "Rocket Mortgage (VA #1)":"#1 VA loan originator. 100% digital process. Fast approval. $3.1B VA funded in 2024 (HMDA).",
-  "CapCenter (Zero Closing)":"Zero closing cost option. VA-based local specialist. Reduced realtor fees. High repeat-use rate.",
-  "LendFriend Mortgage VA":"NoVA & Arlington specialist broker. No fee for returning clients. Non-QM available. Transparent process.",
-  "Truist Investment Mortgage":"BB&T+SunTrust merged. VA-wide branches. Portfolio investor dedicated service. Multi-property perks.",
-  "Easy Street Capital":"48-hour closing possible. No appraisal required. #1-rated flip lender nationwide. Top investor choice.",
-  "Asset Based Lending (ABL)":"90% purchase + 100% reno coverage. 24-hour approval. NoVA specialist. 10+ years operating.",
-  "LendingOne Fix & Flip":"92.5% LTC + 100% reno covered. Top Trustpilot rating. NoVA & VA specialist team. BRRRR optimized.",
-  "HouseMax Funding":"Forbes Best Hard Money Lender 2024 & 2025. 2,700+ flip experience. Self-serve platform.",
-  "Kiavi (구 LendingHome)":"Tech-driven lending. 5-min online application. Rate reduction for repeat investors. $20B+ funded.",
-  "RCN Capital":"Nationwide investor network. Strong broker channel. Multi-property veterans preferred. Fast re-approval.",
-  "Groundfloor Finance":"Crowdfunding-based lowest flip rate starting at 7.5%. Accessible for smaller investors.",
-  "Civic Financial Services":"Non-QM specialist. Fast closing. Preferred terms for experienced flippers. Strong broker network.",
-  "CoreVest Finance":"Large portfolio flip specialist. Multiple concurrent loans available. Institutional-grade terms.",
-  "LoanBidz (BRRRR)":"BRRRR-focused platform. $700M+ funded. Auto-matches best options. Range: $100K–$3M.",
-  "Griffin Funding DSCR":"DSCR below 1.0 approved. No W-2 required. LLC loans available. #1 choice for VA investors.",
-  "Lima One Capital":"DSCR + Flip + Multifamily one-stop shop. Portfolio expansion specialist. DSCR 1.0 standard.",
-  "Visio Lending DSCR":"Long-term rental specialist. STR (Airbnb) eligible. No personal income verification. 30-year fixed.",
-  "Angel Oak DSCR":"Non-traditional income specialist. DSCR as low as 0.75. Rich NoVA experience. LLC title loans.",
-  "Rehab Financial Group (RFG)":"$300M+ funded. 30-year fixed DSCR. Optimized for BRRRR strategy. VA statewide service.",
-  "Deephaven Mortgage":"Non-QM institutional lender. Bank statement income accepted. LLC/Trust title. Large portfolios.",
-  "New Silver DSCR":"AI-powered instant approval. 5-day closing. Fully automated online. Small rental investor friendly.",
-  "HouseMax Funding DSCR":"5.75%+ lowest DSCR rate. Forbes-rated. High NoVA demand. Short-term rental included.",
-  "Kiavi DSCR Rental":"Flip-to-rental one-stop. $20B+ funded. Auto-rewards for repeat investors. 30-year fixed.",
-  "CapSource Lending":"NoVA-based local expert. Rental + flip + construction portfolio. Deep local market knowledge.",
-};
-const CONTRACTOR_REVIEW_EN = {
-  "TriVista USA Design+Build":"20-year award-winning firm. In-house architect & interior designer. Fairfax & Arlington specialist.",
-  "Ridgeline Contractors (DMV)":"Top-rated luxury remodeler in NoVA. Insurance claim support. Directly managed by Malcolm.",
-  "Bowers Design Build":"Founded 1990. NRS satisfaction award. 30% repeat clients. McLean & Great Falls specialist.",
-  "Commonwealth Home Design":"40-year Vienna base. Structural changes & additions expert. Excellent project management system.",
-  "Foster Remodeling Solutions":"Best-in-class warranty. In-house design team. Herndon & Reston specialist.",
-  "Ideal Construction & Remodeling":"Arlington County Green Home award winner. Energy efficiency specialist. DC & Arlington focus.",
-  "Monova Homes":"Known for on-time & on-budget delivery. Alexandria & Fairfax base. Investor-friendly.",
-  "WISA Solutions":"West Springfield base. High client referral rate. Luxury kitchen & bath specialist.",
-  "Total Construction Company":"34-year veteran. Pool & outdoor full service. Fairfax County specialist.",
-  "Heartland Design & Remodeling":"Bristow & Prince William base. Excellent communication. Custom design strength.",
-  "NHR Kitchen & Floors (NOVA Home Renovate)":"Fairfax County ADU permit specialist. Daily schedule & budget updates. Very high repeat-use rate.",
-  "All Renovations":"Class A VA license. Electric & plumbing specialist. Best value. Vienna & Sterling focus.",
-  "DMV Remodeling Pros":"90-day completion guarantee. Permit experience. Manassas & Centreville base.",
-  "Capital Remodeling":"DC/VA/MD tri-state service. Fast package quotes. High-volume investor experience.",
-  "Fairfax Contracting Group":"Fastest permit processing in Fairfax County. Multi-site management capable. Investor discounts.",
-  "Renovate DMV":"Kitchen + bath + flooring package specialist. Sterling & Ashburn base. ROI optimization.",
-  "ProBuild Contractors VA":"Structural + cosmetic flip specialist. Prince William County base. Bundled permit processing.",
-  "Northern Virginia Remodelers":"Annandale & Burke specialist. SFH & multifamily capable. 30%+ repeat investors.",
-  "Blueprint Renovation LLC":"Free 3D rendering. Reston & Herndon specialist. 48-hour quote guarantee.",
-  "RedLine Construction VA":"Fastest turnaround specialist. Woodbridge & Lorton base. Budget overrun penalty clause.",
-  "Quick Flip & Rental Services VA":"Rental renovation in as little as 7 days. Paint + flooring + lighting package. Multi-property exclusive.",
-  "Tenant Ready Contractors":"7–14 day turnover. Paint + clean + minor repair package. #1 landlord choice.",
-  "Property Maintenance Plus VA":"Annual maintenance contracts. Rapid small-repair response. Manassas & Woodbridge focus.",
-  "Budget Reno Group VA":"Material cost reduction specialist. Rental yield optimization. Volume discount available.",
-  "NoVA Handyman & Renovation":"Small project light renovation specialist. Emergency dispatch available. Springfield & Burke base.",
-  "FirstChoice Renovation VA":"Low-cost kitchen & bath refresh specialist. Manassas base. 95% on-time rate.",
-  "Sterling Renovation Group":"Loudoun County specialist. Rental-ready LVP + paint + lighting package. Fast completion.",
-  "ValueBuild Contractors":"Lowest price guarantee. Multi-property investor exclusive contracts. Prince William County.",
-  "HomeFix Pro VA":"Wallpaper + paint + flooring replacement specialist. Centreville & Chantilly. 24-hour quote.",
-  "Express Reno VA":"Rental turnover maximization specialist. Sub-5-day completion record. Fairfax & Reston base.",
-};
-
 const TABS = [
-  { id: "deal",         labelKo: "딜 스크리닝",    labelEn: "Deal Screen",   emoji: "🔍" },
-  { id: "flip",         labelKo: "Flip 분석",      labelEn: "Flip Analysis", emoji: "📈" },
-  { id: "hold",         labelKo: "Hold 분석",      labelEn: "Hold Analysis", emoji: "🏦" },
-  { id: "stress",       labelKo: "스트레스 테스트", labelEn: "Stress Test",   emoji: "🔥" },
-  { id: "finance",      labelKo: "금융 비교",      labelEn: "Finance",       emoji: "💰" },
-  { id: "contractor",   labelKo: "건설사",      labelEn: "Contractors",   emoji: "🔨" },
-  { id: "materials",    labelKo: "자재 단가",   labelEn: "Materials",     emoji: "🪚" },
-  { id: "construction", labelKo: "공사 현황",   labelEn: "Construction",  emoji: "📋" },
-  { id: "mycheck",      labelKo: "내 물건 점검",labelEn: "My Property",   emoji: "💼" },
+  { id: "deal",         labelKo: "매물 입력",  labelEn: "Deal Input",    emoji: "🏠" },
+  { id: "flip",         labelKo: "Flip 분석",  labelEn: "Flip Analysis", emoji: "📈" },
+  { id: "hold",         labelKo: "Hold 분석",  labelEn: "Hold Analysis", emoji: "🏦" },
+  { id: "finance",      labelKo: "금융 비교",  labelEn: "Finance",       emoji: "💰" },
+  { id: "contractor",   labelKo: "건설사",     labelEn: "Contractors",   emoji: "🔨" },
+  { id: "materials",    labelKo: "자재 단가",  labelEn: "Materials",     emoji: "🪚" },
+  { id: "construction", labelKo: "공사 현황",  labelEn: "Construction",  emoji: "📋" },
+  { id: "risk",         labelKo: "리스크",     labelEn: "Risk",          emoji: "⚠️" },
 ];
 
 // ── TRANSLATIONS ─────────────────────────────────────────────────────────────
@@ -260,23 +181,12 @@ const L = {
       addBtn: "+ 공정 추가", newTask: "새 공정",
       statuses: { pending: "대기", progress: "진행중", done: "완료" },
     },
-    screen: {
-      cardTitle: "딜 스크리닝", placeholder: "Zillow/MLS URL 또는 주소 + 가격 입력",
-      urlLabel: "매물 URL / 주소", priceLabel: "매입 희망가 ($)", sqftLabel: "면적 (sqft)",
-      bedsLabel: "침실", bathsLabel: "욕실", renoLabel: "수리 등급",
-      analyzeBtn: "🔍 AI 딜 스크리닝", analyzing: "분석 중...",
-      verdictLabel: "판정", risksLabel: "Top 3 리스크", roiLabel: "ROI 범위",
-      goLabel: "GO", passLabel: "PASS", watchLabel: "WATCH",
-    },
-    mycheck: {
-      cardTitle: "내 물건 점검", subTitle: "매각 vs 임대 분석",
-      purchaseLabel: "매입가 ($)", renoLabel: "공사비 ($)",
-      loanLabel: "대출금액 ($)", rateLabel: "금리 (%)",
-      holdLabel: "보유 기간 (개월)", rentLabel: "월 렌트 ($)",
-      arvLabel: "현재 ARV ($)",
-      analyzeBtn: "💼 AI 매각 vs 임대 분석", analyzing: "분석 중...",
-      sellLabel: "지금 매각", holdLabel2: "임대 유지",
-      breakevenLabel: "손익분기", verdictLabel: "AI 추천",
+    risk: {
+      labels: ["금리 리스크","LTV 리스크","Flip ROI","DSCR","월 현금흐름","자본 필요액"],
+      rateDesc: (r) => `실질 이자율 ${r}%`,
+      ltvDesc: (l) => `현재 LTV ${l}%`,
+      aiBtn: "✦ AI 리스크 분석", aiLabel: "AI 리스크 분석",
+      analyzing: "...",
     },
   },
   en: {
@@ -339,23 +249,12 @@ const L = {
       addBtn: "+ Add Task", newTask: "New Task",
       statuses: { pending: "Pending", progress: "In Progress", done: "Done" },
     },
-    screen: {
-      cardTitle: "Deal Screening", placeholder: "Paste Zillow/MLS URL or enter address + price",
-      urlLabel: "Property URL / Address", priceLabel: "Asking Price ($)", sqftLabel: "Sqft",
-      bedsLabel: "Beds", bathsLabel: "Baths", renoLabel: "Reno Level",
-      analyzeBtn: "🔍 AI Screen This Deal", analyzing: "Screening...",
-      verdictLabel: "Verdict", risksLabel: "Top 3 Risks", roiLabel: "ROI Range",
-      goLabel: "GO", passLabel: "PASS", watchLabel: "WATCH",
-    },
-    mycheck: {
-      cardTitle: "My Property Check", subTitle: "Sell vs Hold Analysis",
-      purchaseLabel: "Purchase Price ($)", renoLabel: "Reno Cost ($)",
-      loanLabel: "Loan Amount ($)", rateLabel: "Interest Rate (%)",
-      holdLabel: "Hold Period (months)", rentLabel: "Monthly Rent ($)",
-      arvLabel: "Current ARV ($)",
-      analyzeBtn: "💼 AI Sell vs Hold Analysis", analyzing: "Analyzing...",
-      sellLabel: "Sell Now", holdLabel2: "Hold & Rent",
-      breakevenLabel: "Breakeven", verdictLabel: "AI Recommendation",
+    risk: {
+      labels: ["Rate Risk","LTV Risk","Flip ROI","DSCR","Monthly CF","Capital Required"],
+      rateDesc: (r) => `Actual rate ${r}%`,
+      ltvDesc: (l) => `Current LTV ${l}%`,
+      aiBtn: "✦ AI Risk Analysis", aiLabel: "AI Risk Analysis",
+      analyzing: "...",
     },
   },
 };
@@ -496,17 +395,6 @@ select.input{cursor:pointer;}
 .badge-blue{background:var(--blue2);color:var(--blue);}
 .badge-red{background:var(--red2);color:var(--red);}
 
-/* STRESS TEST TAB */
-.stress-section{display:flex;flex-direction:column;gap:16px;}
-.stress-baseline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.stress-tbl-wrap{overflow-x:auto;}
-.stress-delta{font-size:9px;margin-left:3px;font-family:'DM Mono',monospace;}
-.stress-delta.pos{color:var(--green);}
-.stress-delta.neg{color:var(--red);}
-.stress-row-worst{background:rgba(248,113,113,0.04);}
-.stress-group-header{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);opacity:0.75;padding:8px 14px 4px;background:var(--bg3);}
-@media(max-width:768px){.stress-baseline{grid-template-columns:1fr 1fr!important;}}
-
 /* SPINNER */
 .spinner{width:14px;height:14px;border:2px solid rgba(226,184,75,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
 .spinner-blue{border-color:rgba(75,139,255,0.2);border-top-color:var(--blue);}
@@ -516,8 +404,6 @@ select.input{cursor:pointer;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .space{height:16px;}
 /* MOBILE RESPONSIVE */
-/* Hide sidebar lang btn on desktop (it's in topbar there) */
-.lang-sidebar-btn{display:none;}
 @media (max-width: 768px) {
   .app{flex-direction:column;height:100dvh;}
   .sidebar{width:100%;height:60px;flex-direction:row;padding:0 4px;gap:0;overflow-x:auto;border-right:none;border-top:1px solid var(--border);border-bottom:none;flex-shrink:0;justify-content:space-around;order:3;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);z-index:100;}
@@ -531,10 +417,6 @@ select.input{cursor:pointer;}
   .card{padding:12px;}
   .grid-2{grid-template-columns:1fr!important;}
   input[type=range]{width:100%;}
-  /* Show lang btn in mobile tabbar */
-  .lang-sidebar-btn{display:flex;}
-  /* Hide topbar lang btn on mobile (it's in the tabbar) */
-  .topbar-lang-btn{display:none!important;}
 }
 @media (max-width: 768px) {
   /* Materials table - horizontal scroll */
@@ -576,11 +458,11 @@ export default function App() {
 
   // Construction
   const [tasks, setTasks] = useState([
-    { id: 1, descKo: "철거 및 폐기물",    descEn: "Demo & Debris",               budget: 5000,  actual: 0, status: "pending", due: "" },
-    { id: 2, descKo: "배관/전기 Rough-in", descEn: "Plumbing/Electric Rough-in",  budget: 12000, actual: 0, status: "pending", due: "" },
-    { id: 3, descKo: "드라이월/도장",      descEn: "Drywall/Paint",               budget: 15000, actual: 0, status: "pending", due: "" },
-    { id: 4, descKo: "주방/욕실 Fixtures", descEn: "Kitchen/Bath Fixtures",        budget: 25000, actual: 0, status: "pending", due: "" },
-    { id: 5, descKo: "바닥재/마감",        descEn: "Flooring/Finish",             budget: 18000, actual: 0, status: "pending", due: "" },
+    { id: 1, desc: "철거 및 폐기물", budget: 5000, actual: 0, status: "대기", due: "" },
+    { id: 2, desc: "배관/전기 Rough-in", budget: 12000, actual: 0, status: "대기", due: "" },
+    { id: 3, desc: "드라이월/도장", budget: 15000, actual: 0, status: "대기", due: "" },
+    { id: 4, desc: "주방/욕실 Fixtures", budget: 25000, actual: 0, status: "대기", due: "" },
+    { id: 5, desc: "바닥재/마감", budget: 18000, actual: 0, status: "대기", due: "" },
   ]);
 
   // AI
@@ -591,38 +473,24 @@ export default function App() {
   const [finCat, setFinCat] = useState("conventional");
   const [rateRefreshing, setRateRefreshing] = useState(false);
   const [rateUpdatedAt, setRateUpdatedAt] = useState(null);
-  const [rateError, setRateError] = useState(null);
   const [liveRates, setLiveRates] = useState({});
-
-  // 딜 스크리닝
-  const [screenInput, setScreenInput] = useState({ url: "", price: 650000, sqft: 2200, beds: 4, baths: 2, reno: "Medium" });
-  const [screenLoading, setScreenLoading] = useState(false);
-  const [screenResult, setScreenResult] = useState(null);
-  const [showDetail, setShowDetail] = useState(false);
-
-  // 내 물건 점검
-  const [myProp, setMyProp] = useState({ purchase: 650000, reno: 80000, loan: 520000, rate: 7.0, holdMonths: 12, rent: 3200, arv: 750000 });
-  const [myCheckLoading, setMyCheckLoading] = useState(false);
-  const [myCheckResult, setMyCheckResult] = useState(null);
 
   const refreshRates = async () => {
     setRateRefreshing(true);
-    setRateError(null);
     try {
-      const lenderNames = LENDERS.map(l => l.name).join(', ');
-      const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation, no code block) with estimated 2025 interest rates for these lenders in Northern Virginia. Use the EXACT lender name as the key. Format: {"LenderName": rate_as_number}\nLenders: ${lenderNames}\nReturn only valid JSON, nothing else.`;
+      const prompt = `You are a real estate lending expert. Return ONLY a JSON object (no markdown, no explanation) with current 2025 interest rates for these lenders in Northern Virginia. Format: {"LenderName": rate_number}
+Lenders: Navy Federal Credit Union, PenFed Credit Union, Capital One, Bank of America, Wells Fargo, Chase, Rocket Mortgage, CapCenter, LendFriend Mortgage, Truist, Easy Street Capital, Asset Based Lending, LendingOne, HouseMax Funding, Kiavi, RCN Capital, Groundfloor Finance, Civic Financial Services, CoreVest Finance, LoanBidz, Griffin Funding, Lima One Capital, Visio Lending, Angel Oak, Rehab Financial Group, Deephaven Mortgage, New Silver, HouseMax Funding DSCR, Kiavi DSCR, CapSource Lending
+Return only valid JSON.`;
       const text = await callClaude(prompt);
-      if (!text || text === "분석 실패" || text === "연결 오류" || text.startsWith("오류:")) throw new Error(text || "API 연결 실패");
+      if (!text || text === "분석 실패" || text === "연결 오류") throw new Error("API 오류");
       const clean = text.replace(/```json|```/g, '').trim();
       const jsonStart = clean.indexOf('{');
       const jsonEnd = clean.lastIndexOf('}') + 1;
-      if (jsonStart === -1) throw new Error(`응답 오류: ${clean.slice(0, 80)}`);
       const json = JSON.parse(clean.slice(jsonStart, jsonEnd));
       setLiveRates(json);
       setRateUpdatedAt(new Date().toLocaleString('ko-KR'));
     } catch(e) {
       console.error(e);
-      setRateError(e.message || "금리 조회 실패");
     }
     setRateRefreshing(false);
   };
@@ -671,92 +539,12 @@ export default function App() {
 
   const updateTask = (id, field, val) => setTasks(t => t.map(x => x.id === id ? { ...x, [field]: val } : x));
   const nextStatus = (s) => {
-    const map = { "pending": "progress", "progress": "done", "done": "pending" };
-    return map[s] || "pending";
+    const map = lang === "ko"
+      ? { "대기": "진행중", "진행중": "완료", "완료": "대기" }
+      : { "Pending": "In Progress", "In Progress": "Done", "Done": "Pending" };
+    return map[s] || s;
   };
   const t$ = L[lang]; // shorthand for current language
-
-  // lang 전환 시 AI 결과 초기화 (언어 불일치 방지)
-  useEffect(() => { setAiResult(""); setMyCheckResult(null); setScreenResult(null); setShowDetail(false); }, [lang]);
-
-  // ── 딜 연동 헤더 (Flip / Hold / Stress 탭 공통) ────────────────────────
-  const PropHeader = () => {
-    const ko = lang === "ko";
-    const hasAddr = D.address && D.address.trim().length > 0;
-    const chips = [
-      { label: ko ? "매입가" : "Purchase",  val: fmt(D.purchasePrice) },
-      { label: ko ? "면적"   : "Sqft",      val: D.sqft.toLocaleString() + " sqft" },
-      { label: ko ? "수리"   : "Reno",      val: D.renoLevel },
-      { label: ko ? "침실/욕실" : "Bd/Ba",  val: `${D.beds}bd / ${D.baths}ba` },
-      { label: ko ? "예상렌트" : "Est.Rent", val: fmt(D.estimatedRent) + "/mo" },
-      { label: ko ? "재산세"  : "Tax/yr",   val: fmt(D.propertyTax) },
-    ];
-    return (
-      <div style={{
-        background: "var(--bg2)", border: "1px solid var(--border2)",
-        borderRadius: 14, padding: "12px 18px", marginBottom: 16,
-        display: "flex", flexDirection: "column", gap: 8,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{ fontSize: 14 }}>📍</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: hasAddr ? "var(--text)" : "var(--dim)" }}>
-              {hasAddr ? D.address : (ko ? "주소 미입력" : "No address entered")}
-            </span>
-          </div>
-          <button
-            onClick={() => setTab("deal")}
-            style={{
-              background: "transparent", border: "1px solid var(--border2)",
-              color: "var(--gold)", borderRadius: 8, padding: "3px 12px",
-              fontSize: 9, fontWeight: 700, cursor: "pointer",
-              letterSpacing: "0.1em", fontFamily: "'Sora',sans-serif",
-            }}
-          >
-            ✎ {ko ? "딜 탭 수정" : "Edit in Deal"}
-          </button>
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {chips.map((c, i) => (
-            <div key={i} style={{
-              background: "var(--bg3)", border: "1px solid var(--border)",
-              borderRadius: 8, padding: "4px 10px", display: "flex", gap: 5, alignItems: "center",
-            }}>
-              <span style={{ fontSize: 8, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{c.label}</span>
-              <span style={{ fontSize: 11, color: "var(--text)", fontFamily: "'DM Mono',monospace", fontWeight: 500 }}>{c.val}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  // ── STRESS TEST helper ────────────────────────────────────────────────────
-  const calcStress = (arvMult = 1, renoMult = 1, extraMonths = 0, rateDelta = 0, extraVacMo = 0) => {
-    const sArv      = arv * arvMult;
-    const sReno     = renoCost * renoMult;
-    const sRate     = (lender.rate + rateDelta) / 100 / 12;
-    const sMonthly  = loanAmt * sRate;
-    const sHold     = holdMonths + extraMonths;
-    const sHoldCost = sMonthly * sHold + (D.propertyTax / 12) * sHold + 200 * sHold;
-    const sEquity   = D.purchasePrice * (1 - ltv / 100) + sReno;
-    const sFlipPro  = sArv - D.purchasePrice - sReno - sHoldCost - sArv * 0.075;
-    const sFlipROI  = (sFlipPro / sEquity) * 100;
-    const sVac      = vacancy + (extraVacMo * D.estimatedRent / 12);
-    const sNoi      = D.estimatedRent * 12 - sVac * 12 - opex * 12 - pm * 12 - D.propertyTax - D.hoa * 12;
-    const sDebt     = sMonthly * 12 * 1.15;
-    return {
-      flipProfit: sFlipPro,
-      flipROI:    sFlipROI,
-      monthlyCF:  (sNoi - sDebt) / 12,
-      dscr:       sDebt > 0 ? sNoi / sDebt : 0,
-    };
-  };
-  const stressStatus = (s) => {
-    if (s.flipROI >= 15 && s.dscr >= 1.2 && s.monthlyCF >= 0)        return { icon: "✅", label: "OK",    color: "var(--green)" };
-    if (s.flipROI >= 8  || (s.dscr >= 1.0 && s.monthlyCF >= -500))   return { icon: "⚠️", label: "WATCH", color: "var(--gold)"  };
-    return                                                              { icon: "❌", label: "FAIL",  color: "var(--red)"   };
-  };
 
   return (
     <>
@@ -791,15 +579,6 @@ export default function App() {
               {t$?.tabLabel(t)}
             </button>
           ))}
-          {/* Lang toggle in sidebar (visible on mobile tabbar) */}
-          <button
-            className="nav-btn lang-sidebar-btn"
-            onClick={() => setLang(l => l === "ko" ? "en" : "ko")}
-            title={lang === "ko" ? "Switch to English" : "한국어로 전환"}
-          >
-            <span className="nav-emoji" style={{fontSize:16}}>🌐</span>
-            {lang === "ko" ? "EN" : "KO"}
-          </button>
         </aside>
 
         {/* MAIN */}
@@ -809,7 +588,7 @@ export default function App() {
           <div className="topbar">
             <div className="topbar-title">
               {TABS.find(t => t.id === tab)?.emoji} {t$?.tabLabel(TABS.find(t => t.id === tab))}
-              <button className="topbar-lang-btn" onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{marginLeft:12,padding:"4px 16px",borderRadius:100,border:"1px solid rgba(255,255,255,0.25)",background:"rgba(255,255,255,0.1)",color:"#fff",fontSize:11,fontWeight:800,cursor:"pointer",letterSpacing:"0.1em",backdropFilter:"blur(4px)"}}>{lang === "ko" ? "EN" : "KO"}</button>
+              <button onClick={() => setLang(l => l === "ko" ? "en" : "ko")} style={{marginLeft:12,padding:"4px 14px",borderRadius:100,border:"1px solid #E2B84B",background:"#E2B84B",color:"#000",fontSize:11,fontWeight:800,cursor:"pointer"}}>{lang === "ko" ? "🇺🇸 EN" : "🇰🇷 KO"}</button>
               {D.address && <span style={{ fontSize: 12, color: "var(--dim)", fontWeight: 400, marginLeft: 8 }}>{D.address}</span>}
             </div>
             <div className="topbar-stats">
@@ -832,284 +611,149 @@ export default function App() {
 
             {/* ── 1. 매물 입력 ─────────────────────────────────────── */}
             {tab === "deal" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-
-                {/* ── STEP 1: 빠른 스크리닝 입력 ── */}
-                <div className="card">
-                  <div className="card-header">
-                    <span className="card-title">🔍 {lang === "ko" ? "빠른 딜 스크리닝" : "Quick Deal Screen"}</span>
-                    <span style={{ fontSize: 11, color: "var(--dim)" }}>{lang === "ko" ? "나쁜 딜 빠르게 걸러내기" : "Fast bad deal filter"}</span>
-                  </div>
-                  <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    {/* URL / 주소 */}
-                    <div className="field">
-                      <label className="label">{lang === "ko" ? "Zillow/MLS URL 또는 주소 직접 입력" : "Zillow/MLS URL or Address"}</label>
-                      <input className="input" placeholder={lang === "ko" ? "예: zillow.com/... 또는 123 Oak St, Fairfax VA" : "e.g. zillow.com/... or 123 Oak St, Fairfax VA"}
-                        value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} />
+              <div>
+                <div className="grid2" style={{ gap: 20 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div className="card">
+                      <div className="card-header"><span className="card-title">{t$?.deal.cardTitle}</span></div>
+                      <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                        <div className="field">
+                          <label className="label">{t$?.deal.address}</label>
+                          <input className="input" placeholder="1234 Oak St, Fairfax, VA 22031" value={D.address} onChange={e => setDeal(d => ({ ...d, address: e.target.value }))} />
+                        </div>
+                        <div className="grid2">
+                          <div className="field"><label className="label">{t$?.deal.purchasePrice}</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.area}</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
+                        </div>
+                        <div className="grid4">
+                          <div className="field"><label className="label">{t$?.deal.yearBuilt}</label><input className="input" type="number" value={D.yearBuilt} onChange={e => setDeal(d => ({ ...d, yearBuilt: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">Beds</label><input className="input" type="number" value={D.beds} onChange={e => setDeal(d => ({ ...d, beds: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">Baths</label><input className="input" type="number" value={D.baths} onChange={e => setDeal(d => ({ ...d, baths: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.hoa}</label><input className="input" type="number" value={D.hoa} onChange={e => setDeal(d => ({ ...d, hoa: +e.target.value }))} /></div>
+                        </div>
+                        <div className="grid2">
+                          <div className="field"><label className="label">{t$?.deal.estRent}</label><input className="input" type="number" value={D.estimatedRent} onChange={e => setDeal(d => ({ ...d, estimatedRent: +e.target.value }))} /></div>
+                          <div className="field"><label className="label">{t$?.deal.propTax}</label><input className="input" type="number" value={D.propertyTax} onChange={e => setDeal(d => ({ ...d, propertyTax: +e.target.value }))} /></div>
+                        </div>
+                      </div>
                     </div>
-                    {/* 기본 정보 */}
-                    <div className="grid4" style={{ gap: 10 }}>
+
+                    <div className="card">
+                      <div className="card-header"><span className="card-title">{t$?.deal.renoTitle}</span></div>
+                      <div className="card-body">
+                        <div className="reno-grid">
+                          {["Light", "Medium", "Heavy"].map(l => (
+                            <button key={l} className={`reno-btn ${D.renoLevel === l ? "active" : ""}`} onClick={() => setDeal(d => ({ ...d, renoLevel: l }))}>
+                              {l}
+                              <div style={{ fontSize: 9, fontWeight: 400, marginTop: 2, opacity: 0.7 }}>${({ Light: 28, Medium: 65, Heavy: 115 }[l])}/sqft</div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* RIGHT — Quick Summary */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                    <div className={`verdict ${verdictClass}`}>
+                      <div className="verdict-badge" style={{ color: verdictColor }}>{verdict}</div>
+                      <div className="verdict-text">
+                        {verdict === "FLIP" && t$?.verdict.flip(pct(flipROI), fmt(flipProfit))}
+                        {verdict === "HOLD" && t$?.verdict.hold(fmt(monthlyCF), dscr.toFixed(2))}
+                        {verdict === "BOTH" && t$?.verdict.both(pct(flipROI), fmt(monthlyCF))}
+                        {verdict === "PASS" && t$?.verdict.pass(pct(flipROI), fmt(monthlyCF))}
+                      </div>
+                    </div>
+
+                    <div className="grid2">
                       {[
-                        { label: lang === "ko" ? "매입 희망가 ($)" : "Asking Price ($)", key: "price" },
-                        { label: "Sqft", key: "sqft" },
-                        { label: lang === "ko" ? "침실" : "Beds", key: "beds" },
-                        { label: lang === "ko" ? "욕실" : "Baths", key: "baths" },
-                      ].map(({ label, key }) => (
-                        <div key={key} className="field">
-                          <label className="label">{label}</label>
-                          <input className="input" type="number" value={screenInput[key]} onChange={e => setScreenInput(s => ({ ...s, [key]: +e.target.value }))} />
+                        { label: t$?.metrics.arv,        val: fmt(arv),           cls: "gold" },
+                        { label: t$?.metrics.renoCost,   val: fmt(renoCost),      cls: "blue" },
+                        { label: t$?.metrics.equity,     val: fmt(equity),        cls: "blue" },
+                        { label: t$?.metrics.flipProfit, val: fmt(flipProfit),    cls: flipProfit > 0 ? "green" : "red" },
+                        { label: "Cap Rate",             val: pct(capRate),       cls: capRate >= 6 ? "green" : "blue" },
+                        { label: "DSCR",                 val: dscr.toFixed(2),   cls: dscr >= 1.2 ? "green" : "red" },
+                      ].map(m => (
+                        <div key={m.label} className="metric">
+                          <div className="metric-label">{m.label}</div>
+                          <div className={`metric-val ${m.cls}`}>{m.val}</div>
                         </div>
                       ))}
                     </div>
-                    {/* 수리 등급 */}
-                    <div>
-                      <label className="label">{lang === "ko" ? "수리 등급" : "Reno Level"}</label>
-                      <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                        {["Light","Medium","Heavy"].map(r => (
-                          <button key={r} onClick={() => setScreenInput(s => ({ ...s, reno: r }))}
-                            style={{ padding: "6px 18px", borderRadius: 100, fontSize: 11, fontWeight: 700, cursor: "pointer",
-                              border: `1px solid ${screenInput.reno === r ? "var(--gold)" : "var(--border)"}`,
-                              background: screenInput.reno === r ? "var(--gold)22" : "transparent",
-                              color: screenInput.reno === r ? "var(--gold)" : "var(--dim)" }}>
-                            {r} <span style={{ fontWeight: 400, opacity: 0.7 }}>${({Light:28,Medium:65,Heavy:115}[r])}/sqft</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    {/* 스크리닝 버튼 */}
+
                     <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
-                      disabled={screenLoading}
-                      onClick={async () => {
-                        setScreenLoading(true); setScreenResult(null); setShowDetail(false);
-                        const p = screenInput;
-                        const prompt = lang === "ko"
-                          ? `당신은 NoVA(Northern Virginia) 부동산 투자 전문가입니다. ISWELL 기준(Flip ROI ≥18%, 월 현금흐름 ≥$500, DSCR ≥1.2)으로 이 매물을 분석하세요.
-매물: ${p.url || "NoVA 매물"}, 매입 희망가: $${Number(p.price).toLocaleString()}, 면적: ${p.sqft}sqft, 침실: ${p.beds}/${p.baths}욕실, 수리: ${p.reno}
-반드시 유효한 JSON만 반환하세요 (마크다운 없이): {"verdict":"GO|WATCH|PASS","verdictReason":"한 문장 판단 이유","risks":["주요 리스크1","주요 리스크2","주요 리스크3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":숫자,"maxHoldPrice":숫자,"recommendation":"2-3문장 투자 추천"}
-maxFlipPrice = Flip ROI 18% 달성을 위한 최대 매입가. maxHoldPrice = 월 $500+ 현금흐름을 위한 최대 매입가. 모든 텍스트 필드는 반드시 한국어로 작성.`
-                          : `You are a NoVA real estate investment expert. Analyze this deal strictly using ISWELL criteria (Flip ROI ≥18%, Monthly CF ≥$500, DSCR ≥1.2) for Northern Virginia market.
-Property: ${p.url || "NoVA property"}, Asking: $${Number(p.price).toLocaleString()}, Sqft: ${p.sqft}, Beds: ${p.beds}/${p.baths}ba, Reno: ${p.reno}
-Return ONLY valid JSON (no markdown): {"verdict":"GO|WATCH|PASS","verdictReason":"one sentence reason","risks":["top risk1","top risk2","top risk3"],"roiRange":{"optimistic":"X%","realistic":"Y%","worst":"Z%"},"maxFlipPrice":number,"maxHoldPrice":number,"recommendation":"2-3 sentence recommendation"}
-maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max purchase price for $500+/mo cash flow.`;
-                        const text = await callClaude(prompt);
-                        try {
-                          const clean = text.replace(/```json|```/g, '').trim();
-                          const j = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}') + 1));
-                          setScreenResult(j);
-                        } catch { setScreenResult({ verdict: "PASS", verdictReason: text, risks: [], roiRange: {}, recommendation: text }); }
-                        setScreenLoading(false);
-                      }}>
-                      {screenLoading ? <><div className="spinner" />{lang === "ko" ? "분석 중..." : "Screening..."}</> : lang === "ko" ? "🔍 AI 딜 스크리닝" : "🔍 AI Screen This Deal"}
+                      disabled={aiLoading}
+                      onClick={() => runAI(`Northern Virginia 부동산 투자 분석. 주소: ${D.address || "Fairfax VA"}, 매입가: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, 월 현금흐름: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. 한글로 투자 판단 3줄 요약.`)}>
+                      {aiLoading ? <><div className="spinner" /> {t$?.ai.analyzing}</> : t$?.ai.dealBtn}
                     </button>
+
+                    {aiResult && (
+                      <div className="ai-box">
+                        <div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.ai.resultLabel}</span></div>
+                        <div className="ai-text">{aiResult}</div>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* ── STEP 2: 스크리닝 결과 ── */}
-                {screenResult && (
-                  <div className="card">
-                    <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      {/* 판정 */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 16, background: screenResult.verdict === "GO" ? "var(--green)18" : screenResult.verdict === "WATCH" ? "var(--gold)18" : "var(--red)18", borderRadius: 12, padding: "16px 20px" }}>
-                        <div style={{ fontSize: 40, fontWeight: 900, color: screenResult.verdict === "GO" ? "var(--green)" : screenResult.verdict === "WATCH" ? "var(--gold)" : "var(--red)", minWidth: 80 }}>{screenResult.verdict}</div>
-                        <div style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.6 }}>{screenResult.verdictReason}</div>
-                      </div>
-
-                      {/* PASS → 목표 매입가 역산 */}
-                      {(screenResult.verdict === "PASS" || screenResult.verdict === "WATCH") && (screenResult.maxFlipPrice || screenResult.maxHoldPrice) && (
-                        <div>
-                          <div className="metric-label" style={{ marginBottom: 8 }}>
-                            {lang === "ko" ? "💡 GO 되려면 얼마에 사야 할까?" : "💡 What price makes this a GO?"}
-                          </div>
-                          <div className="grid2" style={{ gap: 10 }}>
-                            {screenResult.maxFlipPrice && (
-                              <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
-                                <div className="metric-label">Flip 18% 달성 최대가</div>
-                                <div className="metric-val green" style={{ fontSize: 20 }}>{fmt(screenResult.maxFlipPrice)}</div>
-                                <div style={{ fontSize: 10, color: "var(--red)", marginTop: 4 }}>
-                                  현재가 대비 {fmt(Number(screenInput.price) - screenResult.maxFlipPrice)} ({(((Number(screenInput.price) - screenResult.maxFlipPrice) / Number(screenInput.price)) * 100).toFixed(1)}%) 할인 필요
-                                </div>
-                              </div>
-                            )}
-                            {screenResult.maxHoldPrice && (
-                              <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
-                                <div className="metric-label">Hold CF $500+ 최대가</div>
-                                <div className="metric-val blue" style={{ fontSize: 20 }}>{fmt(screenResult.maxHoldPrice)}</div>
-                                <div style={{ fontSize: 10, color: "var(--red)", marginTop: 4 }}>
-                                  현재가 대비 {fmt(Number(screenInput.price) - screenResult.maxHoldPrice)} ({(((Number(screenInput.price) - screenResult.maxHoldPrice) / Number(screenInput.price)) * 100).toFixed(1)}%) 할인 필요
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Top 3 리스크 */}
-                      {screenResult.risks?.length > 0 && (
-                        <div>
-                          <div className="metric-label" style={{ marginBottom: 8 }}>{lang === "ko" ? "Top 3 리스크" : "Top 3 Risks"}</div>
-                          {screenResult.risks.map((r, i) => (
-                            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 6 }}>
-                              <span style={{ color: "var(--red)", fontWeight: 800, fontSize: 12, minWidth: 18 }}>{i+1}.</span>
-                              <span style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.5 }}>{r}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* ROI Range */}
-                      {screenResult.roiRange && Object.keys(screenResult.roiRange).length > 0 && (
-                        <div>
-                          <div className="metric-label" style={{ marginBottom: 8 }}>{lang === "ko" ? "ROI 범위" : "ROI Range"}</div>
-                          <div style={{ display: "flex", gap: 10 }}>
-                            {[["Optimistic","optimistic","green"],["Realistic","realistic","gold"],["Worst","worst","red"]].map(([label, key, color]) => (
-                              <div key={key} style={{ flex: 1, textAlign: "center", background: "var(--bg3)", borderRadius: 10, padding: "10px 8px" }}>
-                                <div style={{ fontSize: 9, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 }}>{label}</div>
-                                <div style={{ fontSize: 18, fontWeight: 800, color: `var(--${color})` }}>{screenResult.roiRange[key] || "—"}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* AI 추천 */}
-                      {screenResult.recommendation && (
-                        <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{lang === "ko" ? "AI 추천" : "AI Recommendation"}</span></div><div className="ai-text">{screenResult.recommendation}</div></div>
-                      )}
-
-                      {/* GO/WATCH → 상세 분석 버튼 */}
-                      {(screenResult.verdict === "GO" || screenResult.verdict === "WATCH") && (
-                        <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
-                          onClick={() => {
-                            setDeal(d => ({ ...d,
-                              address: screenInput.url,
-                              purchasePrice: Number(screenInput.price),
-                              sqft: Number(screenInput.sqft),
-                              beds: Number(screenInput.beds),
-                              baths: Number(screenInput.baths),
-                              renoLevel: screenInput.reno,
-                            }));
-                            setShowDetail(true);
-                          }}>
-                          {lang === "ko" ? "📊 상세 분석 시작 (Flip / Hold 탭 연동)" : "📊 Start Detailed Analysis"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── STEP 3: 상세 분석 (GO/WATCH 통과 후) ── */}
-                {showDetail && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold)", opacity: 0.7, marginBottom: 12 }}>
-                      {lang === "ko" ? "📊 상세 분석 — Flip / Hold / 리스크 탭 연동" : "📊 Detailed Analysis — connected to Flip / Hold / Risk tabs"}
-                    </div>
-                    <div className="grid2" style={{ gap: 20 }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                        <div className="card">
-                          <div className="card-header"><span className="card-title">{t$?.deal.cardTitle}</span></div>
-                          <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                            <div className="field">
-                              <label className="label">{t$?.deal.address}</label>
-                              <input className="input" placeholder="1234 Oak St, Fairfax, VA 22031" value={D.address} onChange={e => setDeal(d => ({ ...d, address: e.target.value }))} />
-                            </div>
-                            <div className="grid2">
-                              <div className="field"><label className="label">{t$?.deal.purchasePrice}</label><input className="input" type="number" value={D.purchasePrice} onChange={e => setDeal(d => ({ ...d, purchasePrice: +e.target.value }))} /></div>
-                              <div className="field"><label className="label">{t$?.deal.area}</label><input className="input" type="number" value={D.sqft} onChange={e => setDeal(d => ({ ...d, sqft: +e.target.value }))} /></div>
-                            </div>
-                            <div className="grid4">
-                              <div className="field"><label className="label">{t$?.deal.yearBuilt}</label><input className="input" type="number" value={D.yearBuilt} onChange={e => setDeal(d => ({ ...d, yearBuilt: +e.target.value }))} /></div>
-                              <div className="field"><label className="label">Beds</label><input className="input" type="number" value={D.beds} onChange={e => setDeal(d => ({ ...d, beds: +e.target.value }))} /></div>
-                              <div className="field"><label className="label">Baths</label><input className="input" type="number" value={D.baths} onChange={e => setDeal(d => ({ ...d, baths: +e.target.value }))} /></div>
-                              <div className="field"><label className="label">{t$?.deal.hoa}</label><input className="input" type="number" value={D.hoa} onChange={e => setDeal(d => ({ ...d, hoa: +e.target.value }))} /></div>
-                            </div>
-                            <div className="grid2">
-                              <div className="field"><label className="label">{t$?.deal.estRent}</label><input className="input" type="number" value={D.estimatedRent} onChange={e => setDeal(d => ({ ...d, estimatedRent: +e.target.value }))} /></div>
-                              <div className="field"><label className="label">{t$?.deal.propTax}</label><input className="input" type="number" value={D.propertyTax} onChange={e => setDeal(d => ({ ...d, propertyTax: +e.target.value }))} /></div>
-                            </div>
-                            <div className="reno-grid">
-                              {["Light","Medium","Heavy"].map(l => (
-                                <button key={l} className={`reno-btn ${D.renoLevel === l ? "active" : ""}`} onClick={() => setDeal(d => ({ ...d, renoLevel: l }))}>
-                                  {l}<div style={{ fontSize: 9, fontWeight: 400, marginTop: 2, opacity: 0.7 }}>${({Light:28,Medium:65,Heavy:115}[l])}/sqft</div>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                        <div className={`verdict ${verdictClass}`}>
-                          <div className="verdict-badge" style={{ color: verdictColor }}>{verdict}</div>
-                          <div className="verdict-text">
-                            {verdict === "FLIP" && t$?.verdict.flip(pct(flipROI), fmt(flipProfit))}
-                            {verdict === "HOLD" && t$?.verdict.hold(fmt(monthlyCF), dscr.toFixed(2))}
-                            {verdict === "BOTH" && t$?.verdict.both(pct(flipROI), fmt(monthlyCF))}
-                            {verdict === "PASS" && t$?.verdict.pass(pct(flipROI), fmt(monthlyCF))}
-                          </div>
-                        </div>
-                        <div className="grid2">
-                          {[
-                            { label: t$?.metrics.arv,        val: fmt(arv),        cls: "gold" },
-                            { label: t$?.metrics.renoCost,   val: fmt(renoCost),   cls: "blue" },
-                            { label: t$?.metrics.equity,     val: fmt(equity),     cls: "blue" },
-                            { label: t$?.metrics.flipProfit, val: fmt(flipProfit), cls: flipProfit > 0 ? "green" : "red" },
-                            { label: "Cap Rate",             val: pct(capRate),    cls: capRate >= 6 ? "green" : "blue" },
-                            { label: "DSCR",                 val: dscr.toFixed(2), cls: dscr >= 1.2 ? "green" : "red" },
-                          ].map(m => (
-                            <div key={m.label} className="metric">
-                              <div className="metric-label">{m.label}</div>
-                              <div className={`metric-val ${m.cls}`}>{m.val}</div>
-                            </div>
-                          ))}
-                        </div>
-                        <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center" }}
-                          disabled={aiLoading}
-                          onClick={() => runAI(lang === "ko"
-                            ? `Northern Virginia 부동산 투자 분석. 주소: ${D.address || "Fairfax VA"}, 매입가: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, 월 현금흐름: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. 한글로 투자 판단 3줄 요약.`
-                            : `NoVA real estate analysis. Address: ${D.address || "Fairfax VA"}, Purchase: ${fmt(D.purchasePrice)}, ARV: ${fmt(arv)}, Flip ROI: ${pct(flipROI)}, Monthly CF: ${fmt(monthlyCF)}, DSCR: ${dscr.toFixed(2)}. Summarize investment verdict in 3 lines.`)}>
-                          {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing}</> : t$?.ai.dealBtn}
-                        </button>
-                        {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.ai.resultLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
             {/* ── 2. FLIP 분석 ──────────────────────────────────────── */}
             {tab === "flip" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <PropHeader />
-                <div className="card">
-                  <div className="card-header"><span className="card-title">{t$?.flip.cardTitle}</span></div>
-                  <div className="card-body">
-                    <table className="tbl">
-                      <tbody>
-                        {(t$?.flip.rows || []).map((label, i) => {
-                          const vals = [fmt(D.purchasePrice), fmt(renoCost), fmt(holdingCost), fmt(sellingCost), fmt(D.purchasePrice + renoCost + holdingCost), fmt(arv), fmt(flipProfit), pct(flipROI), pct(flipROI / (holdMonths / 12))];
-                          const clss = ["","","","red","","gold", flipProfit > 0 ? "green" : "red", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", flipROI >= 18 ? "green" : "blue"];
-                          return <tr key={i}><td>{label}</td><td className={clss[i] || "mono"}>{vals[i]}</td></tr>;
-                        })}
-                      </tbody>
-                    </table>
+              <div>
+                <div className="grid2" style={{ gap: 20 }}>
+                  <div className="card">
+                    <div className="card-header"><span className="card-title">{t$?.flip.cardTitle}</span></div>
+                    <div className="card-body">
+                      <table className="tbl">
+                        <tbody>
+                          {(t$?.flip.rows || []).map((label, i) => {
+                            const vals = [fmt(D.purchasePrice), fmt(renoCost), fmt(holdingCost), fmt(sellingCost), fmt(D.purchasePrice + renoCost + holdingCost), fmt(arv), fmt(flipProfit), pct(flipROI), pct(flipROI / (holdMonths / 12))];
+                            const clss = ["","","","red","","gold", flipProfit > 0 ? "green" : "red", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", flipROI >= 18 ? "green" : "blue"];
+                            return <tr key={i}><td>{label}</td><td className={clss[i] || "mono"}>{vals[i]}</td></tr>;
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="card" style={{ marginBottom: 16 }}>
+                      <div className="card-header"><span className="card-title">{t$?.flip.stressTitle}</span></div>
+                      <div className="card-body">
+                        <div className="stress-grid">
+                          {(t$?.flip.stress || []).map((label, i) => {
+                            const stressVals = [
+                              { val: fmt(arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95), ok: (arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95) > 0 },
+                              { val: fmt(arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90), ok: (arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90) > 0 },
+                              { val: fmt(flipProfit - monthlyInterest * 2), ok: (flipProfit - monthlyInterest * 2) > 0 },
+                              { val: fmt(arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost), ok: (arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost) > 0 },
+                            ];
+                            return (
+                              <div key={i} className="stress-item">
+                                <div className="stress-label">{label}</div>
+                                <div className="stress-val" style={{ color: stressVals[i].ok ? "var(--green)" : "var(--red)" }}>{stressVals[i].val}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}
+                      disabled={aiLoading}
+                      onClick={() => runAI(`Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`)}>
+                      {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing2}</> : t$?.flip.aiBtn}
+                    </button>
+                    {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.flip.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
                   </div>
                 </div>
-                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}
-                  disabled={aiLoading}
-                  onClick={() => runAI(lang === "ko"
-                    ? `Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`
-                    : `Flip analysis: Purchase ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, Reno ${fmt(renoCost)}, Net profit ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Explain key risks and success conditions for this NoVA deal.`)}>
-                  {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing2}</> : t$?.flip.aiBtn}
-                </button>
-                {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.flip.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
               </div>
             )}
 
             {/* ── 3. HOLD 분석 ──────────────────────────────────────── */}
             {tab === "hold" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <PropHeader />
+              <div>
                 <div className="grid2" style={{ gap: 20 }}>
                   <div className="card">
                     <div className="card-header"><span className="card-title">{t$?.hold.cardTitle}</span></div>
@@ -1126,177 +770,47 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                     </div>
                   </div>
 
-                  <div className="card">
-                    <div className="card-header"><span className="card-title">{t$?.hold.equityTitle}</span></div>
-                    <div className="card-body">
-                      <table className="tbl">
-                        <tbody>
-                          {[1, 2, 3, 5].map(yr => {
-                            const appreciation = D.purchasePrice * Math.pow(1.04, yr) - D.purchasePrice;
-                            const equity5 = equity + appreciation + (annualDebt * 0.2 * yr);
-                            return <tr key={yr}><td>{t$?.hold.yearEquity(yr)}</td><td className="green">{fmt(equity5)}</td></tr>;
+                  <div>
+                    <div className="card" style={{ marginBottom: 16 }}>
+                      <div className="card-header"><span className="card-title">{t$?.hold.stressTitle}</span></div>
+                      <div className="card-body">
+                        <div className="stress-grid">
+                          {(t$?.hold.stress || []).map((label, i) => {
+                            const holdStress = [
+                              { val: fmt(monthlyCF - D.estimatedRent / 6), ok: (monthlyCF - D.estimatedRent / 6) > 0 },
+                              { val: fmt(monthlyCF - D.estimatedRent * 0.1), ok: (monthlyCF - D.estimatedRent * 0.1) > 0 },
+                              { val: fmt(monthlyCF - opex * 0.15), ok: (monthlyCF - opex * 0.15) > 0 },
+                              { val: fmt(monthlyCF - D.propertyTax * 0.1 / 12), ok: (monthlyCF - D.propertyTax * 0.1 / 12) > 0 },
+                            ];
+                            return (
+                              <div key={i} className="stress-item">
+                                <div className="stress-label">{label}</div>
+                                <div className="stress-val" style={{ color: holdStress[i].ok ? "var(--green)" : "var(--red)" }}>{holdStress[i].val}</div>
+                              </div>
+                            );
                           })}
-                        </tbody>
-                      </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="card">
+                      <div className="card-header"><span className="card-title">{t$?.hold.equityTitle}</span></div>
+                      <div className="card-body">
+                        <table className="tbl">
+                          <tbody>
+                            {[1, 2, 3, 5].map(yr => {
+                              const appreciation = D.purchasePrice * Math.pow(1.04, yr) - D.purchasePrice;
+                              const equity5 = equity + appreciation + (annualDebt * 0.2 * yr);
+                              return <tr key={yr}><td>{t$?.hold.yearEquity(yr)}</td><td className="green">{fmt(equity5)}</td></tr>;
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             )}
-
-            {/* ── 🔥 스트레스 테스트 ──────────────────────────────────── */}
-            {tab === "stress" && (() => {
-              const ko = lang === "ko";
-              const base = { flipProfit, flipROI, monthlyCF, dscr };
-              const Δ = (curr, ref, fmtFn) => {
-
-                const d = curr - ref;
-                const cls = d >= 0 ? "pos" : "neg";
-                const sign = d >= 0 ? "+" : "−";
-                return <span className={`stress-delta ${cls}`}>({sign}{fmtFn(Math.abs(d))})</span>;
-              };
-              const groups = [
-                {
-                  label: ko ? "📉 ARV 하락" : "📉 ARV Drop",
-                  desc:  ko ? "매도 가격이 예상보다 낮을 때" : "Sale price comes in below estimate",
-                  rows: [
-                    { label: "ARV −5%",  s: calcStress(0.95) },
-                    { label: "ARV −10%", s: calcStress(0.90) },
-                  ],
-                },
-                {
-                  label: ko ? "🔨 수리비 초과" : "🔨 Reno Overrun",
-                  desc:  ko ? "공사비가 예산을 초과할 때" : "Construction cost exceeds budget",
-                  rows: [
-                    { label: ko ? "수리비 +10%" : "Reno +10%", s: calcStress(1, 1.10) },
-                    { label: ko ? "수리비 +20%" : "Reno +20%", s: calcStress(1, 1.20) },
-                  ],
-                },
-                {
-                  label: ko ? "⏱️ 보유 연장" : "⏱️ Hold Delay",
-                  desc:  ko ? "공사·매도 기간이 늘어날 때" : "Project or sale takes longer than planned",
-                  rows: [
-                    { label: ko ? "+1개월" : "+1mo Hold", s: calcStress(1, 1, 1) },
-                    { label: ko ? "+2개월" : "+2mo Hold", s: calcStress(1, 1, 2) },
-                  ],
-                },
-                {
-                  label: ko ? "📈 금리 상승" : "📈 Rate Rise",
-                  desc:  ko ? "금리가 인상될 때 보유 비용 영향" : "Higher interest rate increases holding cost",
-                  rows: [
-                    { label: "+0.5%", s: calcStress(1, 1, 0, 0.5) },
-                    { label: "+1.0%", s: calcStress(1, 1, 0, 1.0) },
-                  ],
-                },
-                {
-                  label: ko ? "🏠 공실 증가" : "🏠 Vacancy Up",
-                  desc:  ko ? "연간 공실이 늘어날 때 Hold 수익 영향" : "More vacancy months hurt Hold cash flow",
-                  rows: [
-                    { label: ko ? "+1개월/년" : "+1mo/yr", s: calcStress(1, 1, 0, 0, 1) },
-                    { label: ko ? "+2개월/년" : "+2mo/yr", s: calcStress(1, 1, 0, 0, 2) },
-                  ],
-                },
-                {
-                  label: ko ? "💀 최악 시나리오" : "💀 Worst Case",
-                  desc:  ko ? "ARV −10% · 수리비 +20% · 보유 +2개월 · 금리 +1% · 공실 +2개월" : "ARV −10% · Reno +20% · Hold +2mo · Rate +1% · Vacancy +2mo",
-                  worst: true,
-                  rows: [
-                    { label: ko ? "복합 최악" : "All Combined", s: calcStress(0.90, 1.20, 2, 1.0, 2) },
-                  ],
-                },
-              ];
-              return (
-                <div className="stress-section">
-                  <PropHeader />
-                  {/* Baseline */}
-                  <div className="card">
-                    <div className="card-header">
-                      <span className="card-title">{ko ? "📊 현재 기준값" : "📊 Baseline"}</span>
-                      <span style={{ fontSize: 9, color: "var(--dim)" }}>{ko ? "딜 탭 입력값 기준 · AI 불필요, 즉시 계산" : "Based on Deal tab inputs · No AI, instant math"}</span>
-                    </div>
-                    <div className="card-body">
-                      <div className="stress-baseline">
-                        {[
-                          { label: ko ? "Flip 순이익" : "Flip Profit",    val: fmt(flipProfit),   color: flipProfit >= 0 ? "var(--green)" : "var(--red)" },
-                          { label: "Flip ROI",                             val: pct(flipROI),      color: flipROI >= 18 ? "var(--gold)" : flipROI >= 10 ? "var(--blue)" : "var(--red)" },
-                          { label: ko ? "월 현금흐름" : "Monthly CF",      val: fmt(monthlyCF),    color: monthlyCF >= 500 ? "var(--green)" : monthlyCF >= 0 ? "var(--blue)" : "var(--red)" },
-                          { label: "DSCR",                                  val: dscr.toFixed(2),  color: dscr >= 1.2 ? "var(--green)" : dscr >= 1.0 ? "var(--blue)" : "var(--red)" },
-                        ].map((m, i) => (
-                          <div key={i} className="metric">
-                            <div className="metric-label">{m.label}</div>
-                            <div className="metric-val" style={{ color: m.color, fontSize: 17 }}>{m.val}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Scenario groups */}
-                  {groups.map((g, gi) => (
-                    <div key={gi} className="card" style={g.worst ? { border: "1px solid rgba(248,113,113,0.22)" } : {}}>
-                      <div className="card-header" style={g.worst ? { background: "rgba(248,113,113,0.06)" } : {}}>
-                        <span className="card-title">{g.label}</span>
-                        <span style={{ fontSize: 9, color: "var(--dim)", maxWidth: 380, textAlign: "right" }}>{g.desc}</span>
-                      </div>
-                      <div className="card-body" style={{ padding: "8px 0 4px" }}>
-                        <div className="stress-tbl-wrap">
-                          <table className="tbl" style={{ width: "100%" }}>
-                            <thead>
-                              <tr>
-                                <th style={{ paddingLeft: 20 }}>{ko ? "시나리오" : "Scenario"}</th>
-                                <th>{ko ? "Flip 순이익" : "Flip Profit"}</th>
-                                <th>Flip ROI</th>
-                                <th>{ko ? "월 현금흐름" : "Monthly CF"}</th>
-                                <th>DSCR</th>
-                                <th>{ko ? "판정" : "Status"}</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {g.rows.map((r, ri) => {
-                                const st = stressStatus(r.s);
-                                return (
-                                  <tr key={ri} className={g.worst ? "stress-row-worst" : ""}>
-                                    <td style={{ paddingLeft: 20, color: "var(--text)", fontWeight: 600, fontSize: 11 }}>{r.label}</td>
-                                    <td className={r.s.flipProfit >= base.flipProfit ? "green" : r.s.flipProfit >= 0 ? "mono" : "red"}>
-                                      {fmt(r.s.flipProfit)}
-                                      {Δ(r.s.flipProfit, base.flipProfit, (d) => "$" + Math.round(d).toLocaleString())}
-                                    </td>
-                                    <td className={r.s.flipROI >= 15 ? "green" : r.s.flipROI >= 8 ? "gold" : "red"}>
-                                      {pct(r.s.flipROI)}
-                                      {Δ(r.s.flipROI, base.flipROI, (d) => d.toFixed(1) + "%")}
-                                    </td>
-                                    <td className={r.s.monthlyCF >= 0 ? "green" : "red"}>
-                                      {fmt(r.s.monthlyCF)}
-                                      {Δ(r.s.monthlyCF, base.monthlyCF, (d) => "$" + Math.round(d).toLocaleString())}
-                                    </td>
-                                    <td className={r.s.dscr >= 1.2 ? "green" : r.s.dscr >= 1.0 ? "blue" : "red"}>
-                                      {r.s.dscr.toFixed(2)}
-                                      {Δ(r.s.dscr, base.dscr, (d) => d.toFixed(2))}
-                                    </td>
-                                    <td>
-                                      <span style={{ color: st.color, fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
-                                        {st.icon} {st.label}
-                                      </span>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Footer note */}
-                  <div style={{ fontSize: 10, color: "var(--dim)", textAlign: "center", paddingBottom: 8 }}>
-                    {ko
-                      ? "✅ OK = Flip ROI ≥15% & DSCR ≥1.2 & 월CF ≥$0 · ⚠️ WATCH = Flip ROI ≥8% 또는 DSCR ≥1.0 · ❌ FAIL = 기준 미달"
-                      : "✅ OK = Flip ROI ≥15% & DSCR ≥1.2 & CF ≥$0 · ⚠️ WATCH = Flip ROI ≥8% or DSCR ≥1.0 · ❌ FAIL = Below threshold"}
-                  </div>
-                </div>
-              );
-            })()}
 
             {/* ── 4. 금융 비교 ──────────────────────────────────────── */}
             {tab === "finance" && (
@@ -1319,13 +833,10 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                   <div style={{ fontSize: 11, color: "var(--dim)" }}>
                     {rateUpdatedAt ? t$?.finance.updated(rateUpdatedAt) : t$?.finance.noUpdate}
                   </div>
-                  <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4}}>
-                    <button onClick={refreshRates} disabled={rateRefreshing}
-                      style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1px solid var(--gold)", background: "var(--gold)22", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
-                      {rateRefreshing ? <><div className="spinner"/>{t$?.finance.refreshing}</> : t$?.finance.refreshBtn}
-                    </button>
-                    {rateError && <span style={{fontSize:10,color:"var(--red)",maxWidth:200,textAlign:"right"}}>{rateError}</span>}
-                  </div>
+                  <button onClick={refreshRates} disabled={rateRefreshing}
+                    style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 100, border: "1px solid var(--gold)", background: "var(--gold)22", color: "var(--gold)", fontSize: 11, fontWeight: 800, cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
+                    {rateRefreshing ? <><div className="spinner"/>{t$?.finance.refreshing}</> : t$?.finance.refreshBtn}
+                  </button>
                 </div>
 
                 <div className="card" style={{ marginBottom: 16 }}>
@@ -1350,7 +861,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
                             {l.name}
-                            {l.badge && <span style={{ fontSize: 8, fontWeight: 800, padding: "3px 8px", borderRadius: 100, background: cc + "22", color: cc, letterSpacing: "0.1em" }}>{lang === "ko" ? l.badge : (BADGE_EN[l.badge] || l.badge)}</span>}
+                            {l.badge && <span style={{ fontSize: 8, fontWeight: 800, padding: "3px 8px", borderRadius: 100, background: cc + "22", color: cc, letterSpacing: "0.1em" }}>{l.badge}</span>}
                           </div>
                           <div style={{ fontSize: 10, color: "var(--dim)", marginTop: 2 }}>📞 {l.phone}</div>
                         </div>
@@ -1363,11 +874,11 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                         </div>
                       </div>
                       <div style={{ padding: "12px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{lang === "ko" ? l.review : (REVIEW_EN[l.name] || l.review)}</div>
+                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{l.review}</div>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                           <div style={{ display: "flex", gap: 14 }}>
                             {(t$?.finance.lenderMeta || []).map((lmeta, mi_i) => {
-                              const metaVals = [fmt(mi), fmt(sixMo), lang === "ko" ? l.speed : l.speed.replace("일","d"), String(l.points)];
+                              const metaVals = [fmt(mi), fmt(sixMo), l.speed, String(l.points)];
                               const metaColors = [cc, "var(--mid)", "var(--mid)", "var(--mid)"];
                               return (
                               <div key={mi_i}>
@@ -1415,7 +926,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                     <button key={info.key} onClick={() => setGcCat(info.key)}
                       style={{ flex: 1, padding: "14px 10px", borderRadius: 14, border: "1px solid " + (gcCat === info.key ? info.color : "var(--border)"), background: gcCat === info.key ? info.color + "22" : "var(--bg2)", cursor: "pointer", fontFamily: "Sora,sans-serif" }}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: gcCat === info.key ? info.color : "var(--dim)", marginBottom: 4 }}>{info.label}</div>
-                      <div style={{ fontSize: 10, color: "var(--dim)" }}>{info.sqftRange} · {lang === "ko" ? "10개사" : "10 co."}</div>
+                      <div style={{ fontSize: 10, color: "var(--dim)" }}>{info.sqftRange} · 10개사</div>
                     </button>
                   ))}
                 </div>
@@ -1435,7 +946,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                         </div>
                       </div>
                       <div style={{ padding: "12px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
-                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{lang === "ko" ? c.review : (CONTRACTOR_REVIEW_EN[c.name] || c.review)}</div>
+                        <div style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6, borderLeft: "2px solid " + cc + "44", paddingLeft: 10 }}>{c.review}</div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
                           <div style={{ display: "flex", gap: 12 }}>
                             <span style={{ fontSize: 12, color: "var(--gold)" }}>{c.rating}</span>
@@ -1459,9 +970,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                 })}
                 <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
                   disabled={aiLoading}
-                  onClick={() => runAI(lang === "ko"
-                    ? `Northern Virginia 부동산 투자자. ${gcCat} 건설사 계약 전 핵심 체크포인트 5가지 한글로.`
-                    : `NoVA real estate investor. List 5 key checkpoints before signing a ${gcCat} contractor contract.`)}>
+                  onClick={() => runAI("Northern Virginia 부동산 투자자. " + gcCat + " 건설사 계약 전 핵심 체크포인트 5가지 한글로.")}>
                   {aiLoading ? <><div className="spinner"/>{t$?.contractor.analyzing}</> : t$?.contractor.aiBtn}
                 </button>
                 {aiResult && <div className="ai-box" style={{ marginTop: 12 }}><div className="ai-header"><div className="ai-dot"/><span className="ai-label">{t$?.contractor.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
@@ -1472,9 +981,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
               <div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
                   {matCategories.map(c => (
-                    <button key={c} className={`btn btn-sm ${matFilter === c ? "btn-gold" : "btn-ghost"}`} onClick={() => setMatFilter(c)}>
-                      {lang === "ko" ? c : (c === "전체" ? "All" : CATEGORY_EN[c] || c)}
-                    </button>
+                    <button key={c} className={`btn btn-sm ${matFilter === c ? "btn-gold" : "btn-ghost"}`} onClick={() => setMatFilter(c)}>{c}</button>
                   ))}
                 </div>
 
@@ -1489,7 +996,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                       <tbody>
                         {filteredMats.map((m, i) => (
                           <tr key={i}>
-                            <td><span className="badge badge-blue">{lang === "ko" ? m.category : (CATEGORY_EN[m.category] || m.category)}</span></td>
+                            <td><span className="badge badge-blue">{m.category}</span></td>
                             <td style={{ fontWeight: 600, color: "var(--text)" }}>{m.item}</td>
                             <td style={{ color: "var(--dim)", fontSize: 11 }}>{m.unit}</td>
                             <td className="mono">${m.light}</td>
@@ -1538,17 +1045,17 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                     </div>
 
                     {tasks.map(tk => {
+                      const st = tk.status;
+                      const stClass = (st === "대기" || st === "Pending") ? "pending" : (st === "진행중" || st === "In Progress") ? "progress" : "done";
                       return (
                       <div key={tk.id} className="task-row">
-                        <input className="task-input"
-                          value={lang === "ko" ? (tk.descKo || tk.desc || "") : (tk.descEn || tk.desc || "")}
-                          onChange={e => updateTask(tk.id, lang === "ko" ? "descKo" : "descEn", e.target.value)} />
+                        <input className="task-input" value={tk.desc} onChange={e => updateTask(tk.id, "desc", e.target.value)} />
                         <input className="task-input" type="number" value={tk.budget} onChange={e => updateTask(tk.id, "budget", e.target.value)} />
                         <input className="task-input" type="number" value={tk.actual} onChange={e => updateTask(tk.id, "actual", e.target.value)} style={{ color: "var(--blue)" }} />
                         <input className="task-input" type="date" value={tk.due} onChange={e => updateTask(tk.id, "due", e.target.value)} />
-                        <button className={`status-pill status-${tk.status}`}
+                        <button className={`status-pill status-${stClass}`}
                           onClick={() => updateTask(tk.id, "status", nextStatus(tk.status))}>
-                          {t$?.construction.statuses[tk.status] || tk.status}
+                          {tk.status}
                         </button>
                         <button className="btn btn-ghost btn-sm" style={{ color: "var(--red)", borderColor: "transparent" }}
                           onClick={() => setTasks(ts => ts.filter(x => x.id !== tk.id))}>✕</button>
@@ -1556,7 +1063,7 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                     );})}
 
                     <div style={{ marginTop: 16 }}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), descKo: "새 공정", descEn: "New Task", budget: 0, actual: 0, status: "pending", due: "" }])}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setTasks(ts => [...ts, { id: Date.now(), desc: t$?.construction.newTask, budget: 0, actual: 0, status: t$?.construction.statuses.pending, due: "" }])}>
                         {t$?.construction.addBtn}
                       </button>
                     </div>
@@ -1565,75 +1072,33 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
               </div>
             )}
 
-            {/* ── 💼 내 물건 점검 ─────────────────────────────────── */}
-            {tab === "mycheck" && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div className="card">
-                  <div className="card-header">
-                    <span className="card-title">{t$?.mycheck.cardTitle}</span>
-                    <span style={{ fontSize: 11, color: "var(--dim)" }}>{t$?.mycheck.subTitle}</span>
-                  </div>
-                  <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                    <div className="grid2" style={{ gap: 10 }}>
-                      {[
-                        { label: t$?.mycheck.purchaseLabel, key: "purchase" },
-                        { label: t$?.mycheck.renoLabel,     key: "reno" },
-                        { label: t$?.mycheck.loanLabel,     key: "loan" },
-                        { label: t$?.mycheck.rateLabel,     key: "rate" },
-                        { label: t$?.mycheck.holdLabel,     key: "holdMonths" },
-                        { label: t$?.mycheck.rentLabel,     key: "rent" },
-                        { label: t$?.mycheck.arvLabel,      key: "arv" },
-                      ].map(({ label, key }) => (
-                        <div key={key}>
-                          <label style={{ fontSize: 10, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{label}</label>
-                          <input className="task-input" style={{ width: "100%", marginTop: 4 }} type="number" value={myProp[key]} onChange={e => setMyProp(s => ({ ...s, [key]: e.target.value }))} />
+            {/* ── 8. 리스크 ─────────────────────────────────────────── */}
+            {tab === "risk" && (
+              <div>
+                <div className="grid2" style={{ gap: 16, marginBottom: 16 }}>
+                  {(t$?.risk.labels || []).map((label, ri) => {
+                    const riskVals = [t$?.risk.rateDesc(lender.rate), t$?.risk.ltvDesc(ltv), pct(flipROI), dscr.toFixed(2), fmt(monthlyCF), fmt(equity)];
+                    const riskBadges = [lender.rate > 9 ? "HIGH" : lender.rate > 7.5 ? "MED" : "LOW", ltv > 80 ? "HIGH" : ltv > 75 ? "MED" : "LOW", flipROI >= 18 ? "GOOD" : flipROI >= 10 ? "MED" : "LOW", dscr >= 1.2 ? "GOOD" : dscr >= 1.0 ? "MED" : "RISK", monthlyCF >= 500 ? "GOOD" : monthlyCF >= 0 ? "MED" : "RISK", equity < 200000 ? "LOW" : equity < 400000 ? "MED" : "HIGH"];
+                    const riskColors = [lender.rate > 9 ? "red" : lender.rate > 7.5 ? "gold" : "green", ltv > 80 ? "red" : ltv > 75 ? "gold" : "green", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", dscr >= 1.2 ? "green" : dscr >= 1.0 ? "gold" : "red", monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "gold" : "red", equity < 200000 ? "green" : equity < 400000 ? "gold" : "red"];
+                    return (
+                    <div key={ri} className="card">
+                      <div className="card-body" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div className="metric-label">{label}</div>
+                          <div className="metric-val" style={{ color: `var(--${riskColors[ri]})` }}>{riskVals[ri]}</div>
                         </div>
-                      ))}
+                        <span className={`badge badge-${riskColors[ri] === "green" ? "green" : riskColors[ri] === "gold" ? "gold" : "red"}`}>{riskBadges[ri]}</span>
+                      </div>
                     </div>
-
-                    {/* 간단 자동 계산 요약 */}
-                    {(() => {
-                      const p = myProp;
-                      const totalCost = Number(p.purchase) + Number(p.reno);
-                      const monthlyInt = Number(p.loan) * (Number(p.rate)/100/12);
-                      const holdCost = monthlyInt * Number(p.holdMonths) + (7800/12) * Number(p.holdMonths);
-                      const sellProfit = Number(p.arv) - totalCost - holdCost - Number(p.arv)*0.075;
-                      const monthlyRentNet = Number(p.rent) - monthlyInt - (7800/12) - Number(p.rent)*0.21;
-                      return (
-                        <div className="grid2" style={{ gap: 10, marginTop: 4 }}>
-                          <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
-                            <div className="metric-label">{t$?.mycheck.sellLabel}</div>
-                            <div className="metric-val" style={{ color: sellProfit >= 0 ? "var(--green)" : "var(--red)", fontSize: 22, marginTop: 4 }}>{fmt(sellProfit)}</div>
-                          </div>
-                          <div style={{ background: "var(--bg3)", borderRadius: 10, padding: "12px 14px" }}>
-                            <div className="metric-label">{t$?.mycheck.holdLabel2} (월 CF)</div>
-                            <div className="metric-val" style={{ color: monthlyRentNet >= 0 ? "var(--green)" : "var(--red)", fontSize: 22, marginTop: 4 }}>{fmt(monthlyRentNet)}/mo</div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    <button className="btn btn-gold" style={{ width: "100%", justifyContent: "center", marginTop: 4 }}
-                      disabled={myCheckLoading}
-                      onClick={async () => {
-                        setMyCheckLoading(true); setMyCheckResult(null);
-                        const p = myProp;
-                        const totalCost = Number(p.purchase) + Number(p.reno);
-                        const prompt = lang === "ko"
-                          ? `Northern Virginia 부동산 투자 분석. 매입가: $${Number(p.purchase).toLocaleString()}, 공사비: $${Number(p.reno).toLocaleString()}, 대출: $${Number(p.loan).toLocaleString()}, 금리: ${p.rate}%, 보유: ${p.holdMonths}개월, 월렌트: $${Number(p.rent).toLocaleString()}, 현재ARV: $${Number(p.arv).toLocaleString()}. 총 투자: $${totalCost.toLocaleString()}. 이 딜의 매각 vs 임대 중 어떤 전략이 나은지 분석해줘. 손익분기점과 핵심 리스크도 포함해서 한글로 답해줘.`
-                          : `NoVA property analysis. Purchase: $${Number(p.purchase).toLocaleString()}, Reno: $${Number(p.reno).toLocaleString()}, Loan: $${Number(p.loan).toLocaleString()}, Rate: ${p.rate}%, Hold: ${p.holdMonths}mo, Rent: $${Number(p.rent).toLocaleString()}/mo, ARV: $${Number(p.arv).toLocaleString()}. Total invested: $${totalCost.toLocaleString()}. Should I sell now or hold and rent? Include breakeven and top risks.`;
-                        const text = await callClaude(prompt);
-                        setMyCheckResult(text);
-                        setMyCheckLoading(false);
-                      }}>
-                      {myCheckLoading ? <><div className="spinner" />{t$?.mycheck.analyzing}</> : t$?.mycheck.analyzeBtn}
-                    </button>
-                  </div>
+                  );})}
                 </div>
 
-                {myCheckResult && (
-                  <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.mycheck.verdictLabel}</span></div><div className="ai-text">{myCheckResult}</div></div>
-                )}
+                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginBottom: 16 }}
+                  disabled={aiLoading}
+                  onClick={() => runAI(`Northern Virginia 부동산 투자 리스크 분석. 매입가: ${fmt(D.purchasePrice)}, Flip ROI: ${pct(flipROI)}, DSCR: ${dscr.toFixed(2)}, 월 CF: ${fmt(monthlyCF)}, 금리: ${lender.rate}%. 한글로 주요 리스크 3가지와 대응 전략을 설명해줘.`)}>
+                  {aiLoading ? <><div className="spinner" />{t$?.risk.analyzing}</> : t$?.risk.aiBtn}
+                </button>
+                {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.risk.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
               </div>
             )}
 
