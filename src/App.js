@@ -679,6 +679,58 @@ export default function App() {
   // lang 전환 시 AI 결과 초기화 (언어 불일치 방지)
   useEffect(() => { setAiResult(""); setMyCheckResult(null); setScreenResult(null); setShowDetail(false); }, [lang]);
 
+  // ── 딜 연동 헤더 (Flip / Hold / Stress 탭 공통) ────────────────────────
+  const PropHeader = () => {
+    const ko = lang === "ko";
+    const hasAddr = D.address && D.address.trim().length > 0;
+    const chips = [
+      { label: ko ? "매입가" : "Purchase",  val: fmt(D.purchasePrice) },
+      { label: ko ? "면적"   : "Sqft",      val: D.sqft.toLocaleString() + " sqft" },
+      { label: ko ? "수리"   : "Reno",      val: D.renoLevel },
+      { label: ko ? "침실/욕실" : "Bd/Ba",  val: `${D.beds}bd / ${D.baths}ba` },
+      { label: ko ? "예상렌트" : "Est.Rent", val: fmt(D.estimatedRent) + "/mo" },
+      { label: ko ? "재산세"  : "Tax/yr",   val: fmt(D.propertyTax) },
+    ];
+    return (
+      <div style={{
+        background: "var(--bg2)", border: "1px solid var(--border2)",
+        borderRadius: 14, padding: "12px 18px", marginBottom: 16,
+        display: "flex", flexDirection: "column", gap: 8,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 14 }}>📍</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: hasAddr ? "var(--text)" : "var(--dim)" }}>
+              {hasAddr ? D.address : (ko ? "주소 미입력" : "No address entered")}
+            </span>
+          </div>
+          <button
+            onClick={() => setTab("deal")}
+            style={{
+              background: "transparent", border: "1px solid var(--border2)",
+              color: "var(--gold)", borderRadius: 8, padding: "3px 12px",
+              fontSize: 9, fontWeight: 700, cursor: "pointer",
+              letterSpacing: "0.1em", fontFamily: "'Sora',sans-serif",
+            }}
+          >
+            ✎ {ko ? "딜 탭 수정" : "Edit in Deal"}
+          </button>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {chips.map((c, i) => (
+            <div key={i} style={{
+              background: "var(--bg3)", border: "1px solid var(--border)",
+              borderRadius: 8, padding: "4px 10px", display: "flex", gap: 5, alignItems: "center",
+            }}>
+              <span style={{ fontSize: 8, color: "var(--dim)", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>{c.label}</span>
+              <span style={{ fontSize: 11, color: "var(--text)", fontFamily: "'DM Mono',monospace", fontWeight: 500 }}>{c.val}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // ── STRESS TEST helper ────────────────────────────────────────────────────
   const calcStress = (arvMult = 1, renoMult = 1, extraMonths = 0, rateDelta = 0, extraVacMo = 0) => {
     const sArv      = arv * arvMult;
@@ -1027,62 +1079,37 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
 
             {/* ── 2. FLIP 분석 ──────────────────────────────────────── */}
             {tab === "flip" && (
-              <div>
-                <div className="grid2" style={{ gap: 20 }}>
-                  <div className="card">
-                    <div className="card-header"><span className="card-title">{t$?.flip.cardTitle}</span></div>
-                    <div className="card-body">
-                      <table className="tbl">
-                        <tbody>
-                          {(t$?.flip.rows || []).map((label, i) => {
-                            const vals = [fmt(D.purchasePrice), fmt(renoCost), fmt(holdingCost), fmt(sellingCost), fmt(D.purchasePrice + renoCost + holdingCost), fmt(arv), fmt(flipProfit), pct(flipROI), pct(flipROI / (holdMonths / 12))];
-                            const clss = ["","","","red","","gold", flipProfit > 0 ? "green" : "red", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", flipROI >= 18 ? "green" : "blue"];
-                            return <tr key={i}><td>{label}</td><td className={clss[i] || "mono"}>{vals[i]}</td></tr>;
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="card" style={{ marginBottom: 16 }}>
-                      <div className="card-header"><span className="card-title">{t$?.flip.stressTitle}</span></div>
-                      <div className="card-body">
-                        <div className="stress-grid">
-                          {(t$?.flip.stress || []).map((label, i) => {
-                            const stressVals = [
-                              { val: fmt(arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95), ok: (arv * 0.95 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.95) > 0 },
-                              { val: fmt(arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90), ok: (arv * 0.90 - D.purchasePrice - renoCost - holdingCost - sellingCost * 0.90) > 0 },
-                              { val: fmt(flipProfit - monthlyInterest * 2), ok: (flipProfit - monthlyInterest * 2) > 0 },
-                              { val: fmt(arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost), ok: (arv - D.purchasePrice - renoCost * 1.2 - holdingCost - sellingCost) > 0 },
-                            ];
-                            return (
-                              <div key={i} className="stress-item">
-                                <div className="stress-label">{label}</div>
-                                <div className="stress-val" style={{ color: stressVals[i].ok ? "var(--green)" : "var(--red)" }}>{stressVals[i].val}</div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}
-                      disabled={aiLoading}
-                      onClick={() => runAI(lang === "ko"
-                        ? `Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`
-                        : `Flip analysis: Purchase ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, Reno ${fmt(renoCost)}, Net profit ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Explain key risks and success conditions for this NoVA deal.`)}>
-                      {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing2}</> : t$?.flip.aiBtn}
-                    </button>
-                    {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.flip.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <PropHeader />
+                <div className="card">
+                  <div className="card-header"><span className="card-title">{t$?.flip.cardTitle}</span></div>
+                  <div className="card-body">
+                    <table className="tbl">
+                      <tbody>
+                        {(t$?.flip.rows || []).map((label, i) => {
+                          const vals = [fmt(D.purchasePrice), fmt(renoCost), fmt(holdingCost), fmt(sellingCost), fmt(D.purchasePrice + renoCost + holdingCost), fmt(arv), fmt(flipProfit), pct(flipROI), pct(flipROI / (holdMonths / 12))];
+                          const clss = ["","","","red","","gold", flipProfit > 0 ? "green" : "red", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", flipROI >= 18 ? "green" : "blue"];
+                          return <tr key={i}><td>{label}</td><td className={clss[i] || "mono"}>{vals[i]}</td></tr>;
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
+                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center" }}
+                  disabled={aiLoading}
+                  onClick={() => runAI(lang === "ko"
+                    ? `Flip 분석: 매입가 ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, 수리비 ${fmt(renoCost)}, 순이익 ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Northern Virginia 시장 기준으로 이 딜의 핵심 리스크와 성공 조건을 한글로 설명해줘.`
+                    : `Flip analysis: Purchase ${fmt(D.purchasePrice)}, ARV ${fmt(arv)}, Reno ${fmt(renoCost)}, Net profit ${fmt(flipProfit)}, ROI ${pct(flipROI)}. Explain key risks and success conditions for this NoVA deal.`)}>
+                  {aiLoading ? <><div className="spinner" />{t$?.ai.analyzing2}</> : t$?.flip.aiBtn}
+                </button>
+                {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.flip.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
               </div>
             )}
 
             {/* ── 3. HOLD 분석 ──────────────────────────────────────── */}
             {tab === "hold" && (
-              <div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <PropHeader />
                 <div className="grid2" style={{ gap: 20 }}>
                   <div className="card">
                     <div className="card-header"><span className="card-title">{t$?.hold.cardTitle}</span></div>
@@ -1099,42 +1126,18 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                     </div>
                   </div>
 
-                  <div>
-                    <div className="card" style={{ marginBottom: 16 }}>
-                      <div className="card-header"><span className="card-title">{t$?.hold.stressTitle}</span></div>
-                      <div className="card-body">
-                        <div className="stress-grid">
-                          {(t$?.hold.stress || []).map((label, i) => {
-                            const holdStress = [
-                              { val: fmt(monthlyCF - D.estimatedRent / 6), ok: (monthlyCF - D.estimatedRent / 6) > 0 },
-                              { val: fmt(monthlyCF - D.estimatedRent * 0.1), ok: (monthlyCF - D.estimatedRent * 0.1) > 0 },
-                              { val: fmt(monthlyCF - opex * 0.15), ok: (monthlyCF - opex * 0.15) > 0 },
-                              { val: fmt(monthlyCF - D.propertyTax * 0.1 / 12), ok: (monthlyCF - D.propertyTax * 0.1 / 12) > 0 },
-                            ];
-                            return (
-                              <div key={i} className="stress-item">
-                                <div className="stress-label">{label}</div>
-                                <div className="stress-val" style={{ color: holdStress[i].ok ? "var(--green)" : "var(--red)" }}>{holdStress[i].val}</div>
-                              </div>
-                            );
+                  <div className="card">
+                    <div className="card-header"><span className="card-title">{t$?.hold.equityTitle}</span></div>
+                    <div className="card-body">
+                      <table className="tbl">
+                        <tbody>
+                          {[1, 2, 3, 5].map(yr => {
+                            const appreciation = D.purchasePrice * Math.pow(1.04, yr) - D.purchasePrice;
+                            const equity5 = equity + appreciation + (annualDebt * 0.2 * yr);
+                            return <tr key={yr}><td>{t$?.hold.yearEquity(yr)}</td><td className="green">{fmt(equity5)}</td></tr>;
                           })}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="card">
-                      <div className="card-header"><span className="card-title">{t$?.hold.equityTitle}</span></div>
-                      <div className="card-body">
-                        <table className="tbl">
-                          <tbody>
-                            {[1, 2, 3, 5].map(yr => {
-                              const appreciation = D.purchasePrice * Math.pow(1.04, yr) - D.purchasePrice;
-                              const equity5 = equity + appreciation + (annualDebt * 0.2 * yr);
-                              return <tr key={yr}><td>{t$?.hold.yearEquity(yr)}</td><td className="green">{fmt(equity5)}</td></tr>;
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
@@ -1146,6 +1149,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
               const ko = lang === "ko";
               const base = { flipProfit, flipROI, monthlyCF, dscr };
               const Δ = (curr, ref, fmtFn) => {
+
                 const d = curr - ref;
                 const cls = d >= 0 ? "pos" : "neg";
                 const sign = d >= 0 ? "+" : "−";
@@ -1203,6 +1207,7 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
               ];
               return (
                 <div className="stress-section">
+                  <PropHeader />
                   {/* Baseline */}
                   <div className="card">
                     <div className="card-header">
