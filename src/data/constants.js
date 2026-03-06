@@ -1,0 +1,202 @@
+// ── NOVA constants.js ─────────────────────────────────────────────────────
+
+// ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
+const MATERIALS = [
+  { category: "바닥재", item: "Hardwood (Oak)", unit: "sqft", light: 4.5, medium: 7, heavy: 12 },
+  { category: "바닥재", item: "LVP (Luxury Vinyl)", unit: "sqft", light: 2.5, medium: 4, heavy: 6 },
+  { category: "바닥재", item: "Tile (Ceramic)", unit: "sqft", light: 3, medium: 5.5, heavy: 9 },
+  { category: "주방", item: "Cabinets (Stock)", unit: "linear ft", light: 150, medium: 280, heavy: 500 },
+  { category: "주방", item: "Countertop (Granite)", unit: "sqft", light: 35, medium: 55, heavy light: 8, medium: 14, heavy: 25 },
+  { category: "페인트", item: "Interior Paint", unit: "sqft", light: 1.2, medium: 2, heavy: 3.5 },
+  { category: "지붕", item: "Asphalt Shingles", unit: "sqft", light: 3.5, medium: 5.5, heavy: 9 },
+  { category: "HVAC", item: "AC + Furnace", unit: "unit", light: 5000, medium: 8500, heavy: 14000 },
+  { category: "전기", item: "Panel Upgrade", unit: "unit", light: 1800, medium: 3200, heavy: 5500 },
+  { category: "배관", item: "Plumbing (partial)", unit: "unit", light: 2000, medium: 5000, heavy: 12000 },
+  { category: "창문", item: "Window (Double Pane)", unit: "unit", light: 350, medium: 600, heavy: 1200 },
+  { category: "문", item: "Interior Door", unit: "unit", light: 180, medium: 320, heavy: 600 },
+];
+
+// ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
+const MATERIALS = [
+  { category: "바닥재", item: "Hardwood (Oak)", unit: "sqft", light: 4.5, medium: 7, heavy: 12 },
+  { category: "바닥재", item: "LVP (Luxury Vinyl)", unit: "sqft", light: 2.5, medium: 4, heavy: 6 },
+  { category: "바닥재", item: "Tile (Ceramic)", unit: "sqft", light: 3, medium: 5.5, heavy: 9 },
+  { category: "주방", item: "Cabinets (Stock)", unit: "linear ft", light: 150, medium: 280, heavy: 500 },
+  { category: "주방", item: "Countertop (Granite)", unit: "sqft", light: 35, medium: 55, heavy: 90 },
+  { category: "주방", item: "Appliances Package", unit: "set", light: 2500, medium: 4500, heavy: 8000 },
+  { category: "욕실", item: "Vanity + Fixtures", unit: "set", light: 800, medium: 1800, heavy: 4000 },
+  { category: "욕실", item: "Tile (Shower/Floor)", unit: "sqft", light: 8, medium: 14, heavy: 25 },
+  { category: "페인트", item: "Interior Paint", unit: "sqft", light: 1.2, medium: 2, heavy: 3.5 },
+  { category: "지붕", item: "Asphalt Shingles", unit: "sqft", light: 3.5, medium: 5.5, heavy: 9 },
+  { category: "HVAC", item: "AC + Furnace", unit: "unit", light: 5000, medium: 8500, heavy: 14000 },
+  { category: "전기", item: "Panel Upgrade", unit: "unit", light: 1800, medium: 3200, heavy: 5500 },
+  { category: "배관", item: "Plumbing (partial)", unit: "unit", light: 2000, medium: 5000, heavy: 12000 },
+  { category: "창문", item: "Window (Double Pane)", unit: "unit", light: 350, medium: 600, heavy: 1200 },
+  { category: "문", item: "Interior Door", unit: "unit", light: 180, medium: 320, heavy: 600 },
+];
+
+const LENDERS = [
+  // 🏦 일반 (Conventional) — 10개
+  { category: "conventional", name: "Navy Federal Credit Union", email: "mortgages@navyfederal.org", rate: 6.75, ltv: 80, points: 0.25, speed: "25일", phone: "888-842-6328", website: "navyfederal.org", review: "NoVA 군인·연방직원 최저금리. LTV 80% 가능. McLean HQ 인접. 회원 전용 특별 조건.", rating: "4.9★", badge: "최저금리" },
+  { category: "conventional", name: "PenFed Credit Union", email: "mortgages@penfed.org", rate: 6.85, ltv: 80, points: 0.25, speed: "28일", phone: "800-247-5626", website: "penfed.org", review: "NoVA 기반 연방 크레딧유니언. 투자용 LTV 80%. 금리 경쟁력 최상위. 회원 가입 쉬움.", rating: "4.8★", badge: "추천" },
+  { category: "conventional", name: "Capital One (McLean HQ)", email: "investor.loans@capitalone.com", rate: 7.0, ltv: 75, points: 0.5, speed: "25일", phone: "877-442-3764", website: "capitalone.com", review: "McLean VA 본사. NoVA 투자자 전담팀. Venture X 고객 우대. 온라인 관리 최고.", rating: "4.7★", badge: "NoVA본사" },
+  { category: "conventional", name: "Bank of America Investment", email: "investor.loans@bankofamerica.com", rate: 7.0, ltv: 75, points: 0.75, speed: "28일", phone: "800-432-1000", website: "bankofamerica.com", review: "Preferred Rewards 회원 금리 할인. NoVA 투자자 전담팀. 온라인 신청 간편.", rating: "4.5★", badge: "우대할인" },
+  { category: "conventional", name: "Wells Fargo Investment Loan", email: "investor.lending@wellsfargo.com", rate: 7.125, ltv: 75, points: 0.5, speed: "30일", phone: "800-357-6675", website: "wellsfargo.com", review: "미국 최대 은행. NoVA 지점 다수. 투자용 Conventional 전문. 장기 관계 투자자 우대.", rating: "4.4★", badge: "" },
+  { category: "conventional", name: "Chase Investment Mortgage", email: "investor.mortgage@chase.com", rate: 7.25, ltv: 75, points: 0.5, speed: "30일", phone: "800-432-3117", website: "chase.com", review: "전국 네트워크. Private Client 우대. Fairfax·Arlington 지점 편리. 온라인 관리 우수.", rating: "4.4★", badge: "" },
+  { category: "conventional", name: "Rocket Mortgage (VA #1)", email: "info@rocketmortgage.com", rate: 7.125, ltv: 75, points: 0.5, speed: "21일", phone: "800-769-6133", website: "rocketmortgage.com", review: "VA 주 대출 실행 1위. 온라인 완전 디지털. 빠른 승인. 2024 HMDA $3.1B 실행.", rating: "4.6★", badge: "VA 1위" },
+  { category: "conventional", name: "CapCenter (Zero Closing)", email: "info@capcenter.com", rate: 6.99, ltv: 75, points: 0.0, speed: "30일", phone: "800-968-5844", website: "capcenter.com", review: "클로징 비용 제로 옵션. VA 기반 지역 전문. Realtor 수수료 절감 가능. 투자자 재이용 많음.", rating: "4.8★", badge: "클로징무료" },
+  { category: "conventional", name: "LendFriend Mortgage VA", email: "info@lendfriendmtg.com", rate: 7.0, ltv: 75, points: 0.25, speed: "30일", phone: "703-828-8700", website: "lendfriendmtg.com", review: "NoVA·Arlington 전문 브로커. 재이용 고객 수수료 면제. Non-QM도 가능. 투명한 프로세스.", rating: "4.9★", badge: "재이용무료" },
+  { category: "conventional", name: "Truist Investment Mortgage", email: "investor.loans@truist.com", rate: 7.25, ltv: 75, points: 0.5, speed: "30일", phone: "844-487-8478", website: "truist.com", review: "BB&T+SunTrust 합병. VA 전역 지점. 포트폴리오 투자자 전담 서비스. 다주택 우대.", rating: "4.3★", badge: "" },
+
+  // 📈 플립 (Fix & Flip) — 10개
+  { category: "flip", name: "Easy Street Capital", email: "info@easystreetcap.com", rate: 10.99, ltv: 90, points: 2.0, speed: "2일", phone: "512-641-9817", website: "easystreetcap.com", review: "48시간 클로징 가능. 감정평가 불필요. 전국 1위 리뷰. Flip 전문 투자자 선호도 1위.", rating: "5.0★", badge: "최빠른" },
+  { category: "flip", name: "Asset Based Lending (ABL)", email: "info@ablfunding.com", rate: 10.99, ltv: 90, points: 1.5, speed: "10일", phone: "201-942-9089", website: "ablfunding.com", review: "구매가 90% + 수리비 100% 커버. 24시간 승인. NoVA 전문. 10년 이상 운영.", rating: "4.9★", badge: "추천" },
+  { category: "flip", name: "LendingOne Fix & Flip", email: "info@lendingone.com", rate: 10.5, ltv: 92, points: 1.5, speed: "7일", phone: "866-970-7889", website: "lendingone.com", review: "LTC 92.5% + 수리비 100%. Trustpilot 최고 평점. NoVA·VA 전문 팀. BRRRR 최적화.", rating: "4.9★", badge: "" },
+  { category: "flip", name: "HouseMax Funding", email: "info@housemaxfunding.com", rate: 10.75, ltv: 85, points: 1.5, speed: "7일", phone: "888-436-9723", website: "housemaxfunding.com", review: "Forbes 선정 2024·2025 Best Hard Money Lender. 2,700+ 플립 경험. 셀프서브 플랫폼.", rating: "4.9★", badge: "Forbes선정" },
+  { category: "flip", name: "Kiavi (구 LendingHome)", email: "info@kiavi.com", rate: 10.25, ltv: 90, points: 1.0, speed: "10일", phone: "844-415-4663", website: "kiavi.com", review: "기술 기반 대출. 온라인 신청 5분. 반복 투자자 금리 인하. 전국 $20B+ 실행 실적.", rating: "4.8★", badge: "테크기반" },
+  { category: "flip", name: "RCN Capital", email: "info@rcncapital.com", rate: 10.99, ltv: 90, points: 1.75, speed: "10일", phone: "860-432-5858", website: "rcncapital.com", review: "전국 투자자 네트워크. Broker 채널 강함. 다주택 경험자 우대. 빠른 재승인.", rating: "4.7★", badge: "" },
+  { category: "flip", name: "Groundfloor Finance", email: "info@groundfloor.us", rate: 7.5, ltv: 80, points: 0.0, speed: "14일", phone: "404-850-9225", website: "groundfloor.com", review: "크라우드펀딩 기반 최저금리 플립론. 7.5%부터 시작. 소규모 투자자 접근 용이.", rating: "4.6★", badge: "최저금리" },
+  { category: "flip", name: "Civic Financial Services", email: "info@civicfs.com", rate: 10.5, ltv: 85, points: 1.5, speed: "10일", phone: "877-462-4842", website: "civicfs.com", review: "Non-QM 전문. 빠른 클로징. 경험 있는 플리퍼 우대 조건. 브로커 네트워크 강함.", rating: "4.6★", badge: "" },
+  { category: "flip", name: "CoreVest Finance", email: "info@corevestfinance.com", rate: 9.99, ltv: 85, points: 1.5, speed: "14일", phone: "844-223-2231", website: "corevestfinance.com", review: "대규모 포트폴리오 플립 전문. 다건 동시 대출 가능. 기관 투자자 수준 조건.", rating: "4.5★", badge: "다건가능" },
+  { category: "flip", name: "LoanBidz (BRRRR)", rate: 10.5, ltv: 85, points: 1.5, speed: "10일", phone: "888-562-4395", website: "loanbidz.com", review: "BRRRR 전문 플랫폼. $700M+ 실행. 최적 옵션 자동 매칭. $100K~$3M 범위.", rating: "4.6★", badge: "BRRRR" },
+
+  // 🏠 임대 (DSCR/Rental) — 10개
+  { category: "rental", name: "Griffin Funding DSCR", rate: 7.5, ltv: 80, points: 0.5, speed: "21일", phone: "855-394-8288", website: "griffinfunding.com", review: "DSCR 1.0 미만도 승인 가능. W-2 불필요. LLC 대출 가능. VA 투자자 선호 1위.", rating: "4.9★", badge: "조건유연" },
+  { category: "rental", name: "Lima One Capital", email: "info@limaone.com", rate: 7.75, ltv: 80, points: 1.0, speed: "14일", phone: "800-390-4212", website: "limaone.com", review: "DSCR + Flip + 멀티패밀리 원스톱. 포트폴리오 확장 투자자 전문. DSCR 1.0 기준.", rating: "4.7★", badge: "포트폴리오" },
+  { category: "rental", name: "Visio Lending DSCR", rate: 7.625, ltv: 80, points: 0.75, speed: "21일", phone: "855-846-6765", website: "visiolending.com", review: "장기 임대 전문. 단기렌탈(Airbnb) 가능. 개인소득 검증 없음. 30년 고정 안정적.", rating: "4.7★", badge: "STR가능" },
+  { category: "rental", name: "Angel Oak DSCR", rate: 7.5, ltv: 80, points: 0.75, speed: "21일", phone: "877-926-3535", website: "angeloakmortgage.com", review: "비전통 소득 투자자 특화. DSCR 0.75도 가능. NoVA 지역 경험 풍부. LLC 명의 대출.", rating: "4.6★", badge: "" },
+  { category: "rental", name: "Rehab Financial Group (RFG)", rate: 8.0, ltv: 80, points: 1.0, speed: "14일", phone: "800-571-0887", website: "rehabfinancial.com", review: "$300M+ 실행. DSCR 30년 고정. BRRRR 전략 최적. VA 전역 서비스.", rating: "4.6★", badge: "BRRRR전문" },
+  { category: "rental", name: "Deephaven Mortgage", rate: 7.75, ltv: 80, points: 0.75, speed: "21일", phone: "800-388-6135", website: "deephavenmortgage.com", review: "Non-QM 전문 기관. 은행 거래내역 소득 증명 가능. LLC·Trust 명의 대출. 대형 포트폴리오.", rating: "4.5★", badge: "" },
+  { category: "rental", name: "New Silver DSCR", rate: 7.99, ltv: 75, points: 1.0, speed: "5일", phone: "860-435-0025", website: "newsilver.com", review: "AI 기반 즉시 승인. 5일 클로징. 온라인 완전 자동화. 소규모 임대 투자자 친화적.", rating: "4.7★", badge: "AI승인" },
+  { category: "rental", name: "HouseMax Funding DSCR", rate: 5.75, ltv: 80, points: 0.5, speed: "14일", phone: "888-436-9723", website: "housemaxfunding.com", review: "DSCR 5.75%~ 최저금리. Forbes 선정. NoVA 수요 높음. 단기렌탈 포함.", rating: "4.9★", badge: "최저5.75%" },
+  { category: "rental", name: "Kiavi DSCR Rental", rate: 7.5, ltv: 80, points: 0.75, speed: "14일", phone: "844-415-4663", website: "kiavi.com", review: "Flip 후 임대 전환 원스톱. $20B+ 실행. 반복 투자자 자동 우대. 30년 고정.", rating: "4.8★", badge: "플립→임대" },
+  { category: "rental", name: "CapSource Lending", rate: 7.875, ltv: 75, points: 1.0, speed: "21일", phone: "703-349-2200", website: "capsourcellc.com", review: "NoVA 기반 지역 투자 전문. 임대+플립+신축 포트폴리오. 지역 시장 이해도 최상.", rating: "4.6★", badge: "NoVA전문" },
+];
+
+const CONTRACTORS = [
+  // ── 🏆 LUXURY HEAVY (고급 리노베이션 전문) ──────────────────────────────
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "TriVista USA Design+Build", email: "info@trivistausa.com", sqft: "$110–$160", score: 97, phone: "703-865-6182", website: "trivistausa.com", specialty: "Full Home Luxury Renovation", review: "20년 경력, 수상 이력 다수. 아키텍트+인테리어디자이너 인하우스. Fairfax·Arlington 전문.", rating: "4.9★ (200+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Ridgeline Contractors (DMV)", email: "info@ridgelinedmv.com", sqft: "$95–$145", score: 96, phone: "301-825-1726", website: "ridgelinedmv.com", specialty: "Luxury Bath & Kitchen", review: "NoVA 최고 럭셔리 리모델러 자타공인. 보험 클레임 처리까지 지원. Malcolm 대표 직접 관리.", rating: "5.0★ (180+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Bowers Design Build", email: "info@bowersdesignbuild.com", sqft: "$100–$155", score: 95, phone: "703-506-0845", website: "bowersdesignbuild.com", specialty: "Custom Home & Whole House Remodel", review: "1990년 창립. NRS 고객만족 수상. 30% 재방문 고객. McLean·Great Falls 전문.", rating: "4.9★ (150+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Commonwealth Home Design", email: "info@commonwealthhomedesign.com", sqft: "$90–$140", score: 94, phone: "703-938-2121", website: "commonwealthhomedesign.com", specialty: "Whole House Renovation + Addition", review: "40년 Vienna 기반. 구조 변경·증축 전문. 프로젝트 관리 시스템 우수.", rating: "4.8★ (120+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Foster Remodeling Solutions", email: "info@fosterremodeling.com", sqft: "$85–$135", score: 93, phone: "703-471-7511", website: "fosterremodeling.com", specialty: "Design-Build / Basement + Addition", review: "업계 최고 보증 제공. 디자인팀 인하우스. Herndon·Reston 전문.", rating: "4.9★ (200+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Ideal Construction & Remodeling", email: "info@idealconstructionva.com", sqft: "$88–$138", score: 92, phone: "703-879-4484", website: "idealconstructionva.com", specialty: "Green Build + Luxury Remodel", review: "Arlington County 그린홈 수상. 에너지 효율 특화. DC·Arlington 전문.", rating: "4.8★ (90+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Monova Homes", email: "info@monovahomes.com", sqft: "$92–$142", score: 91, phone: "571-264-5040", website: "monovahomes.com", specialty: "Full Home Renovation", review: "예산·일정 준수로 유명. Alexandria·Fairfax 기반. 투자자 친화적.", rating: "4.9★ (80+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "WISA Solutions", email: "info@wisasolutions.com", sqft: "$80–$130", score: 90, phone: "703-455-2212", website: "wisasolutions.com", specialty: "Kitchen & Bath Luxury", review: "West Springfield 기반. 고객 추천율 높음. 주방·욕실 럭셔리 전문.", rating: "4.8★ (100+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Total Construction Company", email: "info@totalconstructionco.com", sqft: "$85–$132", score: 89, phone: "703-273-2929", website: "totalconstructionco.com", specialty: "Whole House + Custom Millwork", review: "34년 경력. 수영장·야외공간 포함 풀서비스. Fairfax County 전문.", rating: "4.8★ (140+ reviews)" },
+  { category: "luxury", label: "🏆 Luxury / Heavy", name: "Heartland Design & Remodeling", email: "info@heartlandremodeling.com", sqft: "$82–$128", score: 88, phone: "571-220-0505", website: "heartlandremodeling.com", specialty: "Custom Design + Renovation", review: "Bristow·Prince William 기반. 고객 소통 우수. 맞춤 설계 강점.", rating: "4.7★ (70+ reviews)" },
+
+  // ── 📈 FLIP MEDIUM (플립 전문 중급) ────────────────────────────────────
+  { category: "flip", label: "📈 Flip / Medium", name: "NHR Kitchen & Floors (NOVA Home Renovate)", email: "info@novahomerenovate.com", sqft: "$55–$85", score: 95, phone: "703-499-0040", website: "novahomerenovate.com", specialty: "Kitchen + Bath + Flooring Flip", review: "Fairfax County ALU 허가 전문. 일정·예산 매일 커뮤니케이션. 투자자 재이용률 매우 높음.", rating: "5.0★ (300+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "All Renovations", email: "info@allrenovations.com", sqft: "$48–$78", score: 93, phone: "703-596-0000", website: "allrenovations.com", specialty: "Investor Flip Specialist", review: "Class A VA 라이선스. 전기+배관 특화. 가성비 1위. Vienna·Sterling 전문. 4.9★ 38개 리뷰.", rating: "4.9★ (38 verified)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "DMV Remodeling Pros", email: "info@dmvremodelingpros.com", sqft: "$52–$80", score: 91, phone: "703-348-2100", website: "dmvremodelingpros.com", specialty: "Fast Flip Turnaround", review: "90일 내 완공 보장. Permit 처리 경험 풍부. Manassas·Centreville 기반.", rating: "4.7★ (110+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "Capital Remodeling", email: "info@capitalremodeling.com", sqft: "$50–$82", score: 90, phone: "301-649-0900", website: "capitalremodeling.com", specialty: "Kitchen + Flooring Flip Package", review: "DC·VA·MD 트라이스테이트. 패키지 견적 빠름. 투자자 대량 계약 경험.", rating: "4.6★ (250+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "Fairfax Contracting Group", email: "info@fairfaxcontracting.com", sqft: "$55–$83", score: 89, phone: "703-425-7070", website: "fairfaxcontracting.com", specialty: "Flip & Rental Turnover", review: "Fairfax County Permit 최단 처리. 다중 현장 동시 관리 가능. 투자자 전용 할인.", rating: "4.7★ (90+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "Renovate DMV", email: "info@renovatedmv.com", sqft: "$48–$75", score: 88, phone: "571-449-3300", website: "renovatedmv.com", specialty: "Medium Flip Full Package", review: "주방+욕실+바닥 패키지 전문. Sterling·Ashburn 기반. ROI 최적화 경험 많음.", rating: "4.6★ (75+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "ProBuild Contractors VA", sqft: "$52–$79", score: 87, phone: "703-680-5555", website: "probuildva.com", specialty: "Structural + Cosmetic Flip", review: "구조 변경 포함 Flip 전문. Prince William County 기반. Permit 일괄 처리.", rating: "4.6★ (60+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "Northern Virginia Remodelers", sqft: "$50–$77", score: 86, phone: "703-352-6000", website: "nvrenovation.com", specialty: "Full Flip Renovation", review: "Annandale·Burke 전문. 다세대·단독 모두 가능. 재이용 투자자 30% 이상.", rating: "4.5★ (85+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "Blueprint Renovation LLC", email: "info@blueprintrenovation.com", sqft: "$53–$80", score: 85, phone: "571-330-8800", website: "blueprintrenovation.com", specialty: "Design+Build Flip", review: "3D 렌더링 무료 제공. Reston·Herndon 전문. 빠른 견적 48시간 보장.", rating: "4.5★ (50+ reviews)" },
+  { category: "flip", label: "📈 Flip / Medium", name: "RedLine Construction VA", sqft: "$47–$73", score: 84, phone: "703-494-9100", website: "redlineconstructionva.com", specialty: "Fast & Budget Flip", review: "최단 공사 기간 전문. Woodbridge·Lorton 기반. 예산 초과 시 패널티 조항 포함.", rating: "4.4★ (65+ reviews)" },
+
+  // ── 🏠 RENTAL LIGHT (임대용 경량 리노베이션) ────────────────────────────
+  { category: "rental", label: "🏠 Rental / Light", name: "Quick Flip & Rental Services VA", sqft: "$22–$35", score: 92, phone: "571-205-4400", website: "quickflipva.com", specialty: "Rental Turnover Specialist", review: "임대용 리노베이션 최단 7일 완공. 도장+바닥+조명 패키지. 다주택 투자자 전용.", rating: "4.8★ (180+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "Tenant Ready Contractors", sqft: "$20–$32", score: 91, phone: "703-244-7700", website: "tenantreadyva.com", specialty: "Rental Prep & Turnover", review: "임차인 교체 시 7~14일 완공. 도색+청소+소형수리 패키지. Landlord 선호 1위.", rating: "4.8★ (220+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "Property Maintenance Plus VA", sqft: "$18–$30", score: 90, phone: "703-330-5050", website: "pmplusva.com", specialty: "Light Rehab + Maintenance", review: "연간 유지보수 계약 가능. 소형 수리 즉시 출동. Manassas·Woodbridge 전문.", rating: "4.7★ (160+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "Budget Reno Group VA", sqft: "$19–$31", score: 89, phone: "571-285-6300", website: "budgetrenova.com", specialty: "Cost-Effective Rental Rehab", review: "자재비 절감 전문. 임대 수익률 최적화. 대량 계약 시 추가 할인.", rating: "4.6★ (130+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "NoVA Handyman & Renovation", sqft: "$15–$28", score: 88, phone: "703-470-2020", website: "novahandyman.com", specialty: "Light Fix + Rental Prep", review: "핸디맨 수준 소형 공사 전문. 긴급 출동 가능. Springfield·Burke 기반.", rating: "4.7★ (300+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "FirstChoice Renovation VA", sqft: "$21–$34", score: 87, phone: "703-361-8800", website: "firstchoicerenovation.com", specialty: "Rental Light Rehab Package", review: "주방+욕실 저비용 리프레시 전문. Manassas 기반. 일정 준수율 95%.", rating: "4.6★ (90+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "Sterling Renovation Group", sqft: "$20–$33", score: 86, phone: "571-434-7700", website: "sterlingrenovation.com", specialty: "Rental Ready Light Remodel", review: "Loudoun County 전문. 임대용 LVP+페인트+조명 패키지. 빠른 완공.", rating: "4.5★ (75+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "ValueBuild Contractors", sqft: "$18–$29", score: 85, phone: "703-580-1100", website: "valuebuildva.com", specialty: "Budget Rental Turnover", review: "최저가 보장. 다주택 투자자 전용 계약. Prince William County 기반.", rating: "4.4★ (110+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "HomeFix Pro VA", email: "info@homefixprova.com", sqft: "$16–$27", score: 84, phone: "571-312-4400", website: "homefixprova.com", specialty: "Rental Repair & Light Refresh", review: "도배+도색+바닥 교체 전문. Centreville·Chantilly 기반. 24시간 견적 대응.", rating: "4.4★ (85+ reviews)" },
+  { category: "rental", label: "🏠 Rental / Light", name: "Express Reno VA", sqft: "$15–$26", score: 83, phone: "703-440-9900", website: "expressrenova.com", specialty: "Fast Rental Turnover", review: "임대 회전율 극대화 전문. 5일 이내 완공 기록 보유. Fairfax·Reston 기반.", rating: "4.3★ (95+ reviews)" },
+];
+
+// ── 번역 상수 (English translations for data arrays) ──────────────────────
+const CATEGORY_EN = {
+  "바닥재":"Flooring","주방":"Kitchen","욕실":"Bathroom","페인트":"Paint",
+  "지붕":"Roofing","HVAC":"HVAC","전기":"Electrical","배관":"Plumbing","창문":"Windows","문":"Doors",
+};
+const BADGE_EN = {
+  "최저금리":"Best Rate","추천":"Top Pick","NoVA본사":"NoVA HQ","우대할인":"Member Disc.",
+  "VA 1위":"VA #1","클로징무료":"Zero Closing","재이용무료":"Free Repeat","최빠른":"Fastest",
+  "테크기반":"Tech-Based","Forbes선정":"Forbes Pick","조건유연":"Flexible","포트폴리오":"Portfolio",
+  "STR가능":"STR OK","BRRRR전문":"BRRRR Pro","AI승인":"AI Approval","최저5.75%":"Low 5.75%",
+  "플립→임대":"Flip→Rental","다건가능":"Multi-Loan","NoVA전문":"NoVA Pro",
+};
+const REVIEW_EN = {
+  "Navy Federal Credit Union":"Lowest rates for NoVA military & federal employees. 80% LTV available. Member-only terms.",
+  "PenFed Credit Union":"NoVA-based federal credit union. Top-tier rate competitiveness. Easy membership signup.",
+  "Capital One (McLean HQ)":"McLean VA HQ with dedicated NoVA investor team. Venture X client perks. Best online portal.",
+  "Bank of America Investment":"Rate discount for Preferred Rewards members. Dedicated NoVA investor team. Easy online application.",
+  "Wells Fargo Investment Loan":"Largest U.S. bank. Multiple NoVA branches. Investor conventional specialist. Loyalty perks.",
+  "Chase Investment Mortgage":"Nationwide network. Private Client perks. Fairfax & Arlington branches. Excellent online management.",
+  "Rocket Mortgage (VA #1)":"#1 VA loan originator. 100% digital process. Fast approval. $3.1B VA funded in 2024 (HMDA).",
+  "CapCenter (Zero Closing)":"Zero closing cost option. VA-based local specialist. Reduced realtor fees. High repeat-use rate.",
+  "LendFriend Mortgage VA":"NoVA & Arlington specialist broker. No fee for returning clients. Non-QM available. Transparent process.",
+  "Truist Investment Mortgage":"BB&T+SunTrust merged. VA-wide branches. Portfolio investor dedicated service. Multi-property perks.",
+  "Easy Street Capital":"48-hour closing possible. No appraisal required. #1-rated flip lender nationwide. Top investor choice.",
+  "Asset Based Lending (ABL)":"90% purchase + 100% reno coverage. 24-hour approval. NoVA specialist. 10+ years operating.",
+  "LendingOne Fix & Flip":"92.5% LTC + 100% reno covered. Top Trustpilot rating. NoVA & VA specialist team. BRRRR optimized.",
+  "HouseMax Funding":"Forbes Best Hard Money Lender 2024 & 2025. 2,700+ flip experience. Self-serve platform.",
+  "Kiavi (구 LendingHome)":"Tech-driven lending. 5-min online application. Rate reduction for repeat investors. $20B+ funded.",
+  "RCN Capital":"Nationwide investor network. Strong broker channel. Multi-property veterans preferred. Fast re-approval.",
+  "Groundfloor Finance":"Crowdfunding-based lowest flip rate starting at 7.5%. Accessible for smaller investors.",
+  "Civic Financial Services":"Non-QM specialist. Fast closing. Preferred terms for experienced flippers. Strong broker network.",
+  "CoreVest Finance":"Large portfolio flip specialist. Multiple concurrent loans available. Institutional-grade terms.",
+  "LoanBidz (BRRRR)":"BRRRR-focused platform. $700M+ funded. Auto-matches best options. Range: $100K–$3M.",
+  "Griffin Funding DSCR":"DSCR below 1.0 approved. No W-2 required. LLC loans available. #1 choice for VA investors.",
+  "Lima One Capital":"DSCR + Flip + Multifamily one-stop shop. Portfolio expansion specialist. DSCR 1.0 standard.",
+  "Visio Lending DSCR":"Long-term rental specialist. STR (Airbnb) eligible. No personal income verification. 30-year fixed.",
+  "Angel Oak DSCR":"Non-traditional income specialist. DSCR as low as 0.75. Rich NoVA experience. LLC title loans.",
+  "Rehab Financial Group (RFG)":"$300M+ funded. 30-year fixed DSCR. Optimized for BRRRR strategy. VA statewide service.",
+  "Deephaven Mortgage":"Non-QM institutional lender. Bank statement income accepted. LLC/Trust title. Large portfolios.",
+  "New Silver DSCR":"AI-powered instant approval. 5-day closing. Fully automated online. Small rental investor friendly.",
+  "HouseMax Funding DSCR":"5.75%+ lowest DSCR rate. Forbes-rated. High NoVA demand. Short-term rental included.",
+  "Kiavi DSCR Rental":"Flip-to-rental one-stop. $20B+ funded. Auto-rewards for repeat investors. 30-year fixed.",
+  "CapSource Lending":"NoVA-based local expert. Rental + flip + construction portfolio. Deep local market knowledge.",
+};
+const CONTRACTOR_REVIEW_EN = {
+  "TriVista USA Design+Build":"20-year award-winning firm. In-house architect & interior designer. Fairfax & Arlington specialist.",
+  "Ridgeline Contractors (DMV)":"Top-rated luxury remodeler in NoVA. Insurance claim support. Directly managed by Malcolm.",
+  "Bowers Design Build":"Founded 1990. NRS satisfaction award. 30% repeat clients. McLean & Great Falls specialist.",
+  "Commonwealth Home Design":"40-year Vienna base. Structural changes & additions expert. Excellent project management system.",
+  "Foster Remodeling Solutions":"Best-in-class warranty. In-house design team. Herndon & Reston specialist.",
+  "Ideal Construction & Remodeling":"Arlington County Green Home award winner. Energy efficiency specialist. DC & Arlington focus.",
+  "Monova Homes":"Known for on-time & on-budget delivery. Alexandria & Fairfax base. Investor-friendly.",
+  "WISA Solutions":"West Springfield base. High client referral rate. Luxury kitchen & bath specialist.",
+  "Total Construction Company":"34-year veteran. Pool & outdoor full service. Fairfax County specialist.",
+  "Heartland Design & Remodeling":"Bristow & Prince William base. Excellent communication. Custom design strength.",
+  "NHR Kitchen & Floors (NOVA Home Renovate)":"Fairfax County ADU permit specialist. Daily schedule & budget updates. Very high repeat-use rate.",
+  "All Renovations":"Class A VA license. Electric & plumbing specialist. Best value. Vienna & Sterling focus.",
+  "DMV Remodeling Pros":"90-day completion guarantee. Permit experience. Manassas & Centreville base.",
+  "Capital Remodeling":"DC/VA/MD tri-state service. Fast package quotes. High-volume investor experience.",
+  "Fairfax Contracting Group":"Fastest permit processing in Fairfax County. Multi-site management capable. Investor discounts.",
+  "Renovate DMV":"Kitchen + bath + flooring package specialist. Sterling & Ashburn base. ROI optimization.",
+  "ProBuild Contractors VA":"Structural + cosmetic flip specialist. Prince William County base. Bundled permit processing.",
+  "Northern Virginia Remodelers":"Annandale & Burke specialist. SFH & multifamily capable. 30%+ repeat investors.",
+  "Blueprint Renovation LLC":"Free 3D rendering. Reston & Herndon specialist. 48-hour quote guarantee.",
+  "RedLine Construction VA":"Fastest turnaround specialist. Woodbridge & Lorton base. Budget overrun penalty clause.",
+  "Quick Flip & Rental Services VA":"Rental renovation in as little as 7 days. Paint + flooring + lighting package. Multi-property exclusive.",
+  "Tenant Ready Contractors":"7–14 day turnover. Paint + clean + minor repair package. #1 landlord choice.",
+  "Property Maintenance Plus VA":"Annual maintenance contracts. Rapid small-repair response. Manassas & Woodbridge focus.",
+  "Budget Reno Group VA":"Material cost reduction specialist. Rental yield optimization. Volume discount available.",
+  "NoVA Handyman & Renovation":"Small project light renovation specialist. Emergency dispatch available. Springfield & Burke base.",
+  "FirstChoice Renovation VA":"Low-cost kitchen & bath refresh specialist. Manassas base. 95% on-time rate.",
+  "Sterling Renovation Group":"Loudoun County specialist. Rental-ready LVP + paint + lighting package. Fast completion.",
+  "ValueBuild Contractors":"Lowest price guarantee. Multi-property investor exclusive contracts. Prince William County.",
+  "HomeFix Pro VA":"Wallpaper + paint + flooring replacement specialist. Centreville & Chantilly. 24-hour quote.",
+  "Express Reno VA":"Rental turnover maximization specialist. Sub-5-day completion record. Fairfax & Reston base.",
+};
+
+const TABS = [
+  { id: "deal",         labelKo: "딜 스크리닝",    labelEn: "Deal Screen",   emoji: "🔍" },
+  { id: "flip",         labelKo: "Flip 분석",      labelEn: "Flip Analysis", emoji: "📈" },
+  { id: "hold",         labelKo: "Hold 분석",      labelEn: "Hold Analysis", emoji: "🏦" },
+  { id: "stress",       labelKo: "스트레스 테스트", labelEn: "Stress Test",   emoji: "🔥" },
+  { id: "finance",      labelKo: "금융 비교",      labelEn: "Finance",       emoji: "💰" },
+  { id: "contractor",   labelKo: "건설사",      labelEn: "Contractors",   emoji: "🔨" },
+  { id: "materials",    labelKo: "자재 단가",   labelEn: "Materials",     emoji: "🪚" },
+  { id: "construction", labelKo: "공사 현황",   labelEn: "Construction",  emoji: "📋" },
+  { id: "mycheck",      labelKo: "내 물건 점검",labelEn: "My Property",   emoji: "💼" },
+];
+export { MATERIALS, LENDERS, CONTRACTORS, TABS, CATEGORY_EN, BADGE_EN, REVIEW_EN, CONTRACTOR_REVIEW_EN };
