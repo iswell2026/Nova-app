@@ -194,7 +194,6 @@ const TABS = [
   { id: "contractor",   labelKo: "건설사",      labelEn: "Contractors",   emoji: "🔨" },
   { id: "materials",    labelKo: "자재 단가",   labelEn: "Materials",     emoji: "🪚" },
   { id: "construction", labelKo: "공사 현황",   labelEn: "Construction",  emoji: "📋" },
-  { id: "risk",         labelKo: "리스크",      labelEn: "Risk",          emoji: "⚠️" },
   { id: "mycheck",      labelKo: "내 물건 점검",labelEn: "My Property",   emoji: "💼" },
 ];
 
@@ -259,13 +258,6 @@ const L = {
       headers: ["공정명","예산 ($)","지출 ($)","예정일","상태",""],
       addBtn: "+ 공정 추가", newTask: "새 공정",
       statuses: { pending: "대기", progress: "진행중", done: "완료" },
-    },
-    risk: {
-      labels: ["금리 리스크","LTV 리스크","Flip ROI","DSCR","월 현금흐름","자본 필요액"],
-      rateDesc: (r) => `실질 이자율 ${r}%`,
-      ltvDesc: (l) => `현재 LTV ${l}%`,
-      aiBtn: "✦ AI 리스크 분석", aiLabel: "AI 리스크 분석",
-      analyzing: "...",
     },
     screen: {
       cardTitle: "딜 스크리닝", placeholder: "Zillow/MLS URL 또는 주소 + 가격 입력",
@@ -345,13 +337,6 @@ const L = {
       headers: ["Task","Budget ($)","Actual ($)","Due Date","Status",""],
       addBtn: "+ Add Task", newTask: "New Task",
       statuses: { pending: "Pending", progress: "In Progress", done: "Done" },
-    },
-    risk: {
-      labels: ["Rate Risk","LTV Risk","Flip ROI","DSCR","Monthly CF","Capital Required"],
-      rateDesc: (r) => `Actual rate ${r}%`,
-      ltvDesc: (l) => `Current LTV ${l}%`,
-      aiBtn: "✦ AI Risk Analysis", aiLabel: "AI Risk Analysis",
-      analyzing: "...",
     },
     screen: {
       cardTitle: "Deal Screening", placeholder: "Paste Zillow/MLS URL or enter address + price",
@@ -1381,38 +1366,6 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* ── 8. 리스크 ─────────────────────────────────────────── */}
-            {tab === "risk" && (
-              <div>
-                <div className="grid2" style={{ gap: 16, marginBottom: 16 }}>
-                  {(t$?.risk.labels || []).map((label, ri) => {
-                    const riskVals = [t$?.risk.rateDesc(lender.rate), t$?.risk.ltvDesc(ltv), pct(flipROI), dscr.toFixed(2), fmt(monthlyCF), fmt(equity)];
-                    const riskBadges = [lender.rate > 9 ? "HIGH" : lender.rate > 7.5 ? "MED" : "LOW", ltv > 80 ? "HIGH" : ltv > 75 ? "MED" : "LOW", flipROI >= 18 ? "GOOD" : flipROI >= 10 ? "MED" : "LOW", dscr >= 1.2 ? "GOOD" : dscr >= 1.0 ? "MED" : "RISK", monthlyCF >= 500 ? "GOOD" : monthlyCF >= 0 ? "MED" : "RISK", equity < 200000 ? "LOW" : equity < 400000 ? "MED" : "HIGH"];
-                    const riskColors = [lender.rate > 9 ? "red" : lender.rate > 7.5 ? "gold" : "green", ltv > 80 ? "red" : ltv > 75 ? "gold" : "green", flipROI >= 18 ? "green" : flipROI >= 10 ? "gold" : "red", dscr >= 1.2 ? "green" : dscr >= 1.0 ? "gold" : "red", monthlyCF >= 500 ? "green" : monthlyCF >= 0 ? "gold" : "red", equity < 200000 ? "green" : equity < 400000 ? "gold" : "red"];
-                    return (
-                    <div key={ri} className="card">
-                      <div className="card-body" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div>
-                          <div className="metric-label">{label}</div>
-                          <div className="metric-val" style={{ color: `var(--${riskColors[ri]})` }}>{riskVals[ri]}</div>
-                        </div>
-                        <span className={`badge badge-${riskColors[ri] === "green" ? "green" : riskColors[ri] === "gold" ? "gold" : "red"}`}>{riskBadges[ri]}</span>
-                      </div>
-                    </div>
-                  );})}
-                </div>
-
-                <button className="btn btn-ghost" style={{ width: "100%", justifyContent: "center", marginBottom: 16 }}
-                  disabled={aiLoading}
-                  onClick={() => runAI(lang === "ko"
-                    ? `Northern Virginia 부동산 투자 리스크 분석. 매입가: ${fmt(D.purchasePrice)}, Flip ROI: ${pct(flipROI)}, DSCR: ${dscr.toFixed(2)}, 월 CF: ${fmt(monthlyCF)}, 금리: ${lender.rate}%. 한글로 주요 리스크 3가지와 대응 전략을 설명해줘.`
-                    : `NoVA real estate risk analysis. Purchase: ${fmt(D.purchasePrice)}, Flip ROI: ${pct(flipROI)}, DSCR: ${dscr.toFixed(2)}, Monthly CF: ${fmt(monthlyCF)}, Rate: ${lender.rate}%. List top 3 risks and mitigation strategies.`)}>
-                  {aiLoading ? <><div className="spinner" />{t$?.risk.analyzing}</> : t$?.risk.aiBtn}
-                </button>
-                {aiResult && <div className="ai-box"><div className="ai-header"><div className="ai-dot" /><span className="ai-label">{t$?.risk.aiLabel}</span></div><div className="ai-text">{aiResult}</div></div>}
               </div>
             )}
 
