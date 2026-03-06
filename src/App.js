@@ -187,10 +187,11 @@ const CONTRACTOR_REVIEW_EN = {
 };
 
 const TABS = [
-  { id: "deal",         labelKo: "딜 스크리닝", labelEn: "Deal Screen",   emoji: "🔍" },
-  { id: "flip",         labelKo: "Flip 분석",   labelEn: "Flip Analysis", emoji: "📈" },
-  { id: "hold",         labelKo: "Hold 분석",   labelEn: "Hold Analysis", emoji: "🏦" },
-  { id: "finance",      labelKo: "금융 비교",   labelEn: "Finance",       emoji: "💰" },
+  { id: "deal",         labelKo: "딜 스크리닝",    labelEn: "Deal Screen",   emoji: "🔍" },
+  { id: "flip",         labelKo: "Flip 분석",      labelEn: "Flip Analysis", emoji: "📈" },
+  { id: "hold",         labelKo: "Hold 분석",      labelEn: "Hold Analysis", emoji: "🏦" },
+  { id: "stress",       labelKo: "스트레스 테스트", labelEn: "Stress Test",   emoji: "🔥" },
+  { id: "finance",      labelKo: "금융 비교",      labelEn: "Finance",       emoji: "💰" },
   { id: "contractor",   labelKo: "건설사",      labelEn: "Contractors",   emoji: "🔨" },
   { id: "materials",    labelKo: "자재 단가",   labelEn: "Materials",     emoji: "🪚" },
   { id: "construction", labelKo: "공사 현황",   labelEn: "Construction",  emoji: "📋" },
@@ -495,6 +496,17 @@ select.input{cursor:pointer;}
 .badge-blue{background:var(--blue2);color:var(--blue);}
 .badge-red{background:var(--red2);color:var(--red);}
 
+/* STRESS TEST TAB */
+.stress-section{display:flex;flex-direction:column;gap:16px;}
+.stress-baseline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.stress-tbl-wrap{overflow-x:auto;}
+.stress-delta{font-size:9px;margin-left:3px;font-family:'DM Mono',monospace;}
+.stress-delta.pos{color:var(--green);}
+.stress-delta.neg{color:var(--red);}
+.stress-row-worst{background:rgba(248,113,113,0.04);}
+.stress-group-header{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);opacity:0.75;padding:8px 14px 4px;background:var(--bg3);}
+@media(max-width:768px){.stress-baseline{grid-template-columns:1fr 1fr!important;}}
+
 /* SPINNER */
 .spinner{width:14px;height:14px;border:2px solid rgba(226,184,75,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;}
 .spinner-blue{border-color:rgba(75,139,255,0.2);border-top-color:var(--blue);}
@@ -666,6 +678,33 @@ export default function App() {
 
   // lang 전환 시 AI 결과 초기화 (언어 불일치 방지)
   useEffect(() => { setAiResult(""); setMyCheckResult(null); setScreenResult(null); setShowDetail(false); }, [lang]);
+
+  // ── STRESS TEST helper ────────────────────────────────────────────────────
+  const calcStress = (arvMult = 1, renoMult = 1, extraMonths = 0, rateDelta = 0, extraVacMo = 0) => {
+    const sArv      = arv * arvMult;
+    const sReno     = renoCost * renoMult;
+    const sRate     = (lender.rate + rateDelta) / 100 / 12;
+    const sMonthly  = loanAmt * sRate;
+    const sHold     = holdMonths + extraMonths;
+    const sHoldCost = sMonthly * sHold + (D.propertyTax / 12) * sHold + 200 * sHold;
+    const sEquity   = D.purchasePrice * (1 - ltv / 100) + sReno;
+    const sFlipPro  = sArv - D.purchasePrice - sReno - sHoldCost - sArv * 0.075;
+    const sFlipROI  = (sFlipPro / sEquity) * 100;
+    const sVac      = vacancy + (extraVacMo * D.estimatedRent / 12);
+    const sNoi      = D.estimatedRent * 12 - sVac * 12 - opex * 12 - pm * 12 - D.propertyTax - D.hoa * 12;
+    const sDebt     = sMonthly * 12 * 1.15;
+    return {
+      flipProfit: sFlipPro,
+      flipROI:    sFlipROI,
+      monthlyCF:  (sNoi - sDebt) / 12,
+      dscr:       sDebt > 0 ? sNoi / sDebt : 0,
+    };
+  };
+  const stressStatus = (s) => {
+    if (s.flipROI >= 15 && s.dscr >= 1.2 && s.monthlyCF >= 0)        return { icon: "✅", label: "OK",    color: "var(--green)" };
+    if (s.flipROI >= 8  || (s.dscr >= 1.0 && s.monthlyCF >= -500))   return { icon: "⚠️", label: "WATCH", color: "var(--gold)"  };
+    return                                                              { icon: "❌", label: "FAIL",  color: "var(--red)"   };
+  };
 
   return (
     <>
@@ -1101,6 +1140,158 @@ maxFlipPrice = max purchase price to achieve 18% flip ROI. maxHoldPrice = max pu
                 </div>
               </div>
             )}
+
+            {/* ── 🔥 스트레스 테스트 ──────────────────────────────────── */}
+            {tab === "stress" && (() => {
+              const ko = lang === "ko";
+              const base = { flipProfit, flipROI, monthlyCF, dscr };
+              const Δ = (curr, ref, fmtFn) => {
+                const d = curr - ref;
+                const cls = d >= 0 ? "pos" : "neg";
+                const sign = d >= 0 ? "+" : "−";
+                return <span className={`stress-delta ${cls}`}>({sign}{fmtFn(Math.abs(d))})</span>;
+              };
+              const groups = [
+                {
+                  label: ko ? "📉 ARV 하락" : "📉 ARV Drop",
+                  desc:  ko ? "매도 가격이 예상보다 낮을 때" : "Sale price comes in below estimate",
+                  rows: [
+                    { label: "ARV −5%",  s: calcStress(0.95) },
+                    { label: "ARV −10%", s: calcStress(0.90) },
+                  ],
+                },
+                {
+                  label: ko ? "🔨 수리비 초과" : "🔨 Reno Overrun",
+                  desc:  ko ? "공사비가 예산을 초과할 때" : "Construction cost exceeds budget",
+                  rows: [
+                    { label: ko ? "수리비 +10%" : "Reno +10%", s: calcStress(1, 1.10) },
+                    { label: ko ? "수리비 +20%" : "Reno +20%", s: calcStress(1, 1.20) },
+                  ],
+                },
+                {
+                  label: ko ? "⏱️ 보유 연장" : "⏱️ Hold Delay",
+                  desc:  ko ? "공사·매도 기간이 늘어날 때" : "Project or sale takes longer than planned",
+                  rows: [
+                    { label: ko ? "+1개월" : "+1mo Hold", s: calcStress(1, 1, 1) },
+                    { label: ko ? "+2개월" : "+2mo Hold", s: calcStress(1, 1, 2) },
+                  ],
+                },
+                {
+                  label: ko ? "📈 금리 상승" : "📈 Rate Rise",
+                  desc:  ko ? "금리가 인상될 때 보유 비용 영향" : "Higher interest rate increases holding cost",
+                  rows: [
+                    { label: "+0.5%", s: calcStress(1, 1, 0, 0.5) },
+                    { label: "+1.0%", s: calcStress(1, 1, 0, 1.0) },
+                  ],
+                },
+                {
+                  label: ko ? "🏠 공실 증가" : "🏠 Vacancy Up",
+                  desc:  ko ? "연간 공실이 늘어날 때 Hold 수익 영향" : "More vacancy months hurt Hold cash flow",
+                  rows: [
+                    { label: ko ? "+1개월/년" : "+1mo/yr", s: calcStress(1, 1, 0, 0, 1) },
+                    { label: ko ? "+2개월/년" : "+2mo/yr", s: calcStress(1, 1, 0, 0, 2) },
+                  ],
+                },
+                {
+                  label: ko ? "💀 최악 시나리오" : "💀 Worst Case",
+                  desc:  ko ? "ARV −10% · 수리비 +20% · 보유 +2개월 · 금리 +1% · 공실 +2개월" : "ARV −10% · Reno +20% · Hold +2mo · Rate +1% · Vacancy +2mo",
+                  worst: true,
+                  rows: [
+                    { label: ko ? "복합 최악" : "All Combined", s: calcStress(0.90, 1.20, 2, 1.0, 2) },
+                  ],
+                },
+              ];
+              return (
+                <div className="stress-section">
+                  {/* Baseline */}
+                  <div className="card">
+                    <div className="card-header">
+                      <span className="card-title">{ko ? "📊 현재 기준값" : "📊 Baseline"}</span>
+                      <span style={{ fontSize: 9, color: "var(--dim)" }}>{ko ? "딜 탭 입력값 기준 · AI 불필요, 즉시 계산" : "Based on Deal tab inputs · No AI, instant math"}</span>
+                    </div>
+                    <div className="card-body">
+                      <div className="stress-baseline">
+                        {[
+                          { label: ko ? "Flip 순이익" : "Flip Profit",    val: fmt(flipProfit),   color: flipProfit >= 0 ? "var(--green)" : "var(--red)" },
+                          { label: "Flip ROI",                             val: pct(flipROI),      color: flipROI >= 18 ? "var(--gold)" : flipROI >= 10 ? "var(--blue)" : "var(--red)" },
+                          { label: ko ? "월 현금흐름" : "Monthly CF",      val: fmt(monthlyCF),    color: monthlyCF >= 500 ? "var(--green)" : monthlyCF >= 0 ? "var(--blue)" : "var(--red)" },
+                          { label: "DSCR",                                  val: dscr.toFixed(2),  color: dscr >= 1.2 ? "var(--green)" : dscr >= 1.0 ? "var(--blue)" : "var(--red)" },
+                        ].map((m, i) => (
+                          <div key={i} className="metric">
+                            <div className="metric-label">{m.label}</div>
+                            <div className="metric-val" style={{ color: m.color, fontSize: 17 }}>{m.val}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scenario groups */}
+                  {groups.map((g, gi) => (
+                    <div key={gi} className="card" style={g.worst ? { border: "1px solid rgba(248,113,113,0.22)" } : {}}>
+                      <div className="card-header" style={g.worst ? { background: "rgba(248,113,113,0.06)" } : {}}>
+                        <span className="card-title">{g.label}</span>
+                        <span style={{ fontSize: 9, color: "var(--dim)", maxWidth: 380, textAlign: "right" }}>{g.desc}</span>
+                      </div>
+                      <div className="card-body" style={{ padding: "8px 0 4px" }}>
+                        <div className="stress-tbl-wrap">
+                          <table className="tbl" style={{ width: "100%" }}>
+                            <thead>
+                              <tr>
+                                <th style={{ paddingLeft: 20 }}>{ko ? "시나리오" : "Scenario"}</th>
+                                <th>{ko ? "Flip 순이익" : "Flip Profit"}</th>
+                                <th>Flip ROI</th>
+                                <th>{ko ? "월 현금흐름" : "Monthly CF"}</th>
+                                <th>DSCR</th>
+                                <th>{ko ? "판정" : "Status"}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {g.rows.map((r, ri) => {
+                                const st = stressStatus(r.s);
+                                return (
+                                  <tr key={ri} className={g.worst ? "stress-row-worst" : ""}>
+                                    <td style={{ paddingLeft: 20, color: "var(--text)", fontWeight: 600, fontSize: 11 }}>{r.label}</td>
+                                    <td className={r.s.flipProfit >= base.flipProfit ? "green" : r.s.flipProfit >= 0 ? "mono" : "red"}>
+                                      {fmt(r.s.flipProfit)}
+                                      {Δ(r.s.flipProfit, base.flipProfit, (d) => "$" + Math.round(d).toLocaleString())}
+                                    </td>
+                                    <td className={r.s.flipROI >= 15 ? "green" : r.s.flipROI >= 8 ? "gold" : "red"}>
+                                      {pct(r.s.flipROI)}
+                                      {Δ(r.s.flipROI, base.flipROI, (d) => d.toFixed(1) + "%")}
+                                    </td>
+                                    <td className={r.s.monthlyCF >= 0 ? "green" : "red"}>
+                                      {fmt(r.s.monthlyCF)}
+                                      {Δ(r.s.monthlyCF, base.monthlyCF, (d) => "$" + Math.round(d).toLocaleString())}
+                                    </td>
+                                    <td className={r.s.dscr >= 1.2 ? "green" : r.s.dscr >= 1.0 ? "blue" : "red"}>
+                                      {r.s.dscr.toFixed(2)}
+                                      {Δ(r.s.dscr, base.dscr, (d) => d.toFixed(2))}
+                                    </td>
+                                    <td>
+                                      <span style={{ color: st.color, fontSize: 11, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                                        {st.icon} {st.label}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Footer note */}
+                  <div style={{ fontSize: 10, color: "var(--dim)", textAlign: "center", paddingBottom: 8 }}>
+                    {ko
+                      ? "✅ OK = Flip ROI ≥15% & DSCR ≥1.2 & 월CF ≥$0 · ⚠️ WATCH = Flip ROI ≥8% 또는 DSCR ≥1.0 · ❌ FAIL = 기준 미달"
+                      : "✅ OK = Flip ROI ≥15% & DSCR ≥1.2 & CF ≥$0 · ⚠️ WATCH = Flip ROI ≥8% or DSCR ≥1.0 · ❌ FAIL = Below threshold"}
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* ── 4. 금융 비교 ──────────────────────────────────────── */}
             {tab === "finance" && (
