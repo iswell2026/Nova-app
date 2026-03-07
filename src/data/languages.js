@@ -13,7 +13,9 @@ const L = {
       flip:  (roi, profit) => `Flip ROI ${roi} — 기준(18%) 충족. 6개월 내 예상 순이익 ${profit}`,
       hold:  (cf, dscr)   => `월 현금흐름 ${cf}, DSCR ${dscr} — Hold 조건 충족`,
       both:  (roi, cf)    => `Flip ROI ${roi} / 월 CF ${cf} — 두 전략 모두 가능`,
-      pass:  (roi, cf)    => `Flip ROI ${lip: {
+      pass:  (roi, cf)    => `Flip ROI ${roi}, 월 CF ${cf} — 기준 미달. 매입가 협상 필요`,
+    },
+    flip: {
       cardTitle: "Flip 수익 계산", stressTitle: "스트레스 테스트",
       aiBtn: "✦ Flip 전략 AI 분석", aiLabel: "AI 분석",
       rows: ["매입가","수리비 (10% 포함)","보유 비용 (6개월)","판매 수수료 (7.5%)","총 투자비","예상 ARV","순이익","자기자본 ROI","연환산 수익률"],
@@ -86,7 +88,8 @@ const L = {
       rows: ["Purchase Price","Reno Cost (+10%)","Holding Cost (6mo)","Selling Fee (7.5%)","Total Cost","Est. ARV","Net Profit","Equity ROI","Annual ROI"],
       stress: ["ARV -5%","ARV -10%","+60d Hold","Reno +20%"],
     },
-    holdtle: "Hold P&L (Annual)", stressTitle: "Hold Stress Test", equityTitle: "5-Year Equity",
+    hold: {
+      cardTitle: "Hold P&L (Annual)", stressTitle: "Hold Stress Test", equityTitle: "5-Year Equity",
       rows: ["Monthly Rent","Vacancy (8%)","OpEx (12%)","PM Fee (9%)","Property Tax","HOA","Monthly Interest","Monthly CF","Annual NOI","Cap Rate","Cash-on-Cash","DSCR"],
       stress: ["2-mo Vacancy","Rent -10%","Maint. +15%","Tax +10%"],
       yearEquity: (yr) => `Equity After ${yr}yr`,
@@ -103,7 +106,7 @@ const L = {
       website: "Website →", contact: "📧 Inquire",
     },
     brrrr: {
-      tiio",
+      title: "BRRRR Analysis",
       labels: ["Initial Equity","Refi (ARV-based)","Refi Proceeds","Remaining Equity"],
     },
     contractor: {
@@ -125,7 +128,7 @@ const L = {
     },
     screen: {
       cardTitle: "Deal Screening", placeholder: "Paste Zillow/MLS URL or enter address + price",
-      urlLabel: "Property URL / Address", priceLabel: "Asking Price ($)tLabel: "Sqft",
+      urlLabel: "Property URL / Address", priceLabel: "Asking Price ($)", sqftLabel: "Sqft",
       bedsLabel: "Beds", bathsLabel: "Baths", renoLabel: "Reno Level",
       analyzeBtn: "🔍 AI Screen This Deal", analyzing: "Screening...",
       verdictLabel: "Verdict", risksLabel: "Top 3 Risks", roiLabel: "ROI Range",

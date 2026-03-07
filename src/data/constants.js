@@ -6,7 +6,8 @@ const MATERIALS = [
   { category: "바닥재", item: "LVP (Luxury Vinyl)", unit: "sqft", light: 2.5, medium: 4, heavy: 6 },
   { category: "바닥재", item: "Tile (Ceramic)", unit: "sqft", light: 3, medium: 5.5, heavy: 9 },
   { category: "주방", item: "Cabinets (Stock)", unit: "linear ft", light: 150, medium: 280, heavy: 500 },
-  { category: "주방", item: "Countertop (Granite)", unit: "sqft", light: 35, medium: 55, heavy light: 8, medium: 14, heavy: 25 },
+  { category: "주방", item: "Countertop (Granite)", unit: "sqft", light: 35, medium: 55, heavy: 90 },
+  { category: "주방", item: "Backsplash (Tile)", unit: "sqft", light: 8, medium: 14, heavy: 25 },
   { category: "페인트", item: "Interior Paint", unit: "sqft", light: 1.2, medium: 2, heavy: 3.5 },
   { category: "지붕", item: "Asphalt Shingles", unit: "sqft", light: 3.5, medium: 5.5, heavy: 9 },
   { category: "HVAC", item: "AC + Furnace", unit: "unit", light: 5000, medium: 8500, heavy: 14000 },
@@ -14,10 +15,6 @@ const MATERIALS = [
   { category: "배관", item: "Plumbing (partial)", unit: "unit", light: 2000, medium: 5000, heavy: 12000 },
   { category: "창문", item: "Window (Double Pane)", unit: "unit", light: 350, medium: 600, heavy: 1200 },
   { category: "문", item: "Interior Door", unit: "unit", light: 180, medium: 320, heavy: 600 },
-];
-
-// ── VA 자재 단가 데이터 ─────────────────────────────────────────────────────
-const MATERIALS = [
   { category: "바닥재", item: "Hardwood (Oak)", unit: "sqft", light: 4.5, medium: 7, heavy: 12 },
   { category: "바닥재", item: "LVP (Luxury Vinyl)", unit: "sqft", light: 2.5, medium: 4, heavy: 6 },
   { category: "바닥재", item: "Tile (Ceramic)", unit: "sqft", light: 3, medium: 5.5, heavy: 9 },
