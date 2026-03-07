@@ -497,6 +497,7 @@ export default function App() {
                       <label className="label">{lang === "ko" ? "Zillow/MLS URL 또는 주소 직접 입력" : "Zillow/MLS URL or Address"}</label>
                       <input className="input" placeholder={lang === "ko" ? "예: zillow.com/... 또는 123 Oak St, Fairfax VA" : "e.g. zillow.com/... or 123 Oak St, Fairfax VA"}
                         value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} />
+                      <button className='btn btn-gold' onClick={() => parseZillowUrl(screenInput.url)} disabled={screenLoading} style={{width:'100%',justifyContent:'center',marginTop:8}}>{screenLoading ? '파싱중...' : '🔍 Zillow 자동입력'}</button>
                       <button className='btn btn-ghost' onClick={() => parseZillowUrl(screenInput.url)} disabled={screenLoading} style={{marginTop:6,borderColor:'var(--border2)',color:'var(--gold)'}}>{screenLoading ? '파싱중...' : '🔍 자동입력'}</button>
                     </div>
                     {/* 기본 정보 */}
