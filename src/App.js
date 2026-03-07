@@ -318,7 +318,7 @@ export default function App() {
     if (!url || url.trim().length < 5) return;
     setScreenLoading(true);
     try {
-      const text = await callClaude('Zillow URL or address: ' + url + '. Return ONLY JSON {price,sqft,beds,baths} as numbers. No markdown.');
+      const text = await callClaude('You are a real estate data assistant. Given this property URL or address: ' + url + '. Extract the LISTING PRICE (seller asking price), sqft, beds, baths. Return ONLY JSON: {"price":number,"sqft":number,"beds":number,"baths":number}. No markdown, no explanation.');
       const clean = text.replace(/```json|```/g, '').trim();
       const data = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}')+1));
       setScreenInput(s => ({ ...s, price: data.price||s.price, sqft: data.sqft||s.sqft, beds: data.beds||s.beds, baths: data.baths||s.baths }));
@@ -508,8 +508,8 @@ export default function App() {
                     <div className="field">
                       <label className="label">{lang === "ko" ? "Zillow/MLS URL 또는 주소 직접 입력" : "Zillow/MLS URL or Address"}</label>
                       <input className="input" placeholder={lang === "ko" ? "예: zillow.com/... 또는 123 Oak St, Fairfax VA" : "e.g. zillow.com/... or 123 Oak St, Fairfax VA"}
-                        value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} />
-                      <button className='btn btn-gold' onClick={() => parseZillowUrl(screenInput.url)} disabled={screenLoading} style={{width:'100%',justifyContent:'center',marginTop:8}}>{screenLoading ? '파싱중...' : '🔍 Zillow 자동입력'}</button>
+                        value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} onPaste={e => { const v = e.clipboardData.getData('text'); setScreenInput(s => ({ ...s, url: v })); setTimeout(() => parseZillowUrl(v), 100); }} />
+                      <button className='btn btn-gold' onClick={() => parseZillowUrl(screenInput.url)} disabled={screenLoading} style={{width:'100%',justifyContent:'center',marginTop:8}}>{screenLoading ? '파싱중...' : '🔍 주소/URL 자동입력'}</button>
                       <button className='btn btn-ghost' onClick={() => parseZillowUrl(screenInput.url)} disabled={screenLoading} style={{marginTop:6,borderColor:'var(--border2)',color:'var(--gold)'}}>{screenLoading ? '파싱중...' : '🔍 자동입력'}</button>
                     </div>
                     {/* 기본 정보 */}
