@@ -301,6 +301,18 @@ export default function App() {
   const matCategories = ["전체", ...new Set(MATERIALS.map(m => m.category))];
   const filteredMats = matFilter === "전체" ? MATERIALS : MATERIALS.filter(m => m.category === matFilter);
 
+
+  const parseZillowUrl = async (url) => {
+    if (!url || url.trim().length < 5) return;
+    setScreenLoading(true);
+    try {
+      const text = await callClaude('Zillow URL or address: ' + url + '. Return ONLY JSON {price,sqft,beds,baths} as numbers. No markdown.');
+      const clean = text.replace(/```json|```/g, '').trim();
+      const data = JSON.parse(clean.slice(clean.indexOf('{'), clean.lastIndexOf('}')+1));
+      setScreenInput(s => ({ ...s, price: data.price||s.price, sqft: data.sqft||s.sqft, beds: data.beds||s.beds, baths: data.baths||s.baths }));
+    } catch(e) { console.error(e); }
+    setScreenLoading(false);
+  };
   const runAI = async (prompt) => {
     setAiLoading(true);
     const r = await callClaude(prompt);
@@ -484,7 +496,8 @@ export default function App() {
                     <div className="field">
                       <label className="label">{lang === "ko" ? "Zillow/MLS URL 또는 주소 직접 입력" : "Zillow/MLS URL or Address"}</label>
                       <input className="input" placeholder={lang === "ko" ? "예: zillow.com/... 또는 123 Oak St, Fairfax VA" : "e.g. zillow.com/... or 123 Oak St, Fairfax VA"}
-                        value={screenInput.url} onChange={e => setScreenInput(s => ({ ...s, url: e.target.value }))} />
+                        value={screenInput.url} onChScreenInput(s => ({ ...s, url: e.target.value }))} />
+                      <button className='btn btn-ghost' onClick={() => parseZillowUrl(screenInput.url)} disabled={screenLoading} style={{marginTop:6,borderColor:'var(--border2)',color:'var(--gold)'}}>{screenLoading ? '파싱중...' : '🔍 자동입력'}</button>
                     </div>
                     {/* 기본 정보 */}
                     <div className="grid4" style={{ gap: 10 }}>
