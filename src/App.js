@@ -225,6 +225,13 @@ select.input{cursor:pointer;}
   .task-row > *:first-child{grid-column:1/-1;}
   .grid2{grid-template-columns:1fr!important;}
 }
+/* Mobile segment nav bar */
+.mobile-seg-bar{display:none;}
+@media (max-width: 768px) {
+  .mobile-seg-bar{display:flex;gap:6px;padding:8px 10px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .mobile-seg-btn{flex:1;padding:7px 4px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--dim);font-family:'Sora',sans-serif;font-size:9px;font-weight:700;cursor:pointer;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all 0.15s;letter-spacing:0.03em;}
+  .mobile-seg-btn.active{background:var(--gold2);color:var(--gold);border-color:var(--border2);}
+}
 @media (max-width: 480px) {
   .content{padding:8px;padding-bottom:calc(80px + env(safe-area-inset-bottom, 16px));}
   .grid2{grid-template-columns:1fr!important;}
@@ -1123,24 +1130,7 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
             <div className="mobile-tab-active-label">
               <span>{TABS.find(t => t.id === tab)?.emoji}</span>
               <span>{t$?.tabLabel(TABS.find(t => t.id === tab))}</span>
-              {D.address && <span style={{fontSize:10,color:"var(--dim)",fontWeight:400,marginLeft:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:100}}>{D.address}</span>}
-              {/* Swipe position dots — core 4 tabs only */}
-              {CORE_TABS.includes(tab) && (
-                <div style={{display:"flex",gap:4,alignItems:"center",marginLeft:"auto"}}>
-                  {CORE_TABS.map(id => (
-                    <span key={id} onClick={() => setTab(id)} style={{
-                      display:"inline-block",
-                      width: tab === id ? 16 : 6,
-                      height: 6,
-                      borderRadius: tab === id ? 3 : "50%",
-                      background: tab === id ? "var(--gold)" : "rgba(255,255,255,0.2)",
-                      transition:"all 0.2s",
-                      cursor:"pointer",
-                      flexShrink: 0
-                    }} />
-                  ))}
-                </div>
-              )}
+              {D.address && <span style={{fontSize:10,color:"var(--dim)",fontWeight:400,marginLeft:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:140}}>{D.address}</span>}
             </div>
             <div className="topbar-stats">
               {tab === "rebuild" ? (() => {
@@ -1220,6 +1210,24 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
               )}
             </div>
           </div>
+
+          {/* Mobile segment nav — core 4 tabs only, hidden on desktop */}
+          {CORE_TABS.includes(tab) && (
+            <div className="mobile-seg-bar">
+              {CORE_TABS.map(id => {
+                const tObj = TABS.find(t => t.id === id);
+                return (
+                  <button
+                    key={id}
+                    className={`mobile-seg-btn${tab === id ? ' active' : ''}`}
+                    onClick={() => setTab(id)}
+                  >
+                    {tObj?.emoji} {t$?.tabLabel(tObj)}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <div className="content">
 
