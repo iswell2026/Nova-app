@@ -2336,17 +2336,36 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
               const annRoi      = arvMissing ? null : (totalMonths > 0 ? (roiOnTotal / totalMonths * 12) : 0);
 
               // ── Feasibility reverse-engineering ───────────────────────────
-              // CORRECTED: sellingCost is % of sale price
-              // Sale × (1 - sellingPct) = totalAllIn × (1 + targetROI)
-              // → requiredSale = totalAllIn × (1 + targetROI) / (1 - sellingPct)
-              // Max Land: NSP / (1 + roi) - nonLandCost
-              const breakEvenLand = netSalesProceeds > 0
-                ? Math.round(netSalesProceeds - nonLandCost) : 0;
+              // Key identity:  totalAllIn = (1+F)[L + HC(1+k)]
+              //   where F = finFactor, k = contFactor, HC = hardCost
+              //
+              // (1) Max Land — hold HC & ARV fixed, solve for L:
+              //     NSP = (1+roi)·totalAllIn = (1+roi)(1+F)[L + HC(1+k)]
+              //     L_max = NSP / [(1+roi)(1+F)] − HC(1+k)
+              //
+              // (2) Max HC — hold L & ARV fixed, solve for HC:
+              //     HC_max = [NSP/(1+roi) − L(1+F)] / [(1+k)(1+F)]
+              //            = (maxNL − L·F) / [(1+k)(1+F)]        ← in code below
+              //
+              // (3) Required ARV — hold L & HC fixed (totalAllIn unchanged, LTC loan):
+              //     ARV_req = totalAllIn(1+roi) / (1−sellingPct)
+              //
+              // NOTE: finFactor and contFactor are pre-computed here so calcMaxLand
+              //       can use them (they were previously defined later in the block).
+              const finFactor  = (ltcPct / 100) * (rb.drawSchedule ? 0.55 : 1.0) * (Number(rb.ratePct) || 0) / 100 * buildMo / 12;
+              const contFactor = (Number(rb.contingencyPct) || 0) / 100;
 
-              const calcMaxLand = (roi) =>
-                netSalesProceeds > 0
-                  ? Math.round(netSalesProceeds / (1 + roi) - nonLandCost)
-                  : 0;
+              // Break-even land = max land at 0% ROI
+              const breakEvenLand = arvMissing || netSalesProceeds <= 0 ? 0
+                : Math.max(0, Math.round(netSalesProceeds / (1 + finFactor) - hardCost * (1 + contFactor)));
+
+              const calcMaxLand = (roi) => {
+                if (arvMissing || netSalesProceeds <= 0) return 0;
+                // Correct formula: L_max = NSP / [(1+roi)(1+F)] − HC(1+k)
+                return Math.max(0, Math.round(
+                  netSalesProceeds / ((1 + roi) * (1 + finFactor)) - hardCost * (1 + contFactor)
+                ));
+              };
               const calcRequiredSale = (roi) =>
                 Math.round(totalAllIn * (1 + roi) / (1 - sellingCostPct));
 
@@ -2360,10 +2379,8 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
               const gapTo25   = landCost - maxLand25;
 
               // ── Construction Cost Feasibility ────────────────────────────
-              // Solve for max hard cost given fixed land + target ROI
-              // nonLand = HC(1+k)(1+F) + landCost×F  →  HC_max = (maxNonLand - landCost×F) / ((1+k)(1+F))
-              const finFactor  = (ltcPct / 100) * (rb.drawSchedule ? 0.55 : 1.0) * (Number(rb.ratePct) || 0) / 100 * buildMo / 12;
-              const contFactor = (Number(rb.contingencyPct) || 0) / 100;
+              // HC_max = (maxNL − L·F) / [(1+k)(1+F)]  where maxNL = NSP/(1+roi) − L
+              // (finFactor and contFactor already defined above)
               const calcMaxHardCost = (roi) => {
                 if (arvMissing || netSalesProceeds <= 0) return 0;
                 const maxNL = netSalesProceeds / (1 + roi) - landCost;
