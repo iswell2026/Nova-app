@@ -3136,76 +3136,90 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                           )}
                         </div>
 
-                        {/* How to Make It Work — action plan for NO-GO / REVIEW */}
+                        {/* ── How to Make It Work — compact action card ── */}
                         {(verdict === "NO-GO" || verdict === "WATCH") && (() => {
-                          const target = verdict === "NO-GO" ? 20 : 25;
-                          const maxLandTarget  = verdict === "NO-GO" ? maxLand20  : maxLand25;
-                          const maxCostTarget  = verdict === "NO-GO" ? maxCostSqft20 : maxCostSqft25;
-                          const reqSaleTarget  = verdict === "NO-GO" ? reqSale20  : reqSale25;
-                          const landOk  = landCost <= maxLandTarget;
-                          const costOk  = currentCostSqft <= maxCostTarget;
-                          const saleOk  = arv >= reqSaleTarget;
+                          const isNogo     = verdict === "NO-GO";
+                          const target     = isNogo ? 20 : 25;
+                          const tColor     = isNogo ? "var(--red)" : "var(--gold)";
+                          const tBg        = isNogo ? "rgba(248,113,113,0.07)" : "rgba(226,184,75,0.07)";
+                          const tBorder    = isNogo ? "rgba(248,113,113,0.25)" : "rgba(226,184,75,0.25)";
+                          const maxLandT   = isNogo ? maxLand20  : maxLand25;
+                          const maxCostT   = isNogo ? maxCostSqft20 : maxCostSqft25;
+                          const reqSaleT   = isNogo ? reqSale20  : reqSale25;
+                          const landGap    = Math.max(0, landCost - maxLandT);
+                          const costGap    = Math.max(0, currentCostSqft - maxCostT);
+                          const saleGap    = Math.max(0, reqSaleT - arv);
+                          const landOk     = landGap === 0;
+                          const costOk     = costGap === 0 || maxCostT <= 0;
+                          const saleOk     = saleGap === 0;
+                          // combo: cut each gap by 50%
+                          const comboLand  = Math.round(landGap * 0.5 / 5000) * 5000;
+                          const comboCost  = Math.round(costGap * 0.5);
+                          const showCombo  = (!landOk || !costOk) && (!landOk || !saleOk || !costOk);
+
+                          const Row = ({ ok, label, value, gap, gapLabel }) => (
+                            <div style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 0", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+                              <span style={{ fontSize:11, width:16, textAlign:"center", flexShrink:0 }}>{ok ? "✅" : "❌"}</span>
+                              <span style={{ fontSize:11, color:"var(--dim)", minWidth:100 }}>{label}</span>
+                              <span style={{ fontFamily:"DM Mono", fontSize:14, fontWeight:700, color: ok ? "var(--green)" : tColor, flex:1 }}>{value}</span>
+                              {!ok && gap && (
+                                <span style={{ fontSize:10, color:"var(--dim)", whiteSpace:"nowrap", background:"rgba(255,255,255,0.04)", borderRadius:6, padding:"2px 7px" }}>
+                                  {gapLabel}
+                                </span>
+                              )}
+                            </div>
+                          );
+
                           return (
-                            <div style={{
-                              background: "rgba(248,113,113,0.06)",
-                              border: "1px solid rgba(248,113,113,0.22)",
-                              borderRadius: 10, padding: "14px 16px", marginBottom: 18,
-                            }}>
-                              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--red)", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                                🔧 {ko ? `${target}% ROI 달성 조건` : `How to Make It Work (${target}% ROI)`}
+                            <div style={{ background: tBg, border:`1px solid ${tBorder}`, borderRadius:12, padding:"14px 16px", marginBottom:18 }}>
+                              {/* Header */}
+                              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
+                                <span style={{ fontSize:11, fontWeight:800, color: tColor, letterSpacing:"0.03em" }}>
+                                  🔧 {ko ? `딜을 살리려면 (${target}% ROI 기준)` : `How to Make It Work  ·  ${target}% ROI target`}
+                                </span>
+                                <span style={{ fontFamily:"DM Mono", fontSize:10, color:"var(--dim)" }}>
+                                  {ko ? "현재" : "now"} {roiOnTotal != null ? roiOnTotal.toFixed(1) : "—"}% → {target}%
+                                </span>
                               </div>
-                              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-                                {/* Land */}
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>{landOk ? "✅" : "❌"}</span>
-                                  <div style={{ flex: 1 }}>
-                                    <span style={{ fontSize: 11, color: "var(--dim)" }}>{ko ? "토지 매입가" : "Land basis"}</span>
-                                    <span style={{ fontFamily: "DM Mono", fontSize: 13, fontWeight: 700, color: landOk ? "var(--green)" : "var(--red)", marginLeft: 8 }}>
-                                      ≤ {fmt(maxLandTarget)}
-                                    </span>
-                                  </div>
-                                  {!landOk && (
-                                    <span style={{ fontSize: 10, color: "var(--dim)", whiteSpace: "nowrap" }}>
-                                      {ko ? `현재 ${fmt(gapTo20 > 0 && target === 20 ? gapTo20 : gapTo25)} 초과` : `${fmt(verdict === "NO-GO" ? Math.abs(gapTo20) : gapTo25)} over`}
-                                    </span>
-                                  )}
-                                </div>
-                                {/* Construction cost */}
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>{costOk ? "✅" : "❌"}</span>
-                                  <div style={{ flex: 1 }}>
-                                    <span style={{ fontSize: 11, color: "var(--dim)" }}>{ko ? "공사비" : "Construction cost"}</span>
-                                    <span style={{ fontFamily: "DM Mono", fontSize: 13, fontWeight: 700, color: costOk ? "var(--green)" : "var(--red)", marginLeft: 8 }}>
-                                      ≤ ${maxCostTarget > 0 ? maxCostTarget.toLocaleString() : "—"}/sqft
-                                    </span>
-                                  </div>
-                                  {!costOk && maxCostTarget > 0 && (
-                                    <span style={{ fontSize: 10, color: "var(--dim)", whiteSpace: "nowrap" }}>
-                                      {ko ? `현재 $${(verdict === "NO-GO" ? gapCostSqft20 : gapCostSqft25)}/sqft 초과` : `$${verdict === "NO-GO" ? gapCostSqft20 : gapCostSqft25}/sqft over`}
-                                    </span>
-                                  )}
-                                </div>
-                                {/* Resale */}
-                                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                  <span style={{ fontSize: 14, width: 18, textAlign: "center" }}>{saleOk ? "✅" : "❌"}</span>
-                                  <div style={{ flex: 1 }}>
-                                    <span style={{ fontSize: 11, color: "var(--dim)" }}>{ko ? "매도가" : "Resale price"}</span>
-                                    <span style={{ fontFamily: "DM Mono", fontSize: 13, fontWeight: 700, color: saleOk ? "var(--green)" : "var(--gold)", marginLeft: 8 }}>
-                                      ≥ {fmt(reqSaleTarget)}
-                                    </span>
-                                  </div>
-                                  {!saleOk && (
-                                    <span style={{ fontSize: 10, color: "var(--dim)", whiteSpace: "nowrap" }}>
-                                      {ko ? `현재 ARV: ${fmt(arv)}` : `current ARV: ${fmt(arv)}`}
-                                    </span>
-                                  )}
-                                </div>
-                                {/* Combination note */}
-                                {!landOk && !costOk && (
-                                  <div style={{ marginTop: 4, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.07)", fontSize: 10, color: "var(--dim)", lineHeight: 1.6 }}>
-                                    {ko
-                                      ? `💡 토지가와 공사비를 함께 줄이면 각각의 요구 변화폭이 줄어듭니다. 예: 토지 ${fmt(Math.round(Math.abs(gapTo20 > 0 ? gapTo20 : gapTo25) * 0.5))} 인하 + 공사비 $${Math.round((verdict === "NO-GO" ? gapCostSqft20 : gapCostSqft25) * 0.5)}/sqft 인하로 ${target}% 달성 가능.`
-                                      : `💡 Reducing both land and cost together cuts the required change on each variable. Example: land down ${fmt(Math.round(Math.abs(verdict === "NO-GO" ? gapTo20 : gapTo25) * 0.5))} + cost down $${Math.round((verdict === "NO-GO" ? gapCostSqft20 : gapCostSqft25) * 0.5)}/sqft can reach ${target}% ROI.`}
+                              <div style={{ fontSize:9, color:"var(--dim)", marginBottom:12, letterSpacing:"0.05em" }}>
+                                {ko ? "아래 중 하나만 충족해도 딜이 살아남." : "Meet any one condition — or mix — to rescue the deal."}
+                              </div>
+
+                              {/* Action rows */}
+                              <div>
+                                <Row
+                                  ok={landOk}
+                                  label={ko ? "토지 매입가" : "Land basis"}
+                                  value={`≤ ${fmt(maxLandT)}`}
+                                  gap={true}
+                                  gapLabel={ko ? `${fmt(landGap)} 인하 필요` : `−${fmt(landGap)}`}
+                                />
+                                {maxCostT > 0 && (
+                                  <Row
+                                    ok={costOk}
+                                    label={ko ? "공사비" : "Construction"}
+                                    value={`≤ $${maxCostT.toLocaleString()}/sqft`}
+                                    gap={true}
+                                    gapLabel={ko ? `$${costGap}/sqft 인하` : `−$${costGap}/sqft`}
+                                  />
+                                )}
+                                <Row
+                                  ok={saleOk}
+                                  label={ko ? "매도가 (ARV)" : "Resale (ARV)"}
+                                  value={`≥ ${fmt(reqSaleT)}`}
+                                  gap={true}
+                                  gapLabel={ko ? `${fmt(saleGap)} 상승 필요` : `+${fmt(saleGap)} needed`}
+                                />
+                                {/* Combo row */}
+                                {showCombo && (comboLand > 0 || comboCost > 0) && (
+                                  <div style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"10px 0 0" }}>
+                                    <span style={{ fontSize:11, width:16, textAlign:"center", flexShrink:0 }}>💡</span>
+                                    <div style={{ fontSize:11, color:"var(--dim)", lineHeight:1.6 }}>
+                                      {ko
+                                        ? <>또는 함께 개선:{comboLand > 0 && <><span style={{fontFamily:"DM Mono",color:"var(--text)",fontWeight:700}}> 토지 {fmt(comboLand)} 인하</span></>}{comboLand > 0 && comboCost > 0 && " + "}{comboCost > 0 && <><span style={{fontFamily:"DM Mono",color:"var(--text)",fontWeight:700}}>공사비 ${comboCost}/sqft 인하</span></>} → {target}% 달성</>
+                                        : <>Or split the gap:{comboLand > 0 && <><span style={{fontFamily:"DM Mono",color:"var(--text)",fontWeight:700}}> land −{fmt(comboLand)}</span></>}{comboLand > 0 && comboCost > 0 && " + "}{comboCost > 0 && <><span style={{fontFamily:"DM Mono",color:"var(--text)",fontWeight:700}}>cost −${comboCost}/sqft</span></>} → hits {target}%</>
+                                      }
+                                    </div>
                                   </div>
                                 )}
                               </div>
