@@ -242,6 +242,10 @@ export default function App() {
   const [aiLang, setAiLang] = useState('ui'); // 'ui' | 'ko' | 'en' | 'bilingual'
   const [moreState, setMoreState] = useState('closed'); // 'closed' | 'peek' | 'half' | 'full'
 
+  // Swipe navigation (core 4 tabs only)
+  const CORE_TABS = ['deal', 'flip', 'hold', 'rebuild'];
+  const swipeRef = useRef({});
+
   // Deal inputs
   const [deal, setDeal] = useState({
     address: "", purchasePrice: 650000, sqft: 2200,
@@ -974,6 +978,23 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
     return                                                              { icon: "❌", label: "FAIL",  color: "var(--red)"   };
   };
 
+  const handleSwipeStart = (e) => {
+    if (!CORE_TABS.includes(tab)) return;
+    swipeRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleSwipeEnd = (e) => {
+    if (!CORE_TABS.includes(tab) || swipeRef.current.x === undefined) return;
+    const dx = e.changedTouches[0].clientX - swipeRef.current.x;
+    const dy = e.changedTouches[0].clientY - swipeRef.current.y;
+    swipeRef.current = {};
+    // only fire if clearly horizontal (|dx|>60 and |dx|>|dy|)
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy)) return;
+    const idx = CORE_TABS.indexOf(tab);
+    if (dx < 0 && idx < CORE_TABS.length - 1) setTab(CORE_TABS[idx + 1]); // swipe left → next
+    if (dx > 0 && idx > 0) setTab(CORE_TABS[idx - 1]);                    // swipe right → prev
+  };
+
   return (
     <>
       <style>{S}</style>
@@ -1077,7 +1098,7 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
         </div>
 
         {/* MAIN */}
-        <div className="main">
+        <div className="main" onTouchStart={handleSwipeStart} onTouchEnd={handleSwipeEnd}>
 
           {/* TOPBAR */}
           <div className="topbar">
@@ -1102,7 +1123,24 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
             <div className="mobile-tab-active-label">
               <span>{TABS.find(t => t.id === tab)?.emoji}</span>
               <span>{t$?.tabLabel(TABS.find(t => t.id === tab))}</span>
-              {D.address && <span style={{fontSize:10,color:"var(--dim)",fontWeight:400,marginLeft:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:140}}>{D.address}</span>}
+              {D.address && <span style={{fontSize:10,color:"var(--dim)",fontWeight:400,marginLeft:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:100}}>{D.address}</span>}
+              {/* Swipe position dots — core 4 tabs only */}
+              {CORE_TABS.includes(tab) && (
+                <div style={{display:"flex",gap:4,alignItems:"center",marginLeft:"auto"}}>
+                  {CORE_TABS.map(id => (
+                    <span key={id} onClick={() => setTab(id)} style={{
+                      display:"inline-block",
+                      width: tab === id ? 16 : 6,
+                      height: 6,
+                      borderRadius: tab === id ? 3 : "50%",
+                      background: tab === id ? "var(--gold)" : "rgba(255,255,255,0.2)",
+                      transition:"all 0.2s",
+                      cursor:"pointer",
+                      flexShrink: 0
+                    }} />
+                  ))}
+                </div>
+              )}
             </div>
             <div className="topbar-stats">
               {tab === "rebuild" ? (() => {
