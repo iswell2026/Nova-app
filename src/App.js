@@ -175,10 +175,10 @@ select.input{cursor:pointer;}
 .mobile-more-btn{display:none;}
 .mobile-more-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:198;transition:opacity 0.25s;}
 .mobile-more-overlay.open{display:block;}
-.mobile-more-overlay.peek{display:block;opacity:0;pointer-events:none;}
+.mobile-more-overlay.peek{display:block;opacity:0;pointer-events:auto;}
 /* Bottom sheet: 3-state — peek / half / full */
-.mobile-more-sheet{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;height:88vh;background:var(--bg2);border:1px solid var(--border);border-radius:16px 16px 0 0;z-index:199;overflow:hidden;transform:translateY(100%);transition:transform 0.28s cubic-bezier(.4,0,.2,1);}
-.mobile-more-sheet.state-peek{transform:translateY(calc(88vh - 58px));}
+.mobile-more-sheet{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom,0px));left:0;right:0;height:88vh;background:var(--bg2);border:1px solid var(--border);border-radius:16px 16px 0 0;z-index:199;overflow:hidden;transform:translateY(100%);transition:transform 0.28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+.mobile-more-sheet.state-peek{transform:translateY(calc(88vh - 62px));}
 .mobile-more-sheet.state-half{transform:translateY(44vh);}
 .mobile-more-sheet.state-full{transform:translateY(0);}
 .mobile-tab-active-label{display:none;}
@@ -1063,34 +1063,76 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
           className={`mobile-more-overlay${moreState === 'half' || moreState === 'full' ? ' open' : moreState === 'peek' ? ' peek' : ''}`}
           onClick={() => setMoreState('closed')}
         />
-        <div className={`mobile-more-sheet${moreState !== 'closed' ? ` state-${moreState}` : ''}`}>
-          {/* ── Handle + title area: tap to advance state, drag to adjust ── */}
+        <div
+          className={`mobile-more-sheet${moreState !== 'closed' ? ` state-${moreState}` : ''}`}
+          onTouchStart={e => { e.currentTarget._sheetSy = e.touches[0].clientY; }}
+          onTouchEnd={e => {
+            const sy = e.currentTarget._sheetSy;
+            e.currentTarget._sheetSy = undefined;
+            if (sy === undefined) return;
+            const dy = e.changedTouches[0].clientY - sy;
+            if (dy > 80) setMoreState('closed'); // strong downward swipe on entire sheet
+          }}
+        >
+          {/* ── Handle bar + close button ── */}
           <div
-            style={{textAlign:'center',paddingTop:8,paddingBottom:10,cursor:'pointer'}}
-            onClick={() => setMoreState(s => s === 'peek' ? 'half' : s === 'half' ? 'full' : 'closed')}
-            onTouchStart={e => { e.currentTarget._sy = e.touches[0].clientY; }}
+            style={{
+              position:'relative', display:'flex', alignItems:'center',
+              padding:'8px 16px 10px', flexShrink:0,
+              borderBottom:'1px solid var(--border)', cursor:'pointer',
+              userSelect:'none',
+            }}
+            onClick={() => setMoreState(s => s === 'peek' ? 'half' : 'closed')}
+            onTouchStart={e => { e.stopPropagation(); e.currentTarget._hy = e.touches[0].clientY; }}
             onTouchEnd={e => {
-              const startY = e.currentTarget._sy ?? e.changedTouches[0].clientY;
+              e.stopPropagation();
+              const startY = e.currentTarget._hy ?? e.changedTouches[0].clientY;
               const dy = e.changedTouches[0].clientY - startY;
-              if (dy < -40) setMoreState(s => s === 'peek' ? 'half' : 'full');
-              else if (dy > 40) setMoreState(s => s === 'full' ? 'half' : s === 'half' ? 'peek' : 'closed');
+              if (Math.abs(dy) < 8) return; // treat as tap, let onClick fire
+              if (dy < -30) setMoreState(s => s === 'peek' ? 'half' : 'full');
+              else if (dy > 30) setMoreState('closed');
             }}
           >
-            <div style={{width:36,height:4,borderRadius:2,background:'var(--border2)',margin:'0 auto 6px'}} />
-            <div style={{fontSize:10,fontWeight:700,color:'var(--dim)',letterSpacing:'0.12em',textTransform:'uppercase'}}>
-              {lang==='ko' ? '더보기' : 'More'}
-              <span style={{marginLeft:6,fontSize:9,opacity:0.5}}>{moreState==='peek'?'↑ 펼치기':moreState==='half'?'↑ 더 보기':''}</span>
+            {/* Gold drag handle pill */}
+            <div style={{
+              position:'absolute', top:9, left:'50%', transform:'translateX(-50%)',
+              width:44, height:5, borderRadius:3,
+              background:'var(--gold)', opacity:0.5, pointerEvents:'none',
+            }} />
+            {/* Title */}
+            <div style={{
+              flex:1, textAlign:'center', paddingTop:16,
+              fontSize:11, fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase',
+              color: moreState === 'peek' ? 'var(--gold)' : 'var(--mid)',
+            }}>
+              {moreState === 'peek'
+                ? (lang==='ko' ? '↑  도구 메뉴' : '↑  Tools')
+                : (lang==='ko' ? '도구 메뉴' : 'Tools')}
             </div>
+            {/* ✕ close button */}
+            <button
+              onClick={e => { e.stopPropagation(); setMoreState('closed'); }}
+              style={{
+                position:'absolute', right:14, top:'50%', transform:'translateY(-10%)',
+                width:30, height:30, borderRadius:'50%',
+                background:'var(--bg3)', border:'1px solid var(--border)',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                color:'var(--mid)', fontSize:14, fontWeight:600,
+                cursor:'pointer', lineHeight:1, flexShrink:0,
+              }}
+              aria-label="Close"
+            >✕</button>
           </div>
+
           {/* ── Grid of extra tabs ── */}
-          <div style={{overflowY:'auto',flex:1,padding:'0 12px 20px'}}>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:4}}>
+          <div style={{overflowY:'auto', flex:1, padding:'8px 12px 24px'}}>
+            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6}}>
               {TABS.filter(t => !['deal','flip','hold','rebuild'].includes(t.id)).map(t => (
                 <button key={t.id}
                   onClick={() => { setTab(t.id); setMoreState('closed'); }}
                   style={{
-                    display:'flex',flexDirection:'column',alignItems:'center',gap:4,
-                    padding:'12px 8px',borderRadius:12,
+                    display:'flex', flexDirection:'column', alignItems:'center', gap:4,
+                    padding:'14px 8px', borderRadius:12,
                     border: tab===t.id ? '1px solid var(--gold)' : '1px solid var(--border2)',
                     background: tab===t.id ? 'rgba(226,184,75,0.1)' : 'var(--bg3)',
                     color: tab===t.id ? 'var(--gold)' : 'var(--text)',
