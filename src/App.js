@@ -241,7 +241,6 @@ export default function App() {
   const [lang, setLang] = useState("ko");
   const [aiLang, setAiLang] = useState('ui'); // 'ui' | 'ko' | 'en' | 'bilingual'
   const [moreState, setMoreState] = useState('closed'); // 'closed' | 'peek' | 'half' | 'full'
-  const moreOpen = moreState !== 'closed';
 
   // Deal inputs
   const [deal, setDeal] = useState({
@@ -2597,11 +2596,6 @@ Email: iswell.properties@gmail.com%0D%0AWe are requesting a construction estimat
                             const consPsf = ns > 0 ? Math.round(cons / ns) : 0;
                             const basePsf = ns > 0 ? Math.round(base / ns) : 0;
                             const aggrPsf = ns > 0 ? Math.round(aggr / ns) : 0;
-                            const spreadLabel = nbCount >= 3
-                              ? (ko ? `comp ${nbCount}개 기반 ±${Math.round(spreadPct*100)}%` : `${nbCount} comps ±${Math.round(spreadPct*100)}%`)
-                              : nbCount === 2
-                              ? (ko ? `comp 2개 (제한적 ±${Math.round(spreadPct*100)}%)` : `2 comps (limited ±${Math.round(spreadPct*100)}%)`)
-                              : (ko ? `comp 1개 (불확실 ±${Math.round(spreadPct*100)}%)` : `1 comp (uncertain ±${Math.round(spreadPct*100)}%)`);
                             const tiers = [
                               { key: 'cons', label: ko ? "보수적" : "Conservative",
                                 val: cons, color: "var(--blue)", psf: consPsf,
