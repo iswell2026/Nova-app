@@ -173,7 +173,7 @@ select.input{cursor:pointer;}
 /* MOBILE RESPONSIVE */
 .lang-sidebar-btn{display:none;}
 .mobile-more-btn{display:none;}
-.mobile-more-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:198;transition:opacity 0.25s;}
+.mobile-more-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom,0px));background:rgba(0,0,0,0.55);z-index:198;transition:opacity 0.25s;}
 .mobile-more-overlay.open{display:block;}
 .mobile-more-overlay.peek{display:block;opacity:0;pointer-events:auto;}
 /* Bottom sheet: 3-state — peek / half / full */
@@ -1063,17 +1063,7 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
           className={`mobile-more-overlay${moreState === 'half' || moreState === 'full' ? ' open' : moreState === 'peek' ? ' peek' : ''}`}
           onClick={() => setMoreState('closed')}
         />
-        <div
-          className={`mobile-more-sheet${moreState !== 'closed' ? ` state-${moreState}` : ''}`}
-          onTouchStart={e => { e.currentTarget._sheetSy = e.touches[0].clientY; }}
-          onTouchEnd={e => {
-            const sy = e.currentTarget._sheetSy;
-            e.currentTarget._sheetSy = undefined;
-            if (sy === undefined) return;
-            const dy = e.changedTouches[0].clientY - sy;
-            if (dy > 80) setMoreState('closed'); // strong downward swipe on entire sheet
-          }}
-        >
+        <div className={`mobile-more-sheet${moreState !== 'closed' ? ` state-${moreState}` : ''}`}>
           {/* ── Header: drag zone + title/close row ── */}
           <div style={{flexShrink:0, borderBottom:'1px solid var(--border)', userSelect:'none'}}>
             {/* ① Drag-only zone — pill bar, no child buttons, safe to use touch handlers */}
@@ -1081,6 +1071,7 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
               style={{height:22, display:'flex', alignItems:'center', justifyContent:'center', cursor:'grab'}}
               onTouchStart={e => { e.currentTarget._hy = e.touches[0].clientY; }}
               onTouchEnd={e => {
+                e.preventDefault();
                 const dy = e.changedTouches[0].clientY - (e.currentTarget._hy ?? e.changedTouches[0].clientY);
                 e.currentTarget._hy = undefined;
                 if (Math.abs(dy) < 8) { setMoreState(s => s === 'peek' ? 'half' : 'closed'); return; }
@@ -1101,12 +1092,13 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
               </div>
               <button
                 onClick={() => setMoreState('closed')}
+                onTouchEnd={e => { e.preventDefault(); e.stopPropagation(); setMoreState('closed'); }}
                 style={{
-                  width:30, height:30, borderRadius:'50%', flexShrink:0,
-                  background:'var(--bg3)', border:'1px solid var(--border)',
+                  width:36, height:36, borderRadius:'50%', flexShrink:0,
+                  background:'var(--bg4)', border:'1px solid rgba(255,255,255,0.15)',
                   display:'flex', alignItems:'center', justifyContent:'center',
-                  color:'var(--mid)', fontSize:15, fontWeight:500,
-                  cursor:'pointer', lineHeight:1,
+                  color:'var(--text)', fontSize:16, fontWeight:400,
+                  cursor:'pointer', lineHeight:1, WebkitTapHighlightColor:'transparent',
                 }}
                 aria-label="Close"
               >✕</button>
