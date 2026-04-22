@@ -1033,7 +1033,7 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
             <button
               key={t.id}
               className={`nav-btn ${tab === t.id ? "active" : ""}${['deal','flip','hold','rebuild'].includes(t.id) ? '' : ' nav-btn-more-tab'}`}
-              onClick={() => setTab(t.id)}
+              onClick={() => { setTab(t.id); setMoreState('closed'); }}
             >
               <span className="nav-emoji">{t.emoji}</span>
               {t$?.tabLabel(t)}
@@ -1074,54 +1074,43 @@ For TIER 1-2 markets: use premium $/sqft — do NOT artificially cap ARVs.`;
             if (dy > 80) setMoreState('closed'); // strong downward swipe on entire sheet
           }}
         >
-          {/* ── Handle bar + close button ── */}
-          <div
-            style={{
-              position:'relative', display:'flex', alignItems:'center',
-              padding:'8px 16px 10px', flexShrink:0,
-              borderBottom:'1px solid var(--border)', cursor:'pointer',
-              userSelect:'none',
-            }}
-            onClick={() => setMoreState(s => s === 'peek' ? 'half' : 'closed')}
-            onTouchStart={e => { e.stopPropagation(); e.currentTarget._hy = e.touches[0].clientY; }}
-            onTouchEnd={e => {
-              e.stopPropagation();
-              const startY = e.currentTarget._hy ?? e.changedTouches[0].clientY;
-              const dy = e.changedTouches[0].clientY - startY;
-              if (Math.abs(dy) < 8) return; // treat as tap, let onClick fire
-              if (dy < -30) setMoreState(s => s === 'peek' ? 'half' : 'full');
-              else if (dy > 30) setMoreState('closed');
-            }}
-          >
-            {/* Gold drag handle pill */}
-            <div style={{
-              position:'absolute', top:9, left:'50%', transform:'translateX(-50%)',
-              width:44, height:5, borderRadius:3,
-              background:'var(--gold)', opacity:0.5, pointerEvents:'none',
-            }} />
-            {/* Title */}
-            <div style={{
-              flex:1, textAlign:'center', paddingTop:16,
-              fontSize:11, fontWeight:700, letterSpacing:'0.1em', textTransform:'uppercase',
-              color: moreState === 'peek' ? 'var(--gold)' : 'var(--mid)',
-            }}>
-              {moreState === 'peek'
-                ? (lang==='ko' ? '↑  도구 메뉴' : '↑  Tools')
-                : (lang==='ko' ? '도구 메뉴' : 'Tools')}
-            </div>
-            {/* ✕ close button */}
-            <button
-              onClick={e => { e.stopPropagation(); setMoreState('closed'); }}
-              style={{
-                position:'absolute', right:14, top:'50%', transform:'translateY(-10%)',
-                width:30, height:30, borderRadius:'50%',
-                background:'var(--bg3)', border:'1px solid var(--border)',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                color:'var(--mid)', fontSize:14, fontWeight:600,
-                cursor:'pointer', lineHeight:1, flexShrink:0,
+          {/* ── Header: drag zone + title/close row ── */}
+          <div style={{flexShrink:0, borderBottom:'1px solid var(--border)', userSelect:'none'}}>
+            {/* ① Drag-only zone — pill bar, no child buttons, safe to use touch handlers */}
+            <div
+              style={{height:22, display:'flex', alignItems:'center', justifyContent:'center', cursor:'grab'}}
+              onTouchStart={e => { e.currentTarget._hy = e.touches[0].clientY; }}
+              onTouchEnd={e => {
+                const dy = e.changedTouches[0].clientY - (e.currentTarget._hy ?? e.changedTouches[0].clientY);
+                e.currentTarget._hy = undefined;
+                if (Math.abs(dy) < 8) { setMoreState(s => s === 'peek' ? 'half' : 'closed'); return; }
+                if (dy < -30) setMoreState(s => s === 'peek' ? 'half' : 'full');
+                else if (dy > 30) setMoreState('closed');
               }}
-              aria-label="Close"
-            >✕</button>
+            >
+              <div style={{width:44, height:5, borderRadius:3, background:'var(--gold)', opacity:0.5}} />
+            </div>
+            {/* ② Title + X button row — no touch handlers here, click fires cleanly */}
+            <div style={{display:'flex', alignItems:'center', padding:'0 14px 10px', gap:8}}>
+              <div style={{flex:1, textAlign:'center', fontSize:11, fontWeight:700,
+                letterSpacing:'0.1em', textTransform:'uppercase',
+                color: moreState === 'peek' ? 'var(--gold)' : 'var(--mid)'}}>
+                {moreState === 'peek'
+                  ? (lang==='ko' ? '↑  도구 메뉴' : '↑  Tools')
+                  : (lang==='ko' ? '도구 메뉴' : 'Tools')}
+              </div>
+              <button
+                onClick={() => setMoreState('closed')}
+                style={{
+                  width:30, height:30, borderRadius:'50%', flexShrink:0,
+                  background:'var(--bg3)', border:'1px solid var(--border)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  color:'var(--mid)', fontSize:15, fontWeight:500,
+                  cursor:'pointer', lineHeight:1,
+                }}
+                aria-label="Close"
+              >✕</button>
+            </div>
           </div>
 
           {/* ── Grid of extra tabs ── */}
